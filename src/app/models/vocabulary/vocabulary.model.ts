@@ -1,0 +1,12 @@
+export interface Vocabulary {
+  id: string;
+  topicId: string;
+  word: string;
+  phonetic: string;
+  meaning: string;
+  example: string;
+  audioUrl: string;
+  imageUrl: string;
+  createdAt: string;
+  exampleMeaning: string;
+}

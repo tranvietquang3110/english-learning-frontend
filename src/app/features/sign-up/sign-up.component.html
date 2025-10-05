@@ -1,0 +1,196 @@
+<div
+  class="min-h-screen bg-gradient-to-br from-navy-header via-slate-900 to-slate-800 flex items-center justify-center p-4 relative"
+>
+  <div
+    class="absolute inset-0 bg-gradient-to-br from-navy-header/20 via-transparent to-slate-800/20"
+  ></div>
+  <div
+    class="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(59,130,246,0.1),transparent_50%)]"
+  ></div>
+
+  <div class="w-full max-w-md relative z-10">
+    <!-- Logo -->
+    <div class="text-center mb-8">
+      <div class="inline-flex items-center justify-center mb-4">
+        <img src="/assets/images/logo1.png" alt="" class="w-16 h-16" />
+      </div>
+      <h1 class="text-3xl font-bold text-white mb-2">English Learning</h1>
+      <p class="text-slate-300">Tạo tài khoản để bắt đầu học tập</p>
+    </div>
+
+    <!-- Form -->
+    <div
+      class="py-6 bg-white/5 backdrop-blur-xl border border-white/10 shadow-2xl rounded-lg"
+    >
+      <div class="px-6 pb-2 text-center space-y-2">
+        <h2 class="text-2xl font-semibold text-white">Đăng ký</h2>
+        <p class="text-slate-300">Tạo tài khoản mới để truy cập khóa học</p>
+      </div>
+
+      <form
+        [formGroup]="registerForm"
+        (ngSubmit)="handleSubmit()"
+        class="p-6 space-y-5"
+      >
+        <!-- Fullname -->
+        <div class="space-y-2">
+          <label
+            for="fullname"
+            class="text-sm font-medium text-slate-200 flex items-center gap-2"
+          >
+            <fa-icon [icon]="faUser"></fa-icon> Họ và tên
+          </label>
+          <input
+            id="fullname"
+            type="text"
+            formControlName="fullname"
+            placeholder="Nhập họ và tên đầy đủ"
+            class="w-full bg-white/5 border rounded px-3 h-12 border-white/20 text-white placeholder:text-slate-400 focus:border-primary/50 focus:ring-primary/20"
+          />
+          <p
+            *ngIf="fullname?.touched && fullname?.invalid"
+            class="text-red-400 text-xs"
+          >
+            Họ tên phải có ít nhất 3 ký tự
+          </p>
+        </div>
+
+        <!-- Username -->
+        <div class="space-y-2">
+          <label
+            for="username"
+            class="text-sm font-medium text-slate-200 flex items-center gap-2"
+          >
+            <fa-icon [icon]="faUserCheck"></fa-icon> Tên đăng nhập
+          </label>
+          <input
+            id="username"
+            type="text"
+            formControlName="username"
+            placeholder="Chọn tên đăng nhập"
+            class="w-full bg-white/5 border rounded px-3 h-12 border-white/20 text-white placeholder:text-slate-400 focus:border-primary/50 focus:ring-primary/20"
+          />
+          <p
+            *ngIf="username?.touched && username?.invalid"
+            class="text-red-400 text-xs"
+          >
+            Tên đăng nhập phải có ít nhất 3 ký tự
+          </p>
+        </div>
+
+        <!-- Email -->
+        <div class="space-y-2">
+          <label
+            for="email"
+            class="text-sm font-medium text-slate-200 flex items-center gap-2"
+          >
+            <fa-icon [icon]="faEnvelope"></fa-icon> Email
+          </label>
+          <input
+            id="email"
+            type="email"
+            formControlName="email"
+            placeholder="Nhập địa chỉ email"
+            class="w-full bg-white/5 border rounded px-3 h-12 border-white/20 text-white placeholder:text-slate-400 focus:border-primary/50 focus:ring-primary/20"
+          />
+          <p
+            *ngIf="email?.touched && email?.invalid"
+            class="text-red-400 text-xs"
+          >
+            Vui lòng nhập email hợp lệ
+          </p>
+        </div>
+
+        <!-- Password -->
+        <div class="space-y-2">
+          <label for="password" class="text-sm font-medium text-slate-200">
+            Mật khẩu
+          </label>
+          <div class="relative">
+            <input
+              id="password"
+              [type]="showPassword ? 'text' : 'password'"
+              formControlName="password"
+              placeholder="Tạo mật khẩu mạnh"
+              class="w-full bg-white/5 border rounded px-3 h-12 pr-12 border-white/20 text-white placeholder:text-slate-400 focus:border-primary/50 focus:ring-primary/20"
+            />
+            <button
+              type="button"
+              (click)="togglePassword()"
+              class="absolute right-0 top-0 h-12 px-3 text-slate-400 hover:text-white"
+            >
+              <fa-icon [icon]="showPassword ? faEyeSlash : faEye"></fa-icon>
+            </button>
+          </div>
+          <p
+            *ngIf="password?.touched && password?.invalid"
+            class="text-red-400 text-xs"
+          >
+            Mật khẩu phải có ít nhất 6 ký tự
+          </p>
+        </div>
+
+        <!-- Terms -->
+        <div class="flex items-start gap-2 text-sm">
+          <input
+            id="terms"
+            type="checkbox"
+            formControlName="terms"
+            class="rounded border-white/20 bg-white/5 text-primary focus:ring-primary/20 mt-0.5"
+          />
+          <label for="terms" class="text-slate-300 leading-relaxed">
+            Tôi đồng ý với
+            <a routerLink="/terms" class="text-primary hover:text-primary/80">
+              Điều khoản sử dụng
+            </a>
+            và
+            <a routerLink="/privacy" class="text-primary hover:text-primary/80">
+              Chính sách bảo mật
+            </a>
+          </label>
+        </div>
+        <p
+          *ngIf="terms?.touched && terms?.invalid"
+          class="text-red-400 text-xs"
+        >
+          Bạn phải đồng ý với điều khoản
+        </p>
+
+        <!-- Submit -->
+        <button
+          type="submit"
+          [disabled]="isLoading"
+          class="w-full h-12 bg-primary hover:bg-primary/90 text-white font-medium rounded transition-all duration-200 flex items-center justify-center gap-2"
+        >
+          <ng-container *ngIf="isLoading; else notLoading">
+            <div
+              class="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"
+            ></div>
+            <span>Đang tạo tài khoản...</span>
+          </ng-container>
+          <ng-template #notLoading>
+            <span>Tạo tài khoản</span>
+            <fa-icon [icon]="faArrowRight"></fa-icon>
+          </ng-template>
+        </button>
+      </form>
+
+      <!-- Login link -->
+      <div class="text-center mt-6">
+        <p class="text-slate-300 text-sm">
+          Đã có tài khoản?
+          <a
+            routerLink="/login"
+            class="text-primary hover:text-primary/80 font-medium"
+            >Đăng nhập ngay</a
+          >
+        </p>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="text-center mt-8 text-slate-400 text-sm">
+      <p>© 2025 English Learning Platform. All rights reserved.</p>
+    </div>
+  </div>
+</div>

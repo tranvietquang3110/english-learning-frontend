@@ -1,0 +1,115 @@
+<div class="p-6 max-w-xl mx-auto bg-white shadow rounded-lg space-y-4">
+  <h2 class="text-xl font-semibold">
+    {{ vocab ? "Edit Vocabulary" : "Add Vocabulary" }}
+  </h2>
+
+  <form [formGroup]="form" (ngSubmit)="onSubmit()" class="space-y-4">
+    <!-- Word -->
+    <div>
+      <label class="block text-sm font-medium mb-1">Word *</label>
+      <input
+        type="text"
+        formControlName="word"
+        class="w-full border rounded px-3 py-2"
+      />
+      <p
+        *ngIf="form.get('word')?.invalid && form.get('word')?.touched"
+        class="text-red-500 text-sm"
+      >
+        Word is required
+      </p>
+    </div>
+
+    <!-- Phonetic -->
+    <div>
+      <label class="block text-sm font-medium mb-1">Phonetic *</label>
+      <input
+        type="text"
+        formControlName="phonetic"
+        class="w-full border rounded px-3 py-2"
+      />
+      <p
+        *ngIf="form.get('phonetic')?.invalid && form.get('phonetic')?.touched"
+        class="text-red-500 text-sm"
+      >
+        Phonetic is required
+      </p>
+    </div>
+
+    <!-- Meaning -->
+    <div>
+      <label class="block text-sm font-medium mb-1">Meaning *</label>
+      <input
+        type="text"
+        formControlName="meaning"
+        class="w-full border rounded px-3 py-2"
+      />
+      <p
+        *ngIf="form.get('meaning')?.invalid && form.get('meaning')?.touched"
+        class="text-red-500 text-sm"
+      >
+        Meaning is required
+      </p>
+    </div>
+
+    <!-- Example -->
+    <div>
+      <label class="block text-sm font-medium mb-1">Example</label>
+      <textarea
+        formControlName="example"
+        rows="2"
+        class="w-full border rounded px-3 py-2"
+      ></textarea>
+    </div>
+
+    <!-- Example Meaning -->
+    <div>
+      <label class="block text-sm font-medium mb-1">Example Meaning</label>
+      <textarea
+        formControlName="exampleMeaning"
+        rows="2"
+        class="w-full border rounded px-3 py-2"
+      ></textarea>
+    </div>
+
+    <!-- Audio Upload -->
+    <div>
+      <label class="block text-sm font-medium mb-1">Audio *</label>
+      <input type="file" accept="audio/*" (change)="onAudioSelected($event)" />
+
+      <div *ngIf="audioPreview" class="mt-2">
+        <app-audio-player [src]="audioPreview"></app-audio-player>
+      </div>
+    </div>
+
+    <!-- Image Upload -->
+    <div>
+      <label class="block text-sm font-medium mb-1">Image *</label>
+      <input type="file" accept="image/*" (change)="onImageSelected($event)" />
+      <div *ngIf="imagePreview" class="mt-2">
+        <img
+          [src]="imagePreview"
+          alt="Preview"
+          class="h-32 object-cover rounded border"
+        />
+      </div>
+    </div>
+
+    <!-- Actions -->
+    <div class="flex justify-end gap-3">
+      <button
+        type="button"
+        (click)="onCancel()"
+        class="px-4 py-2 border rounded flex items-center gap-2 text-gray-600 hover:bg-gray-100"
+      >
+        <fa-icon [icon]="faTimes"></fa-icon> Cancel
+      </button>
+      <button
+        type="submit"
+        class="px-4 py-2 bg-blue-600 text-white rounded flex items-center gap-2 hover:bg-blue-700"
+      >
+        <fa-icon [icon]="faSave"></fa-icon> Save
+      </button>
+    </div>
+  </form>
+</div>

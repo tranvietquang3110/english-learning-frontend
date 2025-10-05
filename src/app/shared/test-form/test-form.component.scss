@@ -1,0 +1,123 @@
+// Test Form Component Styles
+:host {
+  width: 100%;
+}
+
+// Enhanced Input Styles
+.enhanced-input {
+  input, textarea {
+    @apply w-full px-4 py-3 border-2 border-gray-300 rounded-xl text-sm text-gray-900 bg-white transition-all duration-200 shadow-sm;
+
+    &::placeholder {
+      @apply text-gray-400;
+    }
+
+    &:focus {
+      @apply outline-none border-blue-500 shadow-lg -translate-y-0.5;
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1), 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    }
+
+    &:hover:not(:focus) {
+      @apply border-gray-400 shadow-md;
+    }
+  }
+
+  textarea {
+    @apply resize-y min-h-24;
+  }
+}
+
+// Enhanced Radio Button Styles
+.enhanced-radio {
+  @apply relative flex items-center gap-3 p-3 border-2 border-gray-300 rounded-xl bg-white transition-all duration-200 cursor-pointer;
+
+  &:hover {
+    @apply border-gray-400 shadow-md -translate-y-0.5;
+  }
+
+  &.selected {
+    @apply border-blue-500 bg-blue-50;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+
+    .radio-indicator {
+      @apply bg-blue-500 border-blue-500;
+
+      &::after {
+        @apply opacity-100 scale-100;
+      }
+    }
+
+    .option-text {
+      @apply text-blue-700 font-semibold;
+    }
+  }
+
+  .radio-indicator {
+    @apply w-5 h-5 border-2 border-gray-300 rounded-full bg-white relative transition-all duration-200;
+
+    &::after {
+      @apply content-[''] absolute top-1/2 left-1/2 w-2 h-2 bg-white rounded-full opacity-0 scale-0 transition-all duration-200;
+      transform: translate(-50%, -50%);
+    }
+  }
+
+  .option-text {
+    @apply flex-1 text-sm text-gray-700 transition-all duration-200;
+  }
+
+  input[type="radio"] {
+    @apply absolute opacity-0 pointer-events-none;
+  }
+}
+
+// Enhanced File Upload
+.enhanced-file-upload {
+  @apply relative border-2 border-dashed border-gray-300 rounded-xl p-8 text-center bg-gray-50 transition-all duration-200 cursor-pointer;
+
+  &:hover {
+    @apply border-blue-500 bg-blue-50 -translate-y-1 shadow-lg;
+  }
+
+  &.dragover {
+    @apply border-blue-500 bg-blue-100 scale-105;
+  }
+
+  .upload-icon {
+    @apply w-12 h-12 mx-auto mb-4 text-gray-400 transition-all duration-200;
+  }
+
+  .upload-text {
+    @apply text-gray-600 text-sm mb-2;
+  }
+
+  .upload-hint {
+    @apply text-gray-400 text-xs;
+  }
+
+  input[type="file"] {
+    @apply absolute inset-0 opacity-0 cursor-pointer;
+  }
+}
+
+// Basic form styles
+.test-form-container {
+  .form-section {
+    @apply bg-gray-50 border border-gray-200 rounded-lg p-6 mb-6;
+  }
+
+  .form-section-title {
+    @apply text-gray-900 text-lg font-semibold mb-4;
+  }
+
+  .question-item {
+    @apply bg-white border border-gray-200 rounded-lg p-4 mb-4 transition-all duration-200;
+
+    &:hover {
+      @apply border-gray-300 shadow-sm;
+    }
+  }
+
+  .action-buttons {
+    @apply flex justify-end gap-4 pt-6 border-t border-gray-200;
+  }
+}

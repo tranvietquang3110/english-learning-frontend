@@ -1,0 +1,74 @@
+<div>
+  <div class="px-4 py-8">
+    <div class="max-w-6xl">
+      <!-- Header -->
+      <div class="gap-4 mb-8">
+        <button
+          class="mb-4 flex items-center gap-2 text-sm text-muted-foreground hover:text-primary"
+          (click)="goBack()"
+        >
+          <fa-icon [icon]="faArrowLeft" class="w-4 h-4"></fa-icon>
+          Back to Vocabulary Topics
+        </button>
+        <div>
+          <h1 class="text-3xl font-bold mb-2">Vocabulary Tests</h1>
+          <p class="text-muted-foreground">
+            Choose a vocabulary test to practice words from this topic
+          </p>
+        </div>
+      </div>
+
+      <!-- No tests -->
+      <div *ngIf="tests.length === 0" class="text-center space-y-4">
+        <h1 class="text-2xl font-bold">No tests available</h1>
+        <p class="text-muted-foreground">
+          Vocabulary tests for this topic are coming soon!
+        </p>
+        <button (click)="goBack()" class="flex items-center gap-2 text-sm">
+          <fa-icon [icon]="faArrowLeft"></fa-icon>
+          Back to Vocabulary Topics
+        </button>
+      </div>
+
+      <!-- Tests grid -->
+      <div
+        *ngIf="tests.length > 0"
+        class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8"
+      >
+        <div
+          *ngFor="let test of tests"
+          class="p-4 rounded-lg border shadow hover:shadow-lg cursor-pointer transition hover:-translate-y-1"
+          (click)="handleTestClick(test.id)"
+        >
+          <div class="flex items-start justify-between mb-2">
+            <h3 class="font-semibold">{{ test.name }}</h3>
+            <span class="px-2 py-1 text-xs rounded bg-primary/10 text-primary">
+              {{ test.duration }} min
+            </span>
+          </div>
+          <p class="text-sm text-muted-foreground mb-4">
+            Vocabulary test for topic {{ topicTitle }}
+          </p>
+          <div class="flex items-center gap-1 text-sm text-muted-foreground">
+            <fa-icon [icon]="faFileAlt" class="w-4 h-4"></fa-icon>
+            <span>Test ID: {{ test.id }}</span>
+          </div>
+          <button
+            class="w-full mt-3 py-1.5 rounded bg-primary text-white text-sm"
+          >
+            Start Test
+          </button>
+        </div>
+      </div>
+
+      <!-- Pagination -->
+      <div class="mt-12">
+        <app-pagination
+          [currentPage]="currentPage"
+          [totalPages]="totalPages"
+          (pageChange)="handlePageChange($event)"
+        ></app-pagination>
+      </div>
+    </div>
+  </div>
+</div>

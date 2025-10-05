@@ -1,0 +1,141 @@
+<div class="p-6">
+  <!-- Header -->
+  <div class="flex items-center justify-between mb-6">
+    <div class="flex flex-col gap-4">
+      <div>
+        <h1 class="text-3xl font-bold">{{ topicName }}</h1>
+        <p class="text-muted-foreground">
+          Manage listening exercises for this topic
+        </p>
+      </div>
+      <button
+        (click)="goBack()"
+        class="flex items-center gap-2 text-sm text-muted-foreground hover:text-primary"
+      >
+        <svg
+          class="w-4 h-4"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M15 19l-7-7 7-7"
+          ></path>
+        </svg>
+        Back to Listening Management
+      </button>
+    </div>
+    <button
+      *ngIf="currentState === State.View"
+      (click)="changeToAddExercise()"
+      class="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90"
+    >
+      Add New Exercise
+    </button>
+  </div>
+
+  <!-- Loading -->
+  <div *ngIf="isLoading" class="text-center py-8">
+    <div
+      class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-primary"
+    ></div>
+    <p class="mt-2 text-muted-foreground">Loading listening exercises...</p>
+  </div>
+
+  <!-- Add Exercise Form -->
+  <div *ngIf="currentState === State.AddExercise">
+    <app-listening-exercise-form
+      [topicId]="topicId"
+      (submit)="onAddExercises($event)"
+      (cancel)="onCancelAddExercise()"
+    ></app-listening-exercise-form>
+  </div>
+
+  <!-- Listenings List -->
+  <div *ngIf="!isLoading && currentState === State.View" class="space-y-4">
+    <div *ngIf="listenings.length === 0" class="text-center py-8">
+      <h3 class="text-lg font-semibold mb-2">No listening exercises found</h3>
+      <p class="text-muted-foreground mb-4">
+        Start by adding your first listening exercise to this topic.
+      </p>
+      <button
+        class="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90"
+      >
+        Add First Exercise
+      </button>
+    </div>
+
+    <div
+      *ngFor="let listening of listenings"
+      class="bg-white rounded-lg border p-6"
+    >
+      <div class="flex items-start justify-between">
+        <div class="flex-1">
+          <h3 class="text-lg font-semibold mb-2">{{ listening.name }}</h3>
+          <p class="text-muted-foreground mb-4">{{ listening.question }}</p>
+          <!-- Image Preview -->
+          <div *ngIf="listening.imageUrl" class="mb-4">
+            <img
+              [src]="listening.imageUrl"
+              [alt]="listening.name"
+              [title]="listening.name"
+              class="w-64 h-64 object-cover rounded-lg"
+            />
+          </div>
+          <!-- Audio Preview -->
+          <div class="mb-4">
+            <app-audio-player
+              [src]="listening.audioUrl"
+              [showTranscript]="true"
+              [transcript]="listening.transcript"
+              class="w-full"
+            ></app-audio-player>
+          </div>
+
+          <!-- Options Preview -->
+          <div class="mb-4">
+            <h4 class="text-sm font-medium text-gray-700 mb-2">Options:</h4>
+            <div class="grid grid-cols-2 gap-2">
+              <div
+                *ngFor="let option of listening.options | keyvalue"
+                class="text-sm"
+              >
+                <span class="font-medium">{{ option.key }}:</span>
+                {{ option.value }}
+              </div>
+            </div>
+            <p class="text-sm mt-2">
+              <span class="font-medium">Correct Answer:</span>
+              {{ listening.correctAnswer }}
+            </p>
+          </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="flex gap-2 ml-4">
+          <button
+            (click)="onViewListening(listening)"
+            class="px-3 py-1 text-sm border rounded hover:bg-gray-50"
+          >
+            View
+          </button>
+          <button
+            (click)="onEditListening(listening)"
+            class="px-3 py-1 text-sm bg-blue-500 text-white rounded hover:bg-blue-600"
+          >
+            Edit
+          </button>
+          <button
+            (click)="onDeleteListening(listening)"
+            class="px-3 py-1 text-sm bg-red-500 text-white rounded hover:bg-red-600"
+          >
+            Delete
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,28 @@
+<div class="space-y-6 py-8 px-4">
+  <div class="max-w-6xl">
+    <div>
+      <h1 class="text-3xl font-bold mb-2">Learn Grammar</h1>
+      <p class="text-muted-foreground">
+        Choose a grammar topic to improve your English grammar skills.
+      </p>
+    </div>
+
+    <div class="mt-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div
+        *ngFor="let topic of topics"
+        class="group cursor-pointer hover:shadow-lg transition-all duration-200 hover:-translate-y-1 relative overflow-hidden rounded-xl border bg-card text-card-foreground"
+      >
+        <app-topic-card [topic]="topic" (learn)="onLearn($event)">
+        </app-topic-card>
+      </div>
+    </div>
+
+    <div class="mt-12">
+      <app-pagination
+        [currentPage]="currentPage"
+        [totalPages]="totalPages"
+        (pageChange)="handlePageChange($event)"
+      ></app-pagination>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,14 @@
+<div class="grid grid-cols-5 gap-4">
+  <div
+    *ngFor="let q of [].constructor(totalQuestion); let i = index"
+    (click)="handleClick(i)"
+    class="cursor-pointer p-2 border rounded text-center"
+    [ngClass]="{
+      'bg-green-100 text-green-700': getAnswer(i),
+      'bg-yellow-100 text-yellow-700': isMarked(i)
+    }"
+  >
+    <div class="font-bold">{{ i + 1 }}.</div>
+    <div>{{ getAnswer(i) || "-" }}</div>
+  </div>
+</div>

@@ -1,0 +1,231 @@
+<div class="min-h-screen bg-background">
+  <div class="container mx-auto px-4 py-8">
+    <!-- Nếu đã nộp kết quả -->
+    <ng-container *ngIf="showResults; else testView">
+      <button
+        class="flex items-center gap-2 mb-6 text-sm px-3 py-2 border rounded hover:bg-gray-100"
+        (click)="goBack()"
+      >
+        <fa-icon [icon]="faArrowLeft" class="w-4 h-4"></fa-icon>
+        Back to Topics
+      </button>
+
+      <div class="border rounded-lg p-6 bg-white shadow">
+        <h2 class="text-2xl font-bold text-center mb-2">Test Results</h2>
+        <p class="text-center text-gray-500 mb-6">
+          {{ topicName | titlecase }} Assessment
+        </p>
+
+        <div class="text-center mb-6">
+          <div class="text-4xl font-bold text-primary mb-2">
+            {{ calculateScore().percentage }}%
+          </div>
+          <p class="text-lg text-gray-600">
+            {{ calculateScore().correct }} / {{ calculateScore().total }}
+            correct
+          </p>
+        </div>
+
+        <div class="space-y-4 overflow-y-auto max-h-96">
+          <div
+            *ngFor="let q of questions; let i = index"
+            class="border rounded p-4"
+          >
+            <div class="flex items-start gap-3">
+              <fa-icon
+                [icon]="
+                  selectedAnswers[i] === q.correctAnswer
+                    ? faCheckCircle
+                    : faXmarkCircle
+                "
+                class="w-5 h-5"
+                [ngClass]="
+                  selectedAnswers[i] === q.correctAnswer
+                    ? 'text-green-500'
+                    : 'text-red-500'
+                "
+              ></fa-icon>
+
+              <div>
+                <p class="font-medium mb-1">{{ q.question }}</p>
+                <p class="text-sm text-gray-500 mb-1">
+                  Your answer:
+                  {{ q.options[selectedAnswers[i]!] || "Not answered" }}
+                </p>
+                <p class="text-sm text-green-600">
+                  Correct answer: {{ q.options[q.correctAnswer] }}
+                </p>
+                <p class="text-sm text-gray-500 mt-1">{{ q.explaination }}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="flex gap-3 mt-6">
+          <button
+            class="flex-1 px-4 py-2 bg-primary text-white rounded hover:bg-primary/90"
+            (click)="retakeTest()"
+          >
+            Retake Test
+          </button>
+          <button
+            class="flex-1 px-4 py-2 border rounded hover:bg-gray-100"
+            (click)="goBack()"
+          >
+            Back to Topics
+          </button>
+        </div>
+      </div>
+    </ng-container>
+
+    <!-- Nếu đang làm bài test -->
+    <ng-template #testView>
+      <!-- Header -->
+      <div class="flex items-center justify-between mb-6">
+        <button
+          class="flex items-center gap-2 text-sm px-3 py-2 border rounded hover:bg-gray-100"
+          (click)="goBack()"
+        >
+          <fa-icon [icon]="faArrowLeft" class="w-4 h-4"></fa-icon>
+          Back
+        </button>
+
+        <div class="flex items-center gap-4 text-sm">
+          <span class="px-2 py-1 border rounded">
+            Time: {{ formatTime(timeRemaining) }}
+          </span>
+          <span class="px-2 py-1 bg-gray-100 rounded">
+            {{ currentQuestion + 1 }} / {{ questions.length }}
+          </span>
+        </div>
+      </div>
+
+      <!-- Progress -->
+      <div class="mb-6">
+        <div class="flex justify-between text-sm text-gray-500 mb-2">
+          <span>{{ topicName | titlecase }} Assessment</span>
+          <span>
+            {{
+              ((currentQuestion + 1) / questions.length) * 100
+                | number : "1.0-0"
+            }}% Complete
+          </span>
+        </div>
+        <div class="w-full bg-gray-200 h-2 rounded">
+          <div
+            class="h-2 bg-primary rounded transition-all duration-300"
+            [style.width.%]="((currentQuestion + 1) / questions.length) * 100"
+          ></div>
+        </div>
+      </div>
+
+      <div class="flex flex-col lg:flex-row gap-4 mt-24">
+        <!-- Question Card -->
+        <div
+          class="basis-full lg:basis-2/3 max-w-full border rounded-lg shadow mb-6 p-6 bg-white"
+        >
+          <div class="flex items-center gap-2 mb-4">
+            <span
+              class="cursor-pointer"
+              (click)="toggleMark(currentQuestion)"
+              [ngClass]="{
+                'text-yellow-500': markedQuestions.includes(currentQuestion),
+                'text-gray-400': !markedQuestions.includes(currentQuestion)
+              }"
+            >
+              <fa-icon
+                [icon]="
+                  markedQuestions.includes(currentQuestion)
+                    ? faStar
+                    : faRegularStar
+                "
+                class="w-4 h-4"
+              ></fa-icon>
+            </span>
+
+            <!-- Tiêu đề -->
+            <h3 class="text-xl font-semibold">
+              Question {{ currentQuestion + 1 }}
+            </h3>
+          </div>
+          <p class="text-lg mb-4">{{ questions[currentQuestion].question }}</p>
+          <img
+            *ngIf="questions[currentQuestion].imageUrl"
+            [src]="questions[currentQuestion].imageUrl"
+            alt="Question image"
+            class="w-1/3 h-1/3 object-cover rounded-lg mb-4"
+          />
+          <div class="space-y-3">
+            <button
+              *ngFor="
+                let opt of questions[currentQuestion].options | keyvalue;
+                let idx = index
+              "
+              (click)="handleAnswerSelect(opt.key)"
+              class="w-full p-4 text-left rounded-lg border transition-all duration-200"
+              [ngClass]="
+                selectedAnswers[currentQuestion] === opt.key
+                  ? 'border-primary bg-primary/5 text-primary'
+                  : 'border-gray-300 hover:bg-gray-50'
+              "
+            >
+              <div class="flex items-center gap-3">
+                <div
+                  class="w-6 h-6 rounded-full border-2 flex items-center justify-center text-sm font-medium"
+                  [ngClass]="
+                    selectedAnswers[currentQuestion] === opt.key
+                      ? 'border-primary bg-primary text-white'
+                      : 'border-gray-400 text-gray-500'
+                  "
+                >
+                  {{ opt.key | uppercase }}
+                </div>
+                <span>{{ opt.value }}</span>
+              </div>
+            </button>
+          </div>
+        </div>
+
+        <app-question-grid
+          [totalQuestion]="questions.length"
+          [selectedAnswers]="selectedAnswers"
+          [markedQuestions]="markedQuestions"
+          (questionClick)="handleQuestionJump($event)"
+          class="flex-1"
+        ></app-question-grid>
+      </div>
+      <!-- Navigation -->
+      <div class="flex justify-between">
+        <button
+          class="px-4 py-2 border rounded hover:bg-gray-100 flex items-center gap-2"
+          (click)="handlePrevious()"
+          [disabled]="currentQuestion === 0"
+        >
+          <fa-icon [icon]="faChevronLeft" class="w-4 h-4"></fa-icon>
+          Previous
+        </button>
+
+        <div class="flex gap-3">
+          <button
+            *ngIf="currentQuestion === questions.length - 1; else nextBtn"
+            (click)="handleFinish()"
+            class="px-4 py-2 bg-primary text-white rounded hover:bg-primary/90 flex items-center gap-2"
+          >
+            <fa-icon [icon]="faCheckCircle" class="w-4 h-4"></fa-icon>
+            Finish Test
+          </button>
+
+          <ng-template #nextBtn>
+            <button
+              class="px-4 py-2 bg-primary text-white rounded hover:bg-primary/90 flex items-center gap-2"
+              (click)="handleNext()"
+            >
+              Next
+              <fa-icon [icon]="faChevronRight" class="w-4 h-4"></fa-icon>
+            </button>
+          </ng-template>
+        </div>
+      </div>
+    </ng-template>
+  </div>
+</div>

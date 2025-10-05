@@ -1,0 +1,303 @@
+<div class="max-w-6xl mx-auto">
+  <div class="bg-white rounded-lg shadow-lg p-6">
+    <div class="flex justify-between items-center mb-6">
+      <h2 class="text-2xl font-bold">Add New Listening Exercises</h2>
+      <button
+        (click)="addExercise()"
+        class="px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600"
+      >
+        Add Exercise
+      </button>
+    </div>
+
+    <form (ngSubmit)="onSubmit($event)" class="space-y-8">
+      <div
+        *ngFor="let exercise of exercises; let i = index"
+        class="border rounded-lg p-6 space-y-4 exercise-card"
+        [class.valid-exercise]="isExerciseValid(exercise)"
+        [class.invalid-exercise]="
+          showValidationErrors && !isExerciseValid(exercise)
+        "
+      >
+        <!-- Exercise Header -->
+        <div class="flex justify-between items-center">
+          <h3 class="text-lg font-semibold">Exercise {{ i + 1 }}</h3>
+          <button
+            *ngIf="exercises.length > 1"
+            type="button"
+            (click)="removeExercise(i)"
+            class="px-3 py-1 text-sm bg-red-500 text-white rounded hover:bg-red-600"
+          >
+            Remove
+          </button>
+        </div>
+
+        <!-- File Upload Section for this exercise -->
+        <div class="p-4 bg-gray-50 rounded-lg">
+          <h4 class="text-sm font-medium text-gray-700 mb-3">
+            Upload Files for Exercise {{ i + 1 }}
+          </h4>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <!-- Image Upload -->
+            <div>
+              <label class="block text-xs font-medium text-gray-600 mb-2">
+                Hình ảnh
+              </label>
+              <input
+                type="file"
+                accept="image/*"
+                (change)="onImageSelected($event, i)"
+                class="upload-section w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                title="Chọn hình ảnh"
+              />
+
+              <!-- Image Preview -->
+              <div *ngIf="exerciseFiles[i].imageFile" class="mt-2">
+                <div class="relative inline-block">
+                  <img
+                    [src]="getImagePreview(i)"
+                    [alt]="exerciseFiles[i].imageFile!.name"
+                    [title]="exerciseFiles[i].imageFile!.name"
+                    class="w-24 h-24 object-cover rounded-lg image-preview"
+                  />
+                  <button
+                    type="button"
+                    (click)="removeImageFile(i)"
+                    class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs remove-btn"
+                  >
+                    ×
+                  </button>
+                </div>
+                <p class="text-xs text-gray-600 mt-1 truncate">
+                  {{ exerciseFiles[i].imageFile!.name }}
+                </p>
+              </div>
+            </div>
+
+            <!-- Audio Upload -->
+            <div>
+              <label class="block text-xs font-medium text-gray-600 mb-2">
+                Audio file
+              </label>
+              <input
+                type="file"
+                accept="audio/*"
+                (change)="onAudioSelected($event, i)"
+                class="upload-section w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                title="Chọn audio file"
+              />
+
+              <!-- Audio Preview -->
+              <div *ngIf="exerciseFiles[i].audioFile" class="mt-2">
+                <div class="border rounded-lg p-3 audio-preview">
+                  <div class="flex justify-between items-start mb-2">
+                    <div>
+                      <p class="font-medium text-xs">
+                        {{ exerciseFiles[i].audioFile!.name }}
+                      </p>
+                      <p class="text-xs text-gray-500">
+                        {{ formatFileSize(exerciseFiles[i].audioFile!.size) }}
+                      </p>
+                    </div>
+                    <button
+                      type="button"
+                      (click)="removeAudioFile(i)"
+                      class="bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs remove-btn"
+                    >
+                      ×
+                    </button>
+                  </div>
+                  <app-audio-player
+                    [src]="exerciseFiles[i].audioPreviewUrl!"
+                    [showTranscript]="false"
+                    class="w-full"
+                  ></app-audio-player>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Exercise Name -->
+        <div>
+          <label
+            [for]="'name-' + i"
+            class="block text-sm font-medium text-gray-700 mb-2"
+          >
+            Exercise Name *
+          </label>
+          <input
+            type="text"
+            [id]="'name-' + i"
+            [(ngModel)]="exercise.name"
+            [name]="'name-' + i"
+            required
+            [class.border-red-500]="isFieldInvalid(i, 'name')"
+            [class.border-gray-300]="!isFieldInvalid(i, 'name')"
+            class="w-full px-3 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+            placeholder="Enter exercise name"
+          />
+          <p
+            *ngIf="isFieldInvalid(i, 'name')"
+            class="text-red-500 text-sm mt-1"
+          >
+            {{ getFieldErrorMessage(i, "name") }}
+          </p>
+        </div>
+
+        <!-- Question -->
+        <div>
+          <label
+            [for]="'question-' + i"
+            class="block text-sm font-medium text-gray-700 mb-2"
+          >
+            Question *
+          </label>
+          <textarea
+            [id]="'question-' + i"
+            [(ngModel)]="exercise.question"
+            [name]="'question-' + i"
+            required
+            rows="3"
+            [class.border-red-500]="isFieldInvalid(i, 'question')"
+            [class.border-gray-300]="!isFieldInvalid(i, 'question')"
+            class="w-full px-3 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+            placeholder="Enter the question"
+          ></textarea>
+          <p
+            *ngIf="isFieldInvalid(i, 'question')"
+            class="text-red-500 text-sm mt-1"
+          >
+            {{ getFieldErrorMessage(i, "question") }}
+          </p>
+        </div>
+
+        <!-- Transcript -->
+        <div>
+          <label
+            [for]="'transcript-' + i"
+            class="block text-sm font-medium text-gray-700 mb-2"
+          >
+            Transcript *
+          </label>
+          <textarea
+            [id]="'transcript-' + i"
+            [(ngModel)]="exercise.transcript"
+            [name]="'transcript-' + i"
+            required
+            rows="4"
+            [class.border-red-500]="isFieldInvalid(i, 'transcript')"
+            [class.border-gray-300]="!isFieldInvalid(i, 'transcript')"
+            class="w-full px-3 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+            placeholder="Enter the audio transcript"
+          ></textarea>
+          <p
+            *ngIf="isFieldInvalid(i, 'transcript')"
+            class="text-red-500 text-sm mt-1"
+          >
+            {{ getFieldErrorMessage(i, "transcript") }}
+          </p>
+        </div>
+
+        <!-- Options -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">
+            Options *
+          </label>
+          <div class="grid grid-cols-2 gap-4">
+            <div *ngFor="let optionKey of getOptionKeys(); let j = index">
+              <label
+                [for]="'option-' + i + '-' + optionKey"
+                class="block text-xs font-medium text-gray-600 mb-1"
+              >
+                Option {{ optionKey }} *
+              </label>
+              <input
+                type="text"
+                [id]="'option-' + i + '-' + optionKey"
+                [(ngModel)]="exercise.options![optionKey]"
+                [name]="'option-' + i + '-' + optionKey"
+                required
+                [class.border-red-500]="isFieldInvalid(i, 'options')"
+                [class.border-gray-300]="!isFieldInvalid(i, 'options')"
+                [title]="
+                  'Enter option ' + optionKey + ' for exercise ' + (i + 1)
+                "
+                class="w-full px-3 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                [placeholder]="'Enter option ' + optionKey"
+              />
+            </div>
+          </div>
+          <p
+            *ngIf="isFieldInvalid(i, 'options')"
+            class="text-red-500 text-sm mt-1"
+          >
+            {{ getFieldErrorMessage(i, "options") }}
+          </p>
+        </div>
+
+        <!-- Correct Answer -->
+        <div>
+          <label
+            [for]="'correctAnswer-' + i"
+            class="block text-sm font-medium text-gray-700 mb-2"
+          >
+            Correct Answer *
+          </label>
+          <select
+            [id]="'correctAnswer-' + i"
+            [(ngModel)]="exercise.correctAnswer"
+            [name]="'correctAnswer-' + i"
+            required
+            [class.border-red-500]="isFieldInvalid(i, 'correctAnswer')"
+            [class.border-gray-300]="!isFieldInvalid(i, 'correctAnswer')"
+            [title]="'Select correct answer for exercise ' + (i + 1)"
+            class="w-full px-3 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+          >
+            <option value="">Select correct answer</option>
+            <option value="A">A</option>
+            <option value="B">B</option>
+            <option value="C">C</option>
+            <option value="D">D</option>
+          </select>
+          <p
+            *ngIf="isFieldInvalid(i, 'correctAnswer')"
+            class="text-red-500 text-sm mt-1"
+          >
+            {{ getFieldErrorMessage(i, "correctAnswer") }}
+          </p>
+        </div>
+
+        <!-- Validation Status -->
+        <div
+          *ngIf="showValidationErrors && !isExerciseValid(exercise)"
+          class="text-sm text-red-600 bg-red-50 p-2 rounded"
+        >
+          ⚠ Please fill in all required fields
+        </div>
+      </div>
+
+      <!-- Form Actions -->
+      <div class="flex justify-end space-x-4 pt-6 border-t">
+        <button
+          type="button"
+          (click)="onCancel()"
+          class="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary"
+        >
+          Cancel
+        </button>
+        <button
+          type="submit"
+          [disabled]="getValidExercisesCount() === 0 || isSubmitting"
+          class="px-4 py-2 bg-primary text-white rounded-md hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-primary disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          <span *ngIf="!isSubmitting"
+            >Add {{ getValidExercisesCount() }} Exercise(s)</span
+          >
+          <span *ngIf="isSubmitting">Submitting...</span>
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

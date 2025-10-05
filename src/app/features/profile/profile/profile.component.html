@@ -1,0 +1,34 @@
+<div *ngIf="profile" class="p-6 bg-white shadow rounded-lg mt-24">
+  <div class="flex items-center gap-4">
+    <img
+      [src]="profile?.avartarUrl"
+      alt="Avatar"
+      class="w-20 h-20 rounded-full border"
+    />
+    <div>
+      <h2 class="text-xl font-bold">{{ profile?.fullname }}</h2>
+      <p class="text-gray-500">{{ profile?.email }}</p>
+    </div>
+  </div>
+
+  <div class="mt-4">
+    <p>🎯 Target: {{ profile?.target }} minutes/day</p>
+    <p>⏱ Study Time: {{ profile?.studyTime }}</p>
+    <p>⭐ Level: {{ profile?.level }}</p>
+  </div>
+
+  <div class="mt-4">
+    <label
+      for="avatar"
+      class="cursor-pointer bg-navy-header text-white px-3 py-2 rounded"
+    >
+      Change Avatar
+    </label>
+    <input
+      type="file"
+      id="avatar"
+      class="hidden"
+      (change)="onAvatarChange($event)"
+    />
+  </div>
+</div>

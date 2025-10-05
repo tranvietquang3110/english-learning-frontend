@@ -1,0 +1,42 @@
+<div class="space-y-6 py-8 px-4">
+  <div class="max-w-6xl">
+    <div *ngIf="currentState === State.View">
+      <div class="mb-2 text-3xl font-bold">Danh sách từ vựng</div>
+      <div class="mb-8 text-xl font-medium">Topic: {{ name }}</div>
+      <div class="flex justify-end mb-4">
+        <button
+          (click)="changeToCreate()"
+          class="w-fit inline-flex items-center justify-center gap-2 rounded-md px-4 py-2 border border-primary text-primary text-primary-foreground bg-navy-header hover:opacity-90"
+        >
+          Thêm từ vựng mới
+        </button>
+      </div>
+      <div *ngFor="let vocab of vocabList">
+        <div class="mb-4">
+          <app-admin-vocab-item
+            [vocab]="vocab"
+            (edit)="changeToEdit($event)"
+            (delete)="handleDelete($event)"
+          ></app-admin-vocab-item>
+        </div>
+      </div>
+    </div>
+
+    <div *ngIf="currentState === State.Edit && vocabToEdit">
+      <div class="mb-8 text-3xl font-bold">Chỉnh sửa từ vựng</div>
+      <app-vocab-edit
+        [vocab]="vocabToEdit"
+        (save)="handleEdit($event)"
+        (cancel)="handleCancel()"
+      ></app-vocab-edit>
+    </div>
+
+    <div *ngIf="currentState === State.Create">
+      <div class="mb-8 text-3xl font-bold">Thêm từ vựng mới</div>
+      <app-vocab-edit
+        (save)="handleCreate($event)"
+        (cancel)="handleCancel()"
+      ></app-vocab-edit>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,257 @@
+<div class="w-full bg-gray-50 py-8">
+  <div class="mx-auto px-4">
+    <!-- Header -->
+    <div class="mb-8">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center space-x-4">
+          <button
+            (click)="goBack()"
+            class="flex items-center text-gray-600 hover:text-gray-900 transition-colors"
+          >
+            <svg
+              class="w-5 h-5 mr-2"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M15 19l-7-7 7-7"
+              ></path>
+            </svg>
+            Quay lại
+          </button>
+          <h1 class="text-3xl font-bold text-gray-900">Chi tiết bài test</h1>
+        </div>
+
+        <div class="flex space-x-3" *ngIf="test">
+          <button (click)="editTest()" class="form-button-primary">
+            Chỉnh sửa
+          </button>
+          <button (click)="deleteTest()" class="form-button-danger">Xóa</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Error State -->
+    <div
+      *ngIf="error"
+      class="bg-red-50 border border-red-200 rounded-md p-4 mb-6"
+    >
+      <div class="flex">
+        <svg
+          class="w-5 h-5 text-red-400 mr-3"
+          fill="currentColor"
+          viewBox="0 0 20 20"
+        >
+          <path
+            fill-rule="evenodd"
+            d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+            clip-rule="evenodd"
+          ></path>
+        </svg>
+        <p class="text-red-800">{{ error }}</p>
+      </div>
+    </div>
+
+    <!-- Test Detail -->
+    <div *ngIf="test && !isLoading" class="space-y-6">
+      <!-- Test Info -->
+      <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div>
+            <h3 class="text-lg font-semibold text-gray-900 mb-2">
+              Thông tin bài test
+            </h3>
+            <div class="space-y-2">
+              <div>
+                <span class="text-sm font-medium text-gray-500"
+                  >Tên bài test:</span
+                >
+                <p class="text-gray-900">
+                  {{ testInfo?.testName || test?.name }}
+                </p>
+              </div>
+              <div>
+                <span class="text-sm font-medium text-gray-500">Chủ đề:</span>
+                <p class="text-gray-900">{{ testInfo?.topicName }}</p>
+              </div>
+              <div>
+                <span class="text-sm font-medium text-gray-500"
+                  >Thời gian:</span
+                >
+                <p class="text-gray-900">
+                  {{ testInfo?.duration || test?.duration }} phút
+                </p>
+              </div>
+              <div>
+                <span class="text-sm font-medium text-gray-500"
+                  >Số câu hỏi:</span
+                >
+                <p class="text-gray-900">{{ questions.length }} câu</p>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <h3 class="text-lg font-semibold text-gray-900 mb-2">
+              Thông tin bổ sung
+            </h3>
+            <div class="space-y-2">
+              <div>
+                <span class="text-sm font-medium text-gray-500">ID Test:</span>
+                <p class="text-gray-900 font-mono text-sm">
+                  {{ testInfo?.testId }}
+                </p>
+              </div>
+              <div>
+                <span class="text-sm font-medium text-gray-500">ID Topic:</span>
+                <p class="text-gray-900 font-mono text-sm">
+                  {{ testInfo?.topicId }}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <h3 class="text-lg font-semibold text-gray-900 mb-2">Trạng thái</h3>
+            <div class="space-y-2">
+              <div>
+                <span class="text-sm font-medium text-gray-500"
+                  >Trạng thái:</span
+                >
+                <span
+                  class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800"
+                >
+                  Hoạt động
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Questions List -->
+      <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+        <div class="px-6 py-4 border-b border-gray-200">
+          <h3 class="text-lg font-semibold text-gray-900">Danh sách câu hỏi</h3>
+        </div>
+
+        <div class="p-6">
+          <div *ngIf="questions.length === 0" class="text-center py-8">
+            <p class="text-gray-500">Chưa có câu hỏi nào</p>
+          </div>
+
+          <div *ngIf="questions.length > 0" class="space-y-6">
+            <div
+              *ngFor="let question of questions; let i = index"
+              class="border border-gray-200 rounded-lg p-4"
+            >
+              <div class="flex justify-between items-start mb-3">
+                <h4 class="text-lg font-medium text-gray-900">
+                  Câu {{ i + 1 }}
+                </h4>
+                <span class="text-sm text-gray-500"
+                  >Thứ tự: {{ question.questionOrder }}</span
+                >
+              </div>
+
+              <!-- Question Content -->
+              <div class="mb-4">
+                <p class="text-gray-800 mb-3">{{ question.question }}</p>
+
+                <!-- Question Image -->
+                <div *ngIf="question.imageUrl" class="mb-3">
+                  <img
+                    [src]="question.imageUrl"
+                    [alt]="'Hình ảnh câu ' + (i + 1)"
+                    class="w-48 h-48 object-cover rounded border"
+                    title="Hình ảnh câu hỏi"
+                  />
+                </div>
+              </div>
+
+              <!-- Options -->
+              <div class="mb-4">
+                <h5 class="text-sm font-medium text-gray-700 mb-2">
+                  Các lựa chọn:
+                </h5>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
+                  <div
+                    *ngFor="let option of question.options | keyvalue"
+                    class="flex items-center space-x-2 p-2 rounded"
+                    [class.bg-green-50]="option.key === question.correctAnswer"
+                    [class.border-green-200]="
+                      option.key === question.correctAnswer
+                    "
+                    [class.border]="option.key === question.correctAnswer"
+                  >
+                    <span
+                      class="w-6 h-6 rounded-full border-2 flex items-center justify-center text-xs font-medium"
+                      [class.bg-green-600]="
+                        option.key === question.correctAnswer
+                      "
+                      [class.border-green-600]="
+                        option.key === question.correctAnswer
+                      "
+                      [class.text-white]="option.key === question.correctAnswer"
+                      [class.border-gray-300]="
+                        option.key !== question.correctAnswer
+                      "
+                    >
+                      {{ getOptionKey(option).toUpperCase() }}
+                    </span>
+                    <span
+                      class="text-sm"
+                      [class.font-semibold]="
+                        option.key === question.correctAnswer
+                      "
+                      [class.text-green-800]="
+                        option.key === question.correctAnswer
+                      "
+                    >
+                      {{ option.value }}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Correct Answer -->
+              <div class="mb-3 p-3 bg-green-50 rounded border border-green-200">
+                <p class="text-sm text-green-800">
+                  <strong>{{ getCorrectAnswerLabel(question) }}:</strong>
+                  {{ getCorrectAnswerDisplay(question) }}
+                </p>
+              </div>
+
+              <!-- Explanation -->
+              <div
+                *ngIf="question.explaination"
+                class="p-3 bg-blue-50 rounded border border-blue-200"
+              >
+                <p class="text-sm text-blue-800">
+                  <strong>Giải thích:</strong> {{ question.explaination }}
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Confirm Delete Dialog -->
+  <app-confirm-dialog
+    [isVisible]="showDeleteConfirm"
+    title="Xóa bài test"
+    message="Bạn có chắc chắn muốn xóa bài test này? Hành động này không thể hoàn tác."
+    confirmText="Xóa"
+    cancelText="Hủy"
+    confirmButtonClass="form-button-danger"
+    cancelButtonClass="form-button-secondary"
+    (confirm)="onConfirmDelete()"
+    (cancel)="onCancelDelete()"
+  ></app-confirm-dialog>
+</div>

@@ -1,0 +1,34 @@
+<div *ngIf="totalPages > 0" class="flex justify-center gap-2">
+  <!-- Previous -->
+  <button
+    class="btn-outline px-3 py-1 text-sm"
+    (click)="prevPage()"
+    [disabled]="currentPage <= 1"
+  >
+    <fa-icon [icon]="faChevronLeft" class="w-4 h-4"></fa-icon>
+    Previous
+  </button>
+
+  <!-- Page numbers -->
+  <div class="flex gap-1">
+    <button
+      *ngFor="let page of pages"
+      (click)="goToPage(page)"
+      [class.bg-primary]="currentPage === page"
+      [class.text-black]="currentPage !== page"
+      class="border px-2 py-1 rounded w-8 h-8 text-sm text-white"
+    >
+      {{ page }}
+    </button>
+  </div>
+
+  <!-- Next -->
+  <button
+    class="btn-outline px-3 py-1 text-sm"
+    (click)="nextPage()"
+    [disabled]="currentPage >= totalPages"
+  >
+    Next
+    <fa-icon [icon]="faChevronRight" class="w-4 h-4"></fa-icon>
+  </button>
+</div>

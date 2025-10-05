@@ -1,0 +1,86 @@
+import { CommonModule } from '@angular/common';
+import { Component, OnInit } from '@angular/core';
+import { TopicCardComponent } from '../../../shared/topic-card/topic-card.component';
+import { PaginationComponent } from '../../../shared/pagination/pagination.component';
+import { TopicBase } from '../../../models/topic-base';
+import { environment } from '../../../../environments/environment';
+import { GrammarService } from '../../../services/GrammarService';
+import { Router } from '@angular/router';
+import { GrammarTopic } from '../../../models/grammar/grammar-topic.model';
+import { GrammarTopicFormComponent } from '../grammar-topic-form/grammar-topic-form.component';
+
+enum State {
+  View,
+  Edit,
+  Create,
+}
+
+@Component({
+  selector: 'app-grammar-management',
+  standalone: true,
+  imports: [
+    CommonModule,
+    TopicCardComponent,
+    PaginationComponent,
+    GrammarTopicFormComponent,
+  ],
+  templateUrl: './grammar-management.component.html',
+  styleUrl: './grammar-management.component.scss',
+})
+export class GrammarManagementComponent implements OnInit {
+  State = State;
+  currentState = State.View;
+  topics: TopicBase[] = [];
+  currentPage = 1;
+  totalPages = 0;
+  readonly PAGE_SIZE = environment.PAGE_SIZE;
+  constructor(private grammarService: GrammarService, private router: Router) {}
+  ngOnInit(): void {
+    this.loadData();
+  }
+  loadData() {
+    this.topics = []; // Clear existing topics
+    this.grammarService
+      .getAllTopics(this.currentPage - 1, this.PAGE_SIZE)
+      .subscribe((data) => {
+        const result = data.content;
+        result.forEach((item) => {
+          const grammarTopic: TopicBase = {
+            id: item.id,
+            name: item.name,
+            description: item.description,
+            imageUrl: item.imageUrl,
+          };
+          this.topics.push(grammarTopic);
+        });
+        this.currentPage = data.pageable.pageNumber + 1;
+        this.totalPages = data.totalPages;
+      });
+  }
+  changeToCreate() {
+    this.currentState = State.Create;
+  }
+  changeToView() {
+    this.currentState = State.View;
+  }
+  onPageChange(page: number) {
+    this.currentPage = page;
+    this.loadData();
+  }
+  onCreateTopic(topic: GrammarTopic) {
+    console.log(topic);
+    this.grammarService
+      .createTopic(topic, topic.imageUrl as any)
+      .subscribe((res) => {
+        console.log(res);
+        this.topics = this.topics.concat(res);
+        this.changeToView();
+      });
+  }
+  onViewDetail(topic: TopicBase) {
+    this.router.navigate(['/admin/grammar/manage', topic.id]);
+  }
+  onCancel() {
+    this.changeToView();
+  }
+}

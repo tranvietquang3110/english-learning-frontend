@@ -1,0 +1,168 @@
+<div
+  class="min-h-screen bg-gradient-to-br from-navy-header via-slate-900 to-slate-800 flex items-center justify-center p-4 relative"
+>
+  <!-- Background layers -->
+  <div
+    class="absolute inset-0 bg-gradient-to-br from-navy-header/20 via-transparent to-slate-800/20"
+  ></div>
+  <div
+    class="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(59,130,246,0.1),transparent_50%)]"
+  ></div>
+
+  <div class="w-full max-w-md relative z-10">
+    <!-- Logo/Brand -->
+    <div class="text-center mb-8">
+      <div class="inline-flex items-center justify-center">
+        <img src="/assets/images/logo1.png" alt="" class="w-16 h-16" />
+      </div>
+      <h1 class="text-3xl font-bold text-white mb-2">English Learning</h1>
+      <p class="text-slate-300">Đăng nhập để tiếp tục học tập</p>
+    </div>
+
+    <!-- Login Form -->
+    <div
+      class="bg-white/5 backdrop-blur-xl border border-white/10 shadow-2xl rounded-lg"
+    >
+      <div class="space-y-1 pb-6 text-center p-6">
+        <h2 class="text-2xl font-semibold text-white">Đăng nhập</h2>
+        <p class="text-slate-300">Nhập thông tin tài khoản của bạn</p>
+      </div>
+
+      <div class="px-6 pb-6">
+        <form
+          #loginForm="ngForm"
+          (ngSubmit)="handleSubmit(loginForm)"
+          class="space-y-6"
+        >
+          <!-- Username -->
+          <div class="space-y-2">
+            <label for="username" class="text-sm font-medium text-slate-200"
+              >Tên đăng nhập</label
+            >
+            <input
+              id="username"
+              name="username"
+              type="text"
+              [(ngModel)]="username"
+              required
+              minlength="4"
+              #usernameCtrl="ngModel"
+              class="w-full h-12 px-3 pr-12 bg-white/5 border border-white/20 rounded-md text-white placeholder:text-slate-400 focus:border-primary/50 focus:ring-primary/20"
+            />
+
+            <!-- Validation errors -->
+            <div
+              class="text-red-500 text-sm mt-1"
+              *ngIf="usernameCtrl.invalid && usernameCtrl.touched"
+            >
+              <span *ngIf="usernameCtrl.errors?.['required']"
+                >Tên đăng nhập là bắt buộc.</span
+              >
+              <span *ngIf="usernameCtrl.errors?.['minlength']"
+                >Phải ít nhất 4 ký tự.</span
+              >
+            </div>
+          </div>
+
+          <!-- Password -->
+          <div class="space-y-2">
+            <label for="password" class="text-sm font-medium text-slate-200"
+              >Mật khẩu</label
+            >
+            <div class="relative">
+              <input
+                id="password"
+                name="password"
+                [type]="showPassword ? 'text' : 'password'"
+                [(ngModel)]="password"
+                required
+                #passwordCtrl="ngModel"
+                class="w-full h-12 px-3 pr-12 bg-white/5 border border-white/20 rounded-md text-white placeholder:text-slate-400 focus:border-primary/50 focus:ring-primary/20"
+              />
+              <div
+                class="text-red-500 text-sm mt-1"
+                *ngIf="passwordCtrl.invalid && passwordCtrl.touched"
+              >
+                <span *ngIf="passwordCtrl.errors?.['required']"
+                  >Mật khẩu là bắt buộc.</span
+                >
+              </div>
+              <button
+                type="button"
+                (click)="togglePassword()"
+                class="absolute right-0 top-0 h-12 px-3 text-slate-400 hover:text-white"
+              >
+                <fa-icon
+                  [icon]="showPassword ? faEyeSlash : faEye"
+                  class="h-4 w-4"
+                ></fa-icon>
+              </button>
+            </div>
+          </div>
+
+          <!-- Remember + Forgot -->
+          <div class="flex items-center justify-between text-sm">
+            <label class="flex items-center space-x-2 text-slate-300">
+              <input
+                type="checkbox"
+                class="rounded border-white/20 bg-white/5 text-primary focus:ring-primary/20"
+              />
+              <span>Ghi nhớ đăng nhập</span>
+            </label>
+            <a
+              routerLink="/forgot-password"
+              class="text-primary hover:text-primary/80 transition-colors"
+              >Quên mật khẩu?</a
+            >
+          </div>
+
+          <!-- Submit -->
+          <button
+            type="submit"
+            [disabled]="isLoading"
+            class="w-full h-12 bg-primary hover:bg-primary/90 text-white font-medium rounded-md transition-all duration-200 group flex items-center justify-center"
+          >
+            <ng-container *ngIf="isLoading; else normalLogin">
+              <div class="flex items-center space-x-2">
+                <div
+                  class="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"
+                ></div>
+                <span>Đang đăng nhập...</span>
+              </div>
+            </ng-container>
+            <ng-template #normalLogin>
+              <button
+                type="submit"
+                [disabled]="loginForm.invalid"
+                class="flex items-center space-x-2"
+              >
+                <span>Đăng nhập</span>
+                <fa-icon
+                  [icon]="faArrowRight"
+                  class="w-4 h-4 group-hover:translate-x-1 transition-transform"
+                ></fa-icon>
+              </button>
+            </ng-template>
+          </button>
+        </form>
+
+        <!-- Sign Up -->
+        <div class="mt-6 text-center">
+          <p class="text-slate-300 text-sm">
+            Chưa có tài khoản?
+            <a
+              routerLink="/sign-up"
+              class="text-primary hover:text-primary/80 font-medium transition-colors"
+              >Đăng ký ngay</a
+            >
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="text-center mt-8 text-slate-400 text-sm">
+      <p>© 2025 English Learning Platform. All rights reserved.</p>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,80 @@
+<header
+  class="bg-white border-b border-gray-200 dark:bg-gray-900 dark:border-gray-700"
+>
+  <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+    <div class="flex justify-between items-center h-16">
+      <!-- Logo -->
+      <div class="flex-shrink-0">
+        <a routerLink="/" class="flex items-center gap-2">
+          <img src="assets/images/logo1.png" alt="Logo" class="h-8 w-8" />
+          <span class="font-bold text-xl text-gray-800 dark:text-gray-100"
+            >MyApp</span
+          >
+        </a>
+      </div>
+
+      <!-- Search bar -->
+      <div class="flex-1 px-6">
+        <div class="relative max-w-lg mx-auto">
+          <input
+            type="text"
+            placeholder="Search..."
+            class="w-full rounded-full border border-gray-300 bg-gray-50 pl-10 pr-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-800 dark:border-gray-600 dark:text-gray-200"
+          />
+          <fa-icon
+            [icon]="faSearch"
+            class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+          ></fa-icon>
+        </div>
+      </div>
+
+      <!-- User actions -->
+      <div class="flex items-center space-x-4 relative">
+        <button
+          class="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800"
+        >
+          <fa-icon
+            class="text-gray-600 dark:text-white"
+            [icon]="faBell"
+          ></fa-icon>
+        </button>
+
+        <!-- Dropdown trigger -->
+        <div class="relative">
+          <button
+            (click)="toggleDropdown()"
+            class="h-8 w-8 rounded-full overflow-hidden ring-2 ring-transparent hover:ring-blue-400 focus:outline-none"
+          >
+            <img
+              [src]="avatarUrl ? avatarUrl : 'assets/images/placeholder.png'"
+              alt="User avatar"
+              class="h-8 w-8 object-cover"
+            />
+          </button>
+
+          <!-- Dropdown menu -->
+          <div
+            *ngIf="isDropdownOpen"
+            class="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md shadow-lg py-1 z-20"
+          >
+            <a
+              [routerLink]="['/profile']"
+              class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer"
+            >
+              <fa-icon [icon]="faUser" class="mr-2"></fa-icon>
+              Hồ sơ cá nhân
+            </a>
+            <div class="border-t border-gray-200 dark:border-gray-700"></div>
+            <button
+              (click)="handleLogout()"
+              class="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 dark:hover:bg-gray-700"
+            >
+              <fa-icon [icon]="faSignOutAlt" class="mr-2"></fa-icon>
+              Đăng xuất
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>

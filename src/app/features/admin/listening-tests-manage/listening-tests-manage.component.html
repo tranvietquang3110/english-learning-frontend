@@ -1,0 +1,103 @@
+<div class="p-6">
+  <!-- Header -->
+  <div class="flex justify-between items-center mb-6">
+    <h1 class="text-2xl font-bold text-gray-800">
+      {{
+        selectedTopic
+          ? "Quản lý bài test - " + selectedTopic.name
+          : "Quản lý bài test nghe"
+      }}
+    </h1>
+    <div class="flex gap-3">
+      <button
+        *ngIf="selectedTopic && currentState === State.View"
+        (click)="onCreateTest()"
+        class="bg-primary text-white px-4 py-2 rounded-lg hover:opacity-80"
+      >
+        Tạo bài test mới
+      </button>
+      <button
+        *ngIf="selectedTopic"
+        (click)="goBackToTopics()"
+        class="bg-navy-header text-white px-4 py-2 rounded-lg hover:opacity-80"
+      >
+        Quay lại danh sách chủ đề
+      </button>
+    </div>
+  </div>
+
+  <!-- Topic Selection View -->
+  <div
+    *ngIf="!selectedTopic && currentState === State.View"
+    class="view-transition"
+  >
+    <div class="mb-6">
+      <h2 class="text-xl font-semibold text-gray-700 mb-4">
+        Chọn chủ đề để quản lý bài test
+      </h2>
+      <p class="text-gray-600">
+        Vui lòng chọn một chủ đề nghe để xem và quản lý các bài test.
+      </p>
+    </div>
+
+    <!-- Topics Grid -->
+    <app-topic-test-card-grid
+      [topics]="topicsBase"
+      (topicSelect)="onTopicSelect($event)"
+    ></app-topic-test-card-grid>
+
+    <!-- Empty State -->
+    <div *ngIf="topics.length === 0" class="text-center py-12">
+      <div class="text-gray-400 text-6xl mb-4">🎧</div>
+      <h3 class="text-xl font-semibold text-gray-600 mb-2">
+        Chưa có chủ đề nào
+      </h3>
+      <p class="text-gray-500">
+        Hãy tạo chủ đề nghe trước khi quản lý bài test.
+      </p>
+    </div>
+  </div>
+
+  <!-- Tests Management View -->
+  <div
+    *ngIf="selectedTopic && currentState === State.View"
+    class="view-transition"
+  >
+    <!-- Tests List -->
+    <app-test-list
+      [tests]="testsBase"
+      (viewTest)="onViewTest($event)"
+      (editTest)="onEditTest($event)"
+      (deleteTest)="onDeleteTest($event)"
+      [selectedTopicName]="selectedTopic.name || ''"
+      (createTest)="onCreateTest()"
+      (pageChange)="onPageChange($event)"
+    ></app-test-list>
+  </div>
+
+  <!-- Create Test Form -->
+  <div *ngIf="currentState === State.Create" class="view-transition">
+    <app-test-form
+      [config]="listeningTestConfig"
+      (save)="onSaveTest($event)"
+      (cancel)="onCancelCreate()"
+    ></app-test-form>
+  </div>
+
+  <!-- Confirm Delete Dialog -->
+  <app-confirm-dialog
+    [isVisible]="showDeleteConfirm"
+    title="Xóa bài test"
+    [message]="
+      'Bạn có chắc chắn muốn xóa bài test \'' +
+      (testToDelete?.name || '') +
+      '\'? Hành động này không thể hoàn tác.'
+    "
+    confirmText="Xóa"
+    cancelText="Hủy"
+    confirmButtonClass="form-button-danger"
+    cancelButtonClass="form-button-secondary"
+    (confirm)="onConfirmDelete()"
+    (cancel)="onCancelDelete()"
+  ></app-confirm-dialog>
+</div>

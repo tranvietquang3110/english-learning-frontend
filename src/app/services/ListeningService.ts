@@ -1,0 +1,160 @@
+import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Observable } from 'rxjs';
+import { environment } from '../../environments/environment';
+import { ListeningTopic } from '../models/listening/listening-topic.model';
+import { Listening } from '../models/listening/listening.model';
+import {
+  ListeningTest,
+  ListeningTestQuestion,
+} from '../models/listening/listening-test.model';
+import { Page } from '../models/page.model';
+import { ListeningRequest } from '../models/request/listening-request';
+
+// Models
+
+@Injectable({
+  providedIn: 'root',
+})
+export class ListeningService {
+  private apiUrl = `${environment.apiContentServiceUrl}/listening`;
+
+  constructor(private http: HttpClient) {}
+
+  // 1. Lấy danh sách topic
+  getTopics(
+    page: number = 0,
+    size: number = 10
+  ): Observable<Page<ListeningTopic>> {
+    return this.http.get<Page<ListeningTopic>>(
+      `${this.apiUrl}/topics?page=${page}&size=${size}`
+    );
+  }
+
+  // 2. Tạo topic mới
+  addTopic(
+    topic: { name: string; description: string },
+    imageFile?: File
+  ): Observable<ListeningTopic> {
+    const formData = new FormData();
+    formData.append(
+      'topic',
+      new Blob([JSON.stringify(topic)], { type: 'application/json' })
+    );
+    if (imageFile) {
+      formData.append('image', imageFile);
+    }
+    return this.http.post<ListeningTopic>(`${this.apiUrl}/topics`, formData);
+  }
+
+  // 3. Lấy danh sách listenings theo topicId
+  getListeningsByTopic(topicId: string): Observable<{
+    id: string;
+    name: string;
+    description: string;
+    imageUrl: string;
+    createdAt: string;
+    listenings: Listening[];
+  }> {
+    return this.http.get<{
+      id: string;
+      name: string;
+      description: string;
+      imageUrl: string;
+      createdAt: string;
+      listenings: Listening[];
+    }>(`${this.apiUrl}/topics/${topicId}/listenings`);
+  }
+
+  // 4. Thêm danh sách listening cho topic
+  addListeningList(
+    topicId: string,
+    requests: ListeningRequest[],
+    imageFiles: File[],
+    audioFiles: File[]
+  ): Observable<Listening[]> {
+    const formData = new FormData();
+    console.log('Adding listening list:', JSON.stringify(requests));
+
+    formData.append(
+      'requests',
+      new Blob([JSON.stringify(requests)], { type: 'application/json' })
+    );
+
+    // append images
+    imageFiles.forEach((file) => formData.append('images', file));
+
+    // append audios
+    audioFiles.forEach((file) => formData.append('audios', file));
+
+    return this.http.post<Listening[]>(
+      `${this.apiUrl}/topics/${topicId}/listenings`,
+      formData
+    );
+  }
+
+  // 5. Add listening test
+  addTest(
+    topicId: string,
+    request: any,
+    imageFiles: File[],
+    audioFiles: File[]
+  ): Observable<any> {
+    const formData = new FormData();
+    console.log('Adding listening test:', JSON.stringify(request));
+
+    formData.append(
+      'request',
+      new Blob([JSON.stringify(request)], { type: 'application/json' })
+    );
+
+    // append images
+    imageFiles.forEach((file) => formData.append('images', file));
+
+    // append audios
+    audioFiles.forEach((file) => formData.append('audios', file));
+
+    return this.http.post<any>(
+      `${this.apiUrl}/topics/${topicId}/tests`,
+      formData
+    );
+  }
+
+  // 6. Get tests by topic id
+  getTestsByTopicId(
+    topicId: string,
+    page: number = 0,
+    size: number = 10
+  ): Observable<{
+    topicName: string;
+    topicId: string;
+    tests: Page<ListeningTest>;
+  }> {
+    return this.http.get<{
+      topicName: string;
+      topicId: string;
+      tests: Page<ListeningTest>;
+    }>(`${this.apiUrl}/topics/${topicId}/tests?page=${page}&size=${size}`);
+  }
+
+  getTestById(testId: string): Observable<ListeningTest> {
+    return this.http.get<ListeningTest>(`${this.apiUrl}/tests/${testId}`);
+  }
+
+  // 7. Get test detail with questions
+  getTestDetail(testId: string): Observable<{
+    id: string;
+    name: string;
+    duration: number;
+    createdAt: string;
+    questions: ListeningTestQuestion[];
+  }> {
+    return this.http.get<{
+      id: string;
+      name: string;
+      duration: number;
+      createdAt: string;
+      questions: ListeningTestQuestion[];
+    }>(`${this.apiUrl}/tests/${testId}`);
+  }
+}

@@ -1,0 +1,169 @@
+<div class="space-y-6 py-8 px-4">
+  <div class="max-w-6xl">
+    <div class="flex items-center justify-between">
+      <div>
+        <h1 class="text-3xl font-bold mb-2">{{ name }}</h1>
+        <p class="text-muted-foreground">
+          Manage grammar content for this topic
+        </p>
+      </div>
+      <div *ngIf="currentState === State.View" class="flex gap-3">
+        <button
+          (click)="changeToCreate()"
+          class="w-fit inline-flex items-center justify-center gap-2 rounded-md px-4 py-2 border border-primary text-primary text-primary-foreground bg-primary hover:opacity-90"
+        >
+          Add Grammar
+        </button>
+      </div>
+    </div>
+
+    <!-- Grammar List View -->
+    <div *ngIf="currentState === State.View" class="mt-8">
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        @for (grammar of grammarList; track grammar.id) {
+        <div
+          class="bg-white rounded-lg shadow-md p-6 border cursor-pointer hover:shadow-lg transition-shadow"
+          (click)="handleViewDetail(grammar)"
+        >
+          <h3 class="text-lg font-semibold mb-2">{{ grammar.title }}</h3>
+          <p class="text-gray-600 text-sm mb-4 line-clamp-3">
+            {{ grammar.description }}
+          </p>
+          <div class="flex justify-end gap-2">
+            <button
+              (click)="handleEdit(grammar); $event.stopPropagation()"
+              class="px-3 py-1 text-sm bg-primary text-white rounded hover:opacity-90"
+            >
+              Edit
+            </button>
+            <button
+              (click)="handleDelete(grammar.id); $event.stopPropagation()"
+              class="px-3 py-1 text-sm bg-red-600 text-white rounded hover:bg-red-700"
+            >
+              Delete
+            </button>
+          </div>
+        </div>
+        }
+      </div>
+
+      @if (grammarList.length === 0) {
+      <div class="text-center py-12">
+        <p class="text-gray-500">No grammar content found for this topic.</p>
+        <button
+          (click)="changeToCreate()"
+          class="mt-4 px-4 py-2 bg-primary text-white rounded hover:opacity-90"
+        >
+          Add First Grammar
+        </button>
+      </div>
+      }
+    </div>
+
+    <!-- Create/Edit Grammar Form -->
+    <div *ngIf="currentState === State.Create || currentState === State.Edit">
+      <div class="bg-white rounded-lg shadow-md p-6">
+        <h2 class="text-xl font-semibold mb-4">
+          {{
+            currentState === State.Create
+              ? "Create New Grammar"
+              : "Edit Grammar"
+          }}
+        </h2>
+
+        <!-- TODO: Add grammar form component here -->
+        <div class="space-y-4">
+          <div>
+            <label class="block text-sm font-medium mb-1">Title *</label>
+            <input
+              type="text"
+              [(ngModel)]="grammarToEdit.title"
+              class="w-full border rounded px-3 py-2"
+              placeholder="Enter grammar title"
+            />
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium mb-1">Description</label>
+            <textarea
+              [(ngModel)]="grammarToEdit.description"
+              rows="3"
+              class="w-full border rounded px-3 py-2"
+              placeholder="Enter grammar description"
+            ></textarea>
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium mb-1">Content *</label>
+            <textarea
+              [(ngModel)]="grammarToEdit.content"
+              rows="10"
+              class="w-full border rounded px-3 py-2"
+              placeholder="Enter grammar content"
+            ></textarea>
+          </div>
+
+          <div class="flex justify-end gap-3">
+            <button
+              (click)="handleCancel()"
+              class="px-4 py-2 border rounded text-gray-600 hover:bg-gray-100"
+            >
+              Cancel
+            </button>
+            <button
+              (click)="handleCreate(grammarToEdit)"
+              class="px-4 py-2 bg-primary text-white rounded hover:opacity-90"
+            >
+              {{ currentState === State.Create ? "Create" : "Update" }}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Grammar Detail View -->
+    <div *ngIf="currentState === State.Detail">
+      <div class="bg-white rounded-lg shadow-md p-6">
+        <div class="flex items-center justify-between mb-6">
+          <h2 class="text-2xl font-bold">{{ grammarToView.title }}</h2>
+          <button
+            (click)="backToView()"
+            class="px-4 py-2 border rounded text-gray-600 hover:bg-gray-100"
+          >
+            ← Back to List
+          </button>
+        </div>
+
+        <div class="space-y-4">
+          <div>
+            <h3 class="text-lg font-semibold mb-2">Description</h3>
+            <p class="text-gray-700">{{ grammarToView.description }}</p>
+          </div>
+
+          <div>
+            <h3 class="text-lg font-semibold mb-2">Content</h3>
+            <div
+              class="prose max-w-none text-gray-700"
+              [innerHTML]="grammarToView.content"
+            ></div>
+          </div>
+
+          <div class="flex justify-end gap-3 pt-4">
+            <button
+              (click)="changeToEdit(grammarToView)"
+              class="px-4 py-2 bg-primary text-white rounded hover:opacity-90"
+            >
+              Edit Grammar
+            </button>
+            <button
+              (click)="handleDelete(grammarToView.id)"
+              class="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
+            >
+              Delete Grammar
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

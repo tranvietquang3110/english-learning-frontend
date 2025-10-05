@@ -1,0 +1,26 @@
+<div
+  class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
+>
+  <div
+    *ngFor="let topic of topics"
+    (click)="onTopicSelect(topic)"
+    class="bg-white rounded-lg shadow-md hover:shadow-lg transition-all duration-200 cursor-pointer border border-gray-200 hover:border-blue-300"
+  >
+    <div class="aspect-w-16 aspect-h-9 mb-4">
+      <img
+        [src]="topic.imageUrl || 'assets/images/default-topic.png'"
+        [alt]="topic.name"
+        [title]="topic.name"
+        class="w-full h-32 object-cover rounded-t-lg"
+      />
+    </div>
+    <div class="p-6">
+      <h3 class="text-lg font-semibold text-gray-800 mb-2">
+        {{ topic.name }}
+      </h3>
+      <p class="text-gray-600 text-sm line-clamp-2">
+        {{ topic.description }}
+      </p>
+    </div>
+  </div>
+</div>

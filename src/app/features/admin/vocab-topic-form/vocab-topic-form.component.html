@@ -1,0 +1,64 @@
+<div class="p-6 max-w-xl mx-auto bg-white shadow rounded-lg space-y-4">
+  <h2 class="text-xl font-semibold">
+    {{ initialData ? "Edit Topic" : "Create Topic" }}
+  </h2>
+
+  <form [formGroup]="form" (ngSubmit)="onSubmit()" class="space-y-4">
+    <!-- Name -->
+    <div>
+      <label class="block text-sm font-medium mb-1">Name *</label>
+      <input
+        type="text"
+        formControlName="name"
+        class="w-full border rounded px-3 py-2"
+      />
+      <p
+        *ngIf="form.get('name')?.invalid && form.get('name')?.touched"
+        class="text-red-500 text-sm"
+      >
+        Name is required
+      </p>
+    </div>
+
+    <!-- Description -->
+    <div>
+      <label class="block text-sm font-medium mb-1">Description</label>
+      <textarea
+        formControlName="description"
+        rows="3"
+        class="w-full border rounded px-3 py-2"
+      ></textarea>
+    </div>
+
+    <!-- Image -->
+    <div>
+      <label class="block text-sm font-medium mb-1">Image</label>
+      <input type="file" accept="image/*" (change)="onFileSelected($event)" />
+
+      <div *ngIf="imagePreview" class="mt-2">
+        <img
+          [src]="imagePreview"
+          alt="Preview"
+          class="w-32 h-32 object-cover rounded border"
+        />
+      </div>
+    </div>
+
+    <!-- Actions -->
+    <div class="flex justify-end gap-3">
+      <button
+        type="button"
+        (click)="onCancel()"
+        class="px-4 py-2 border rounded flex items-center gap-2 text-gray-600 hover:bg-gray-100"
+      >
+        <fa-icon [icon]="faTimes"></fa-icon> Cancel
+      </button>
+      <button
+        type="submit"
+        class="px-4 py-2 bg-blue-600 text-white rounded flex items-center gap-2 hover:bg-blue-700"
+      >
+        <fa-icon [icon]="faSave"></fa-icon> Save
+      </button>
+    </div>
+  </form>
+</div>

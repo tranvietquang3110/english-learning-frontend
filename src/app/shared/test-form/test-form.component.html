@@ -1,0 +1,530 @@
+<div class="mx-auto p-6 bg-white rounded-lg shadow-lg">
+  <div class="mb-6">
+    <h2 class="text-2xl font-bold text-gray-800 mb-2">
+      Tạo bài test
+      {{
+        config.testType === "vocabulary"
+          ? "từ vựng"
+          : config.testType === "grammar"
+          ? "ngữ pháp"
+          : "nghe hiểu"
+      }}
+    </h2>
+    <p class="text-gray-600">Chủ đề: {{ config.topicName }}</p>
+  </div>
+
+  <form (ngSubmit)="onSave()" class="test-form-container space-y-6">
+    <!-- Test Basic Info -->
+    <div class="form-section">
+      <h3 class="form-section-title">Thông tin bài test</h3>
+
+      <div class="form-group">
+        <label class="form-label-required">Tên bài test</label>
+        <div class="enhanced-input">
+          <input
+            type="text"
+            [(ngModel)]="testData.name"
+            name="testName"
+            placeholder="Nhập tên bài test"
+            title="Tên bài test"
+          />
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label-required">Thời gian (phút)</label>
+        <div class="enhanced-input">
+          <input
+            type="number"
+            [(ngModel)]="testData.duration"
+            name="duration"
+            min="1"
+            max="180"
+            placeholder="Nhập thời gian làm bài"
+            title="Thời gian làm bài"
+          />
+        </div>
+      </div>
+    </div>
+
+    <!-- Audio Upload Section (only for listening tests) -->
+    <div class="form-section" *ngIf="config.showAudioUpload">
+      <h3 class="form-section-title">Tài liệu đính kèm</h3>
+
+      <div class="form-group" *ngIf="config.showAudioUpload">
+        <label class="form-label">File âm thanh</label>
+        <input
+          type="file"
+          multiple
+          accept="audio/*"
+          (change)="onAudioSelected($event)"
+          class="form-file-input"
+          title="Chọn file âm thanh"
+        />
+        <p class="form-help-text">
+          Có thể chọn nhiều file âm thanh (MP3, WAV, M4A)
+        </p>
+      </div>
+    </div>
+
+    <!-- Add Question Form -->
+    <div class="form-section">
+      <h3 class="form-section-title">Thêm câu hỏi</h3>
+
+      <div class="form-group">
+        <label class="form-label-required">Câu hỏi</label>
+        <textarea
+          [(ngModel)]="newQuestion.question"
+          name="question"
+          class="form-textarea"
+          placeholder="Nhập câu hỏi..."
+          title="Nội dung câu hỏi"
+        ></textarea>
+      </div>
+
+      <!-- Question Image -->
+      <div class="form-group" *ngIf="config.supportsImage">
+        <label class="form-label">Hình ảnh câu hỏi</label>
+        <div class="enhanced-file-upload">
+          <svg
+            class="upload-icon"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
+            ></path>
+          </svg>
+          <div class="upload-text">
+            Kéo thả hình ảnh vào đây hoặc click để chọn
+          </div>
+          <div class="upload-hint">PNG, JPG, GIF tối đa 10MB</div>
+          <input
+            type="file"
+            (change)="onQuestionImageSelected($event)"
+            accept="image/*"
+            title="Chọn hình ảnh cho câu hỏi"
+          />
+        </div>
+        <div
+          *ngIf="newQuestion.image"
+          class="mt-4 p-4 bg-green-50 border border-green-200 rounded-lg"
+        >
+          <div class="flex items-center gap-4">
+            <img
+              [src]="getImagePreview(newQuestion.image)"
+              alt="Preview"
+              class="w-24 h-24 object-cover rounded-lg border-2 border-green-300"
+              title="Hình ảnh câu hỏi"
+            />
+            <div class="flex-1">
+              <p class="text-sm font-medium text-green-800">
+                {{ newQuestion.image.name }}
+              </p>
+              <p class="text-xs text-green-600">
+                {{ (newQuestion.image.size / 1024 / 1024).toFixed(2) }} MB
+              </p>
+            </div>
+            <button
+              type="button"
+              (click)="removeQuestionImage()"
+              class="px-3 py-1 text-sm bg-red-100 text-red-700 rounded-md hover:bg-red-200 transition-colors"
+              title="Xóa hình ảnh"
+            >
+              Xóa
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Question Audio -->
+      <div class="form-group" *ngIf="config.supportsAudio">
+        <label class="form-label">File âm thanh câu hỏi</label>
+        <div class="enhanced-file-upload">
+          <svg
+            class="upload-icon"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"
+            ></path>
+          </svg>
+          <div class="upload-text">
+            Kéo thả file âm thanh vào đây hoặc click để chọn
+          </div>
+          <div class="upload-hint">MP3, WAV, M4A tối đa 10MB</div>
+          <input
+            type="file"
+            (change)="onQuestionAudioSelected($event)"
+            accept="audio/*"
+            class="form-file-input"
+            title="Chọn file âm thanh cho câu hỏi"
+          />
+        </div>
+        <div
+          *ngIf="newQuestion.audio"
+          class="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg"
+        >
+          <div class="flex items-center gap-4">
+            <div
+              class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center"
+            >
+              <svg
+                class="w-6 h-6 text-blue-600"
+                fill="currentColor"
+                viewBox="0 0 20 20"
+              >
+                <path
+                  fill-rule="evenodd"
+                  d="M9.383 3.076A1 1 0 0110 4v12a1 1 0 01-1.707.707L4.586 13H2a1 1 0 01-1-1V8a1 1 0 011-1h2.586l3.707-3.707a1 1 0 011.09-.217zM15.657 6.343a1 1 0 011.414 0A9.972 9.972 0 0119 12a9.972 9.972 0 01-1.929 5.657 1 1 0 11-1.414-1.414A7.971 7.971 0 0017 12a7.971 7.971 0 00-1.343-4.243 1 1 0 010-1.414z"
+                  clip-rule="evenodd"
+                ></path>
+              </svg>
+            </div>
+            <div class="flex-1">
+              <p class="text-sm font-medium text-blue-800">
+                {{ newQuestion.audio.name }}
+              </p>
+              <p class="text-xs text-blue-600">
+                {{ (newQuestion.audio.size / 1024 / 1024).toFixed(2) }} MB
+              </p>
+            </div>
+            <button
+              type="button"
+              (click)="removeQuestionAudio()"
+              class="px-3 py-1 text-sm bg-red-100 text-red-700 rounded-md hover:bg-red-200 transition-colors"
+              title="Xóa file âm thanh"
+            >
+              Xóa
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Options -->
+      <div class="form-group">
+        <label class="form-label-required">Các lựa chọn</label>
+        <div class="space-y-3">
+          <!-- Option 1 -->
+          <div
+            class="flex items-center gap-3 p-3 border-2 border-gray-300 rounded-xl bg-white transition-all duration-200 cursor-pointer hover:border-gray-400 hover:shadow-md"
+            [class.border-blue-500]="
+              newQuestion.correctAnswer ===
+              (config.correctAnswerType === 'index'
+                ? 0
+                : newQuestion.options[0])
+            "
+            [class.bg-blue-50]="
+              newQuestion.correctAnswer ===
+              (config.correctAnswerType === 'index'
+                ? 0
+                : newQuestion.options[0])
+            "
+            (click)="selectOption(0)"
+          >
+            <input
+              type="radio"
+              name="correctAnswer"
+              [value]="
+                config.correctAnswerType === 'index'
+                  ? 0
+                  : newQuestion.options[0]
+              "
+              [checked]="
+                newQuestion.correctAnswer ===
+                (config.correctAnswerType === 'index'
+                  ? 0
+                  : newQuestion.options[0])
+              "
+              class="w-5 h-5 text-blue-600 border-gray-300 focus:ring-blue-500"
+              title="Chọn đáp án đúng cho lựa chọn 1"
+            />
+            <input
+              type="text"
+              [(ngModel)]="newQuestion.options[0]"
+              name="option0"
+              class="flex-1 bg-transparent border-none outline-none text-sm placeholder-gray-400"
+              placeholder="Lựa chọn 1"
+              title="Lựa chọn 1"
+              (click)="$event.stopPropagation()"
+            />
+          </div>
+
+          <!-- Option 2 -->
+          <div
+            class="flex items-center gap-3 p-3 border-2 border-gray-300 rounded-xl bg-white transition-all duration-200 cursor-pointer hover:border-gray-400 hover:shadow-md"
+            [class.border-blue-500]="
+              newQuestion.correctAnswer ===
+              (config.correctAnswerType === 'index'
+                ? 1
+                : newQuestion.options[1])
+            "
+            [class.bg-blue-50]="
+              newQuestion.correctAnswer ===
+              (config.correctAnswerType === 'index'
+                ? 1
+                : newQuestion.options[1])
+            "
+            (click)="selectOption(1)"
+          >
+            <input
+              type="radio"
+              name="correctAnswer"
+              [value]="
+                config.correctAnswerType === 'index'
+                  ? 1
+                  : newQuestion.options[1]
+              "
+              [checked]="
+                newQuestion.correctAnswer ===
+                (config.correctAnswerType === 'index'
+                  ? 1
+                  : newQuestion.options[1])
+              "
+              class="w-5 h-5 text-blue-600 border-gray-300 focus:ring-blue-500"
+              title="Chọn đáp án đúng cho lựa chọn 2"
+            />
+            <input
+              type="text"
+              [(ngModel)]="newQuestion.options[1]"
+              name="option1"
+              class="flex-1 bg-transparent border-none outline-none text-sm placeholder-gray-400"
+              placeholder="Lựa chọn 2"
+              title="Lựa chọn 2"
+              (click)="$event.stopPropagation()"
+            />
+          </div>
+
+          <!-- Option 3 -->
+          <div
+            class="flex items-center gap-3 p-3 border-2 border-gray-300 rounded-xl bg-white transition-all duration-200 cursor-pointer hover:border-gray-400 hover:shadow-md"
+            [class.border-blue-500]="
+              newQuestion.correctAnswer ===
+              (config.correctAnswerType === 'index'
+                ? 2
+                : newQuestion.options[2])
+            "
+            [class.bg-blue-50]="
+              newQuestion.correctAnswer ===
+              (config.correctAnswerType === 'index'
+                ? 2
+                : newQuestion.options[2])
+            "
+            (click)="selectOption(2)"
+          >
+            <input
+              type="radio"
+              name="correctAnswer"
+              [value]="
+                config.correctAnswerType === 'index'
+                  ? 2
+                  : newQuestion.options[2]
+              "
+              [checked]="
+                newQuestion.correctAnswer ===
+                (config.correctAnswerType === 'index'
+                  ? 2
+                  : newQuestion.options[2])
+              "
+              class="w-5 h-5 text-blue-600 border-gray-300 focus:ring-blue-500"
+              title="Chọn đáp án đúng cho lựa chọn 3"
+            />
+            <input
+              type="text"
+              [(ngModel)]="newQuestion.options[2]"
+              name="option2"
+              class="flex-1 bg-transparent border-none outline-none text-sm placeholder-gray-400"
+              placeholder="Lựa chọn 3"
+              title="Lựa chọn 3"
+              (click)="$event.stopPropagation()"
+            />
+          </div>
+
+          <!-- Option 4 -->
+          <div
+            class="flex items-center gap-3 p-3 border-2 border-gray-300 rounded-xl bg-white transition-all duration-200 cursor-pointer hover:border-gray-400 hover:shadow-md"
+            [class.border-blue-500]="
+              newQuestion.correctAnswer ===
+              (config.correctAnswerType === 'index'
+                ? 3
+                : newQuestion.options[3])
+            "
+            [class.bg-blue-50]="
+              newQuestion.correctAnswer ===
+              (config.correctAnswerType === 'index'
+                ? 3
+                : newQuestion.options[3])
+            "
+            (click)="selectOption(3)"
+          >
+            <input
+              type="radio"
+              name="correctAnswer"
+              [value]="
+                config.correctAnswerType === 'index'
+                  ? 3
+                  : newQuestion.options[3]
+              "
+              [checked]="
+                newQuestion.correctAnswer ===
+                (config.correctAnswerType === 'index'
+                  ? 3
+                  : newQuestion.options[3])
+              "
+              class="w-5 h-5 text-blue-600 border-gray-300 focus:ring-blue-500"
+              title="Chọn đáp án đúng cho lựa chọn 4"
+            />
+            <input
+              type="text"
+              [(ngModel)]="newQuestion.options[3]"
+              name="option3"
+              class="flex-1 bg-transparent border-none outline-none text-sm placeholder-gray-400"
+              placeholder="Lựa chọn 4"
+              title="Lựa chọn 4"
+              (click)="$event.stopPropagation()"
+            />
+          </div>
+        </div>
+      </div>
+
+      <!-- Explanation -->
+      <div class="form-group">
+        <label class="form-label">Giải thích</label>
+        <div class="enhanced-input">
+          <textarea
+            [(ngModel)]="newQuestion.explaination"
+            name="explaination"
+            placeholder="Nhập giải thích cho câu hỏi (tùy chọn)..."
+            title="Giải thích câu hỏi"
+          ></textarea>
+        </div>
+      </div>
+
+      <!-- Add Question Button -->
+      <button type="button" (click)="addQuestion()" class="form-button-primary">
+        Thêm câu hỏi
+      </button>
+    </div>
+
+    <!-- Questions List -->
+    <div *ngIf="testData.questions.length > 0" class="form-section">
+      <h3 class="form-section-title">
+        Danh sách câu hỏi ({{ testData.questions.length }})
+      </h3>
+
+      <div class="space-y-4">
+        <div
+          *ngFor="let question of testData.questions; let i = index"
+          class="p-4 border border-gray-200 rounded-lg"
+        >
+          <div class="flex justify-between items-start mb-2">
+            <h5 class="font-medium text-gray-800">Câu {{ i + 1 }}</h5>
+            <button
+              type="button"
+              (click)="removeQuestion(i)"
+              class="form-button-danger text-sm"
+            >
+              Xóa
+            </button>
+          </div>
+
+          <p class="text-gray-700 mb-3">{{ question.question }}</p>
+
+          <div class="space-y-1">
+            <div
+              *ngFor="let option of question.options; let j = index"
+              class="flex items-center gap-2"
+            >
+              <span
+                class="w-4 h-4 rounded-full border-2 flex items-center justify-center"
+                [class.bg-blue-600]="
+                  config.correctAnswerType === 'index'
+                    ? j === question.correctAnswer
+                    : false
+                "
+                [class.border-blue-600]="
+                  config.correctAnswerType === 'index'
+                    ? j === question.correctAnswer
+                    : false
+                "
+              >
+                <span
+                  *ngIf="
+                    config.correctAnswerType === 'index'
+                      ? j === question.correctAnswer
+                      : false
+                  "
+                  class="w-2 h-2 bg-white rounded-full"
+                ></span>
+              </span>
+              <span
+                [class.font-semibold]="
+                  config.correctAnswerType === 'index'
+                    ? j === question.correctAnswer
+                    : false
+                "
+                [class.text-blue-600]="
+                  config.correctAnswerType === 'index'
+                    ? j === question.correctAnswer
+                    : false
+                "
+              >
+                {{ option }}
+              </span>
+            </div>
+          </div>
+
+          <div class="mt-2 p-2 bg-green-50 rounded">
+            <p class="text-sm text-green-700">
+              <strong>{{ getCorrectAnswerLabel(question) }}:</strong>
+              {{ getCorrectAnswerDisplay(question) }}
+            </p>
+          </div>
+
+          <!-- Question Image -->
+          <div *ngIf="question.imageUrl" class="mt-2">
+            <img
+              [src]="question.imageUrl"
+              alt="Question image"
+              class="w-32 h-32 object-cover rounded border"
+              title="Hình ảnh câu hỏi"
+            />
+          </div>
+
+          <!-- Explanation -->
+          <div
+            *ngIf="question.explaination"
+            class="mt-2 p-2 bg-blue-50 rounded"
+          >
+            <p class="text-sm text-blue-700">
+              <strong>Giải thích:</strong> {{ question.explaination }}
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="flex justify-end gap-4 pt-6 border-t">
+      <button type="button" (click)="onCancel()" class="form-button-secondary">
+        Hủy
+      </button>
+      <button
+        type="submit"
+        [disabled]="!testData.name.trim() || testData.questions.length === 0"
+        class="form-button-primary"
+      >
+        Lưu bài test
+      </button>
+    </div>
+  </form>
+</div>

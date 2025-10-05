@@ -1,0 +1,92 @@
+<div class="bg-white rounded-lg shadow-md">
+  <div class="p-6 border-b border-gray-200">
+    <h3 class="text-lg font-semibold text-gray-800">Danh sách bài test</h3>
+    <p class="text-gray-600 text-sm mt-1">Chủ đề: {{ selectedTopicName }}</p>
+  </div>
+
+  <div class="p-6">
+    <!-- Tests Table -->
+    <div *ngIf="tests.length > 0" class="overflow-x-auto">
+      <table class="w-full">
+        <thead>
+          <tr class="border-b border-gray-200">
+            <th class="text-left py-3 px-4 font-semibold text-gray-700">
+              Tên bài test
+            </th>
+            <th class="text-left py-3 px-4 font-semibold text-gray-700">
+              Thời gian (phút)
+            </th>
+            <th class="text-left py-3 px-4 font-semibold text-gray-700">
+              Ngày tạo
+            </th>
+            <th class="text-center py-3 px-4 font-semibold text-gray-700">
+              Thao tác
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr
+            *ngFor="let test of tests"
+            class="border-b border-gray-100 hover:bg-gray-50"
+          >
+            <td class="py-3 px-4">
+              <div class="font-medium text-gray-800">{{ test.name }}</div>
+            </td>
+            <td class="py-3 px-4 text-gray-600">{{ test.duration }}</td>
+            <td class="py-3 px-4 text-gray-600">
+              {{ test.createdAt | date : "dd/MM/yyyy HH:mm" }}
+            </td>
+            <td class="py-3 px-4">
+              <div class="flex justify-center gap-2">
+                <button
+                  (click)="onViewTest(test)"
+                  class="bg-blue-100 hover:bg-blue-200 text-blue-700 px-3 py-1 rounded text-sm transition-colors"
+                >
+                  Xem
+                </button>
+                <button
+                  (click)="onEditTest(test)"
+                  class="bg-yellow-100 hover:bg-yellow-200 text-yellow-700 px-3 py-1 rounded text-sm transition-colors"
+                >
+                  Sửa
+                </button>
+                <button
+                  (click)="onDeleteTest(test)"
+                  class="bg-red-100 hover:bg-red-200 text-red-700 px-3 py-1 rounded text-sm transition-colors"
+                >
+                  Xóa
+                </button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Empty Tests State -->
+    <div *ngIf="tests.length === 0" class="text-center py-12">
+      <div class="text-gray-400 text-6xl mb-4">📝</div>
+      <h3 class="text-xl font-semibold text-gray-600 mb-2">
+        Chưa có bài test nào
+      </h3>
+      <p class="text-gray-500 mb-4">
+        Hãy tạo bài test đầu tiên cho chủ đề này.
+      </p>
+      <button
+        (click)="onCreateTest()"
+        class="bg-primary text-white px-6 py-2 rounded-lg hover:opacity-80"
+      >
+        Tạo bài test mới
+      </button>
+    </div>
+
+    <!-- Pagination -->
+    <div *ngIf="totalPages > 1" class="mt-6">
+      <app-pagination
+        [currentPage]="currentPage"
+        [totalPages]="totalPages"
+        (pageChange)="onPageChangeHandler($event)"
+      ></app-pagination>
+    </div>
+  </div>
+</div>

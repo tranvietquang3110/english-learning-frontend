@@ -1,0 +1,147 @@
+import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Observable } from 'rxjs';
+import { environment } from '../../environments/environment';
+import { Page } from '../models/page.model';
+import { VocabTopic } from '../models/vocabulary/vocab-topic.model';
+import { Vocabulary } from '../models/vocabulary/vocabulary.model';
+import { VocabularyTest } from '../models/vocabulary/vocabulary-test.model';
+import { VocabularyTestQuestion } from '../models/vocabulary/vocabulary-test-question.model';
+
+@Injectable({
+  providedIn: 'root',
+})
+export class VocabularyService {
+  private apiUrl = `${environment.apiContentServiceUrl}/vocabulary`;
+
+  constructor(private http: HttpClient) {}
+
+  // 1. Get all topics
+  getTopics(page: number = 0, size: number = 10): Observable<Page<VocabTopic>> {
+    return this.http.get<Page<VocabTopic>>(
+      `${this.apiUrl}/topics?page=${page}&size=${size}`
+    );
+  }
+
+  // 2. Get vocabularies by topic id
+  getVocabulariesByTopicId(
+    topicId: string,
+    page: number = 0,
+    size: number = 10
+  ): Observable<{ name: string; topicId: string; vocabularies: Vocabulary[] }> {
+    return this.http.get<{
+      name: string;
+      topicId: string;
+      vocabularies: Vocabulary[];
+    }>(`${this.apiUrl}/${topicId}/vocabularies?page=${page}&size=${size}`);
+  }
+
+  // 3. Get tests by topic id
+  getTestsByTopicId(
+    topicId: string,
+    page: number = 0,
+    size: number = 10
+  ): Observable<{
+    topicName: string;
+    topicId: string;
+    vocabularyTests: Page<VocabularyTest>;
+  }> {
+    return this.http.get<{
+      topicName: string;
+      topicId: string;
+      vocabularyTests: Page<VocabularyTest>;
+    }>(`${this.apiUrl}/${topicId}/tests?page=${page}&size=${size}`);
+  }
+
+  // 4. Get test questions by test id
+  getTestQuestionsByTestId(testId: string): Observable<{
+    duration: number;
+    topicName: string;
+    topicId: string;
+    testName: string;
+    testId: string;
+    questions: VocabularyTestQuestion[];
+  }> {
+    return this.http.get<{
+      duration: number;
+      topicName: string;
+      topicId: string;
+      testName: string;
+      testId: string;
+      questions: VocabularyTestQuestion[];
+    }>(`${this.apiUrl}/tests/${testId}/questions`);
+  }
+
+  // 5. Create topic
+  createTopic(
+    topic: { name: string; description: string },
+    imageFile?: File
+  ): Observable<VocabTopic> {
+    const formData = new FormData();
+    formData.append(
+      'topic',
+      new Blob([JSON.stringify(topic)], { type: 'application/json' })
+    );
+    if (imageFile) {
+      formData.append('image', imageFile);
+    }
+
+    return this.http.post<any>(`${this.apiUrl}/topics`, formData);
+  }
+
+  // 6. Delete topic
+  deleteTopic(topicId: string): Observable<any> {
+    return this.http.delete<any>(`${this.apiUrl}/topics/${topicId}`);
+  }
+
+  // 7. Add vocabularies (nhiều từ + file ảnh/audio)
+  addVocabularies(
+    topicId: string,
+    vocabularies: any[],
+    imageFiles: File[],
+    audioFiles: File[]
+  ): Observable<Vocabulary[]> {
+    const formData = new FormData();
+    console.log(imageFiles);
+    // append list object dưới dạng JSON
+    formData.append(
+      'vocabularies',
+      new Blob([JSON.stringify(vocabularies)], { type: 'application/json' })
+    );
+
+    // append nhiều file ảnh
+    imageFiles.forEach((file) => formData.append('images', file));
+
+    // append nhiều file audio
+    audioFiles.forEach((file) => formData.append('audios', file));
+
+    return this.http.post<any>(
+      `${this.apiUrl}/${topicId}/vocabularies`,
+      formData
+    );
+  }
+
+  // 8. Create test
+  createTest(topicId: string, test: any, images: File[]): Observable<any> {
+    const formData = new FormData();
+
+    formData.append(
+      'test',
+      new Blob([JSON.stringify(test)], { type: 'application/json' })
+    );
+
+    images.forEach((file) => formData.append('images', file));
+
+    return this.http.post<any>(`${this.apiUrl}/${topicId}/tests`, formData);
+  }
+
+  // 9. Get test by id
+  getTestById(testId: string): Observable<VocabularyTest> {
+    return this.http.get<VocabularyTest>(`${this.apiUrl}/tests/${testId}`);
+  }
+
+  // 10. Delete test
+  deleteTest(testId: string): Observable<any> {
+    return this.http.delete<any>(`${this.apiUrl}/tests/${testId}`);
+  }
+}

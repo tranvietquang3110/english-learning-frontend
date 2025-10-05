@@ -1,0 +1,168 @@
+<div class="min-h-screen bg-background">
+  <div class="container mx-auto px-4 py-8 max-w-4xl">
+    <!-- Header -->
+    <div class="flex items-center justify-between mb-8">
+      <div class="flex items-center gap-4">
+        <button
+          class="flex items-center gap-2 px-3 py-2 text-sm border rounded hover:bg-gray-100"
+          (click)="goBack()"
+        >
+          <fa-icon [icon]="faArrowLeft" class="w-4 h-4"></fa-icon>
+          Back
+        </button>
+        <div>
+          <h1 class="text-2xl font-bold">{{ topicTitle }}</h1>
+          <p class="text-muted-foreground">
+            Word {{ currentIndex + 1 }} of {{ words.length }}
+          </p>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-2 text-sm">
+        {{ completedWords.size }}/{{ words.length }} completed
+      </div>
+    </div>
+
+    <!-- Progress Bar -->
+    <div class="w-full bg-gray-200 rounded-full h-2 mb-8">
+      <div
+        class="bg-primary h-2 rounded-full transition-all duration-300"
+        [style.width.%]="((currentIndex + 1) / words.length) * 100"
+      ></div>
+    </div>
+
+    <!-- Flashcard -->
+    <div class="flex justify-center mb-8" *ngIf="currentWord">
+      <div
+        class="relative w-full max-w-md h-96 cursor-pointer"
+        (click)="handleFlip()"
+        style="perspective: 1000px"
+      >
+        <div
+          class="absolute inset-0 w-full h-full transition-transform duration-700 preserve-3d"
+          [ngClass]="{ 'rotate-y-180': isFlipped }"
+        >
+          <!-- Front -->
+          <div
+            class="absolute inset-0 w-full h-full backface-hidden border-2 border-primary/20 rounded-lg"
+          >
+            <div
+              class="flex flex-col items-center justify-center h-full p-6 text-center"
+            >
+              <div class="space-y-4">
+                <div
+                  class="w-full h-32 mb-4 rounded-lg overflow-hidden bg-muted"
+                >
+                  <img
+                    [src]="currentWord.imageUrl"
+                    [alt]="currentWord.word"
+                    class="w-full h-full object-cover"
+                  />
+                </div>
+                <h2 class="text-3xl font-bold text-primary">
+                  {{ currentWord.word }}
+                </h2>
+                <button
+                  (click)="
+                    $event.stopPropagation();
+                    handlePronunciation(currentWord.word)
+                  "
+                  class="flex items-center gap-2 text-sm text-gray-500 hover:text-primary"
+                >
+                  <fa-icon [icon]="faVolumeUp" class="w-4 h-4"></fa-icon>
+                  Listen
+                </button>
+                <p class="text-sm text-gray-400">
+                  Click to see meaning and pronunciation
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Back -->
+          <div
+            class="absolute inset-0 w-full h-full backface-hidden rotate-y-180 border-2 border-secondary/20 rounded-lg"
+          >
+            <div
+              class="flex flex-col justify-center h-full p-6 text-center space-y-4"
+            >
+              <div
+                class="w-20 h-20 mx-auto rounded-lg overflow-hidden bg-muted"
+              >
+                <img
+                  [src]="currentWord.imageUrl"
+                  [alt]="currentWord.word"
+                  class="w-full h-full object-cover"
+                />
+              </div>
+              <h2 class="text-2xl font-bold text-primary">
+                {{ currentWord.word }}
+              </h2>
+              <p class="font-mono text-gray-500">
+                {{ currentWord.phonetic }}
+              </p>
+              <p class="text-lg font-semibold">
+                {{ currentWord.meaning }}
+              </p>
+              <div class="space-y-2 pt-3 border-t">
+                <p class="text-sm italic text-gray-500">
+                  "{{ currentWord.example }}"
+                </p>
+                <p class="text-sm text-gray-400">
+                  {{ currentWord.exampleMeaning }}
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Controls -->
+    <div class="flex justify-center gap-4">
+      <button
+        (click)="handlePrevious()"
+        [disabled]="currentIndex <= 0"
+        class="flex items-center gap-2 px-4 py-2 border rounded hover:bg-gray-100 disabled:opacity-50"
+      >
+        <fa-icon [icon]="faChevronLeft" class="w-4 h-4"></fa-icon>
+        Previous
+      </button>
+
+      <button
+        (click)="handleFlip()"
+        class="flex items-center gap-2 px-4 py-2 border rounded hover:bg-gray-100"
+      >
+        <fa-icon [icon]="faRotateLeft" class="w-4 h-4"></fa-icon>
+        Flip Card
+      </button>
+
+      <button
+        (click)="handleNext()"
+        [disabled]="currentIndex >= words.length - 1"
+        class="flex items-center gap-2 px-4 py-2 bg-primary text-white rounded hover:bg-primary/90 disabled:opacity-50"
+      >
+        Next Word
+        <fa-icon [icon]="faChevronRight" class="w-4 h-4"></fa-icon>
+      </button>
+    </div>
+
+    <!-- Completion -->
+    <div
+      *ngIf="currentIndex >= words.length - 1"
+      class="text-center mt-8 p-6 bg-primary/5 rounded-lg border border-primary/20"
+    >
+      <h3 class="text-xl font-bold text-primary mb-2">Congratulations! 🎉</h3>
+      <p class="text-gray-500 mb-4">
+        You've completed all words in this topic!
+      </p>
+      <button
+        (click)="goBack()"
+        class="flex items-center gap-2 px-4 py-2 bg-primary text-white rounded hover:bg-primary/90"
+      >
+        <fa-icon [icon]="faArrowLeft" class="w-4 h-4"></fa-icon>
+        Back to Topics
+      </button>
+    </div>
+  </div>
+</div>

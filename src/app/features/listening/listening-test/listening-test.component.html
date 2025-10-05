@@ -1,0 +1,238 @@
+<div class="min-h-screen bg-gray-50">
+  <div class="container mx-auto px-4 py-8 w-full">
+    <!-- Loading -->
+    <div *ngIf="isLoading" class="text-center space-y-4">
+      <h1 class="text-2xl font-bold">Loading test...</h1>
+    </div>
+
+    <!-- Test not found -->
+    <div *ngIf="!isLoading" class="text-center space-y-4">
+      <h1 class="text-2xl font-bold">Test not found</h1>
+      <button
+        (click)="goBack()"
+        class="btn bg-primary text-white px-4 py-2 rounded"
+      >
+        <fa-icon [icon]="faArrowLeft" class="mr-2"></fa-icon> Back to Topics
+      </button>
+    </div>
+
+    <!-- Start screen -->
+    <div
+      *ngIf="!isTestStarted && !isTestCompleted"
+      class="max-w-2xl mx-auto text-center space-y-6"
+    >
+      <h1 class="text-3xl font-bold mb-4">{{ title }}</h1>
+
+      <div class="space-y-4 text-left">
+        <!-- Time limit -->
+        <div class="flex items-center gap-2">
+          <fa-icon [icon]="faClock" class="text-gray-500 w-5 h-5"></fa-icon>
+          <span>Time Limit: {{ duration }} minutes</span>
+        </div>
+
+        <!-- Total questions -->
+        <div class="flex items-center gap-2">
+          <fa-icon
+            [icon]="faCheckCircle"
+            class="text-gray-500 w-5 h-5"
+          ></fa-icon>
+          <span>Questions: {{ questions.length }}</span>
+        </div>
+
+        <!-- Instructions -->
+        <div class="bg-gray-100 p-4 rounded-lg">
+          <h3 class="font-semibold mb-2">Instructions:</h3>
+          <ul class="text-sm space-y-1 text-gray-600">
+            <li>• Listen to each audio clip carefully</li>
+            <li>• You can replay audio as many times as needed</li>
+            <li>• Some questions may have multiple correct answers</li>
+            <li>• You can navigate between questions freely</li>
+            <li>• Submit your test before time runs out</li>
+          </ul>
+        </div>
+      </div>
+
+      <button
+        (click)="startTest()"
+        class="w-full py-3 bg-primary text-white rounded-lg"
+      >
+        Start Test
+      </button>
+    </div>
+
+    <!-- Test in progress -->
+    <div *ngIf="isTestStarted && !isTestCompleted">
+      <!-- Header -->
+      <div class="flex items-center justify-between mb-6">
+        <div>
+          <h1 class="text-2xl font-bold">{{ title }}</h1>
+          <p>
+            Question {{ currentQuestionIndex + 1 }} of
+            {{ questions.length }}
+          </p>
+        </div>
+
+        <div class="flex items-center gap-4">
+          <fa-icon [icon]="faClock"></fa-icon>
+          <span [class.text-red-600]="timeRemaining < 300" class="font-mono">
+            {{ formatTime(timeRemaining) }}
+          </span>
+          <button (click)="handleFinishTest()" class="px-4 py-2 border rounded">
+            Finish Test
+          </button>
+        </div>
+      </div>
+
+      <!-- Progress bar -->
+      <div class="w-full bg-gray-200 rounded-full h-2 mb-8">
+        <div
+          class="bg-primary h-2 rounded-full"
+          [style.width.%]="
+            ((currentQuestionIndex + 1) / questions.length) * 100
+          "
+        ></div>
+      </div>
+
+      <!-- Question -->
+      <div class="flex flex-col lg:flex-row gap-4">
+        <div *ngIf="currentQuestion" class="lg:w-3/4 w-full space-y-6">
+          <div class="p-6 border rounded-lg bg-white gap-4">
+            <div class="flex flex-col md:flex-row gap-6">
+              <div class="md:w-1/3" *ngIf="currentQuestion.imageUrl">
+                <img
+                  [src]="currentQuestion.imageUrl"
+                  [alt]="currentQuestion.question"
+                  [title]="currentQuestion.question"
+                  class="w-full h-48 object-cover rounded-lg"
+                />
+              </div>
+              <div class="md:w-2/3 space-y-4">
+                <app-audio-player
+                  [src]="currentQuestion.audioUrl"
+                  [showTranscript]="false"
+                  [transcript]="currentQuestion.transcript"
+                  class="w-full"
+                ></app-audio-player>
+              </div>
+            </div>
+          </div>
+
+          <div class="p-6 border rounded-lg bg-white">
+            <h3 class="text-lg font-semibold mb-4">
+              {{ currentQuestion.question }}
+            </h3>
+            <div class="grid gap-3">
+              <button
+                *ngFor="
+                  let optionKey of getOptionKeys(currentQuestion);
+                  let idx = index
+                "
+                (click)="handleAnswerSelect(currentQuestion.id, optionKey)"
+                class="p-4 text-left border rounded-lg"
+                [ngClass]="{
+                  'border-primary bg-blue-50':
+                    selectedAnswers[currentQuestion.id] === optionKey,
+                  'hover:border-primary':
+                    selectedAnswers[currentQuestion.id] !== optionKey
+                }"
+              >
+                <span class="font-medium mr-2"
+                  >{{ getLetter(idx) }}.
+                  {{ currentQuestion.options[optionKey] }}</span
+                >
+              </button>
+            </div>
+          </div>
+
+          <!-- Navigation -->
+          <div class="flex justify-between mt-6">
+            <button
+              (click)="handlePreviousQuestion()"
+              [disabled]="currentQuestionIndex <= 0"
+              class="px-4 py-2 border rounded flex items-center gap-2"
+            >
+              <fa-icon [icon]="faChevronLeft"></fa-icon> Previous
+            </button>
+
+            <button
+              (click)="handleNextQuestion()"
+              [disabled]="currentQuestionIndex >= questions.length - 1"
+              class="px-4 py-2 bg-primary text-white rounded flex items-center gap-2"
+            >
+              Next <fa-icon [icon]="faChevronRight"></fa-icon>
+            </button>
+          </div>
+        </div>
+
+        <!-- Question Grid -->
+        <div class="lg:w-1/4 w-full">
+          <h4 class="text-lg font-semibold mb-4">Question Navigation</h4>
+          <app-question-grid
+            [totalQuestion]="questions.length"
+            [selectedAnswers]="questionGridAnswers"
+            [markedQuestions]="markedQuestions"
+            (questionClick)="handleQuestionGridClick($event)"
+          ></app-question-grid>
+        </div>
+      </div>
+    </div>
+
+    <!-- Results -->
+    <div *ngIf="isTestCompleted && testResults" class="space-y-6">
+      <h1 class="text-3xl font-bold text-center">Test Results</h1>
+      <div
+        class="text-center text-5xl font-bold"
+        [class.text-green-600]="testResults.score >= 80"
+        [class.text-yellow-600]="
+          testResults.score >= 60 && testResults.score < 80
+        "
+        [class.text-red-600]="testResults.score < 60"
+      >
+        {{ testResults.score }}%
+      </div>
+      <p class="text-center">
+        Correct: {{ testResults.correctAnswers }} | Incorrect:
+        {{ testResults.incorrectAnswers }}
+      </p>
+
+      <div class="space-y-4">
+        <div
+          *ngFor="let q of questions; let i = index"
+          class="p-4 border rounded-lg"
+        >
+          <div class="flex items-start gap-2">
+            <fa-icon
+              [icon]="
+                testResults.details[i].isCorrect ? faCheckCircle : faTimesCircle
+              "
+              [class.text-green-600]="testResults.details[i].isCorrect"
+              [class.text-red-600]="!testResults.details[i].isCorrect"
+            ></fa-icon>
+            <div>
+              <p class="font-medium">Question {{ i + 1 }}: {{ q.question }}</p>
+              <p class="text-sm">
+                Your answer: {{ getUserAnswer(q, testResults.details[i]) }}
+              </p>
+              <p class="text-sm text-green-600">
+                Correct answer: {{ getCorrectAnswer(q) }}
+              </p>
+              <p class="text-sm italic text-gray-500">{{ q.explanation }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="flex gap-4">
+        <button
+          (click)="goBack()"
+          class="flex-1 py-2 bg-primary text-white rounded"
+        >
+          Back to Topics
+        </button>
+        <button (click)="resetTest()" class="flex-1 py-2 border rounded">
+          Retake Test
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

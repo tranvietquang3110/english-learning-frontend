@@ -1,0 +1,264 @@
+import {
+  Component,
+  OnInit,
+  OnDestroy,
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
+} from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { Router } from '@angular/router';
+import { ListeningService } from '../../../services/ListeningService';
+import { ListeningTopic } from '../../../models/listening/listening-topic.model';
+import { Listening } from '../../../models/listening/listening.model';
+import { environment } from '../../../../environments/environment';
+import { Page } from '../../../models/page.model';
+import { Subject, takeUntil } from 'rxjs';
+import {
+  TestFormComponent,
+  TestFormData,
+  TestFormConfig,
+  TestType,
+} from '../../../shared/test-form/test-form.component';
+import { ConfirmDialogComponent } from '../../../shared/confirm-dialog/confirm-dialog.component';
+import { TopicBase } from '../../../models/topic-base';
+import { TopicTestCardGridComponent } from '../../../shared/topic-test-card-grid/topic-test-card-grid.component';
+import { TestListComponent } from '../../../shared/test-list/test-list.component';
+import { TestBase } from '../../../models/test-base';
+
+enum State {
+  View,
+  Create,
+}
+
+@Component({
+  selector: 'app-listening-tests-manage',
+  standalone: true,
+  imports: [
+    CommonModule,
+    TestFormComponent,
+    ConfirmDialogComponent,
+    TopicTestCardGridComponent,
+    TestListComponent,
+  ],
+  templateUrl: './listening-tests-manage.component.html',
+  styleUrl: './listening-tests-manage.component.scss',
+})
+export class ListeningTestsManageComponent implements OnInit {
+  State = State;
+  currentState = State.View;
+  topics: ListeningTopic[] = [];
+  topicsBase: TopicBase[] = [];
+  selectedTopic: ListeningTopic | null = null;
+  tests: Listening[] = [];
+  currentPage = 1;
+  totalPages = 0;
+  readonly PAGE_SIZE = environment.PAGE_SIZE;
+  private destroy$ = new Subject<void>();
+  showDeleteConfirm = false;
+  testToDelete: Listening | null = null;
+  testsBase: TestBase[] = [];
+  listeningTestConfig: TestFormConfig = {
+    testType: TestType.LISTENING,
+    topicName: '',
+    showImageUpload: false, // No test-level images
+    showAudioUpload: false, // No test-level audio
+    supportsImage: true, // Enable individual question images (1 per question)
+    supportsAudio: true, // Enable audio for listening (1 per question)
+    correctAnswerType: 'text',
+    maxOptions: 4,
+  };
+
+  constructor(
+    private listeningService: ListeningService,
+    private router: Router,
+    private cdr: ChangeDetectorRef
+  ) {}
+
+  ngOnInit(): void {
+    console.log('ListeningTestsManageComponent ngOnInit');
+    this.loadTopics();
+  }
+
+  loadTopics() {
+    this.listeningService
+      .getTopics(this.currentPage - 1, this.PAGE_SIZE) // Load all topics for selection
+      .subscribe({
+        next: (data) => {
+          console.log('Loaded listening topics:', data);
+          this.topics = data.content;
+          this.topicsBase = data.content.map((topic) => ({
+            id: topic.id,
+            name: topic.name,
+            description: topic.description,
+            imageUrl: topic.imageUrl,
+          }));
+        },
+        error: (error) => {
+          console.error('Error loading topics:', error);
+        },
+      });
+  }
+
+  onTopicSelect(topic: TopicBase) {
+    this.selectedTopic = this.topics.find((t) => t.id === topic.id) || null;
+    this.listeningTestConfig.topicName = topic.name; // Update config
+    this.tests = []; // Clear previous tests
+    this.currentPage = 1; // Reset pagination
+    this.totalPages = 0; // Reset total pages
+    this.loadTestsForTopic(topic.id);
+  }
+
+  loadTestsForTopic(topicId: string) {
+    this.listeningService.getListeningsByTopic(topicId).subscribe({
+      next: (data) => {
+        console.log('Loaded listening tests:', data);
+        this.tests = data.listenings;
+        this.testsBase = data.listenings.map((test) => ({
+          id: test.id,
+          name: test.name,
+          duration: 0, // Listening tests don't have duration
+          createdAt: test.createdAt,
+        }));
+        // For listening, we don't have pagination from API, so set to 1
+        this.currentPage = 1;
+        this.totalPages = 1;
+      },
+      error: (error) => {
+        console.error('Error loading tests:', error);
+      },
+    });
+  }
+
+  onPageChange(page: number) {
+    this.currentPage = page;
+    if (this.selectedTopic) {
+      this.loadTestsForTopic(this.selectedTopic.id);
+    }
+  }
+
+  onCreateTest() {
+    this.currentState = State.Create;
+  }
+
+  onSaveTest(testData: TestFormData) {
+    if (!this.selectedTopic) {
+      console.error('No topic selected');
+      return;
+    }
+
+    // Convert TestFormData to API format for listening test
+    const testDataForAPI = {
+      name: testData.name,
+      duration: testData.duration,
+      questions: testData.questions.map((question, index) => ({
+        name: question.question, // Use question as name for listening
+        transcript: (question as any).transcript || '',
+        question: question.question,
+        options: {
+          a: question.options[0] || '',
+          b: question.options[1] || '',
+          c: question.options[2] || '',
+          d: question.options[3] || '',
+        },
+        correctAnswer: question.correctAnswer as string,
+        questionOrder: index + 1,
+        explaination: question.explaination || '',
+      })),
+    };
+
+    console.log('testDataForAPI', testDataForAPI);
+    console.log(
+      'Questions with correct answers:',
+      testDataForAPI.questions.map((q) => ({
+        question: q.question,
+        correctAnswer: q.correctAnswer,
+        options: q.options,
+      }))
+    );
+
+    // Collect question images and audios
+    const questionImages: File[] = [];
+    const questionAudios: File[] = [];
+
+    testData.questions.forEach((question, index) => {
+      if (question.image) {
+        questionImages.push(question.image);
+      }
+      if ((question as any).audio) {
+        questionAudios.push((question as any).audio);
+      }
+    });
+
+    console.log('Question images:', questionImages.length);
+    console.log('Question audios:', questionAudios.length);
+
+    // Use the new addTest API
+    this.listeningService
+      .addTest(
+        this.selectedTopic.id,
+        testDataForAPI,
+        questionImages,
+        questionAudios
+      )
+      .subscribe({
+        next: (response: any) => {
+          console.log('Listening test created successfully:', response);
+          this.currentState = State.View;
+          // Reload tests for the current topic
+          this.loadTestsForTopic(this.selectedTopic!.id);
+        },
+        error: (error: any) => {
+          console.error('Error creating listening test:', error);
+        },
+      });
+  }
+
+  onCancelCreate() {
+    this.currentState = State.View;
+  }
+
+  onViewTest(test: TestBase) {
+    // Navigate to test detail or edit page
+    this.router.navigate(['/admin/listening/tests', test.id]);
+  }
+
+  onDeleteTest(test: TestBase) {
+    this.testToDelete = this.tests.find((t) => t.id === test.id) || null;
+    this.showDeleteConfirm = true;
+  }
+
+  onConfirmDelete() {
+    if (this.testToDelete) {
+      // Note: deleteListening method needs to be implemented in ListeningService
+      // For now, just show success message
+      console.log('Delete listening test:', this.testToDelete.id);
+      alert('Delete functionality needs to be implemented in ListeningService');
+
+      // Reload tests for the current topic
+      if (this.selectedTopic) {
+        this.loadTestsForTopic(this.selectedTopic.id);
+      }
+      this.showDeleteConfirm = false;
+      this.testToDelete = null;
+    }
+  }
+
+  onCancelDelete() {
+    this.showDeleteConfirm = false;
+    this.testToDelete = null;
+  }
+
+  onEditTest(test: TestBase) {
+    // Navigate to edit test page
+    this.router.navigate(['/admin/listening/tests/edit', test.id]);
+  }
+
+  goBackToTopics() {
+    this.selectedTopic = null;
+    this.tests = [];
+    this.testsBase = [];
+    this.currentPage = 1;
+    this.totalPages = 0;
+    this.currentState = State.View;
+  }
+}
