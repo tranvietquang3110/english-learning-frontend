@@ -15,6 +15,8 @@ import {
   faHeart,
   faDatabase,
   faPerson,
+  faHistory,
+  faCalendarAlt,
 } from '@fortawesome/free-solid-svg-icons';
 
 interface SidebarItem {
@@ -60,6 +62,11 @@ export class SideBarComponent {
           icon: faFileAlt,
           href: '/grammar/topics',
         },
+        {
+          label: 'Pronunciation',
+          icon: faVolumeUp,
+          href: '/pronunciation',
+        },
       ],
     },
     {
@@ -67,9 +74,19 @@ export class SideBarComponent {
       icon: faUser,
       children: [
         { label: 'Profile', href: '/profile', icon: faPerson },
-        { label: 'My Favorites', href: '/favorites', icon: faHeart },
+        { label: 'My Favorites', href: '/favorite', icon: faHeart },
         { label: 'Wordbank', href: '/wordbank', icon: faDatabase },
       ],
+    },
+    {
+      label: 'History',
+      icon: faHistory,
+      href: '/history',
+    },
+    {
+      label: 'Planning',
+      icon: faCalendarAlt,
+      href: '/planning',
     },
   ];
 

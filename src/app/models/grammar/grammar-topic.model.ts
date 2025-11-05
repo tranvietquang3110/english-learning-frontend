@@ -6,4 +6,5 @@ export interface GrammarTopic {
   createdAt: string;
   status: string;
   progress: number;
+  favoriteId?: string;
 }

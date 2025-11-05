@@ -4,6 +4,7 @@ import {
   Input,
   Output,
   OnDestroy,
+  OnInit,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -17,8 +18,9 @@ import { AudioPlayerComponent } from '../../../shared/audio-player/audio-player.
   templateUrl: './listening-exercise-form.component.html',
   styleUrl: './listening-exercise-form.component.scss',
 })
-export class ListeningExerciseFormComponent implements OnDestroy {
+export class ListeningExerciseFormComponent implements OnInit, OnDestroy {
   @Input() topicId = '';
+  @Input() editingListening: any = null;
   @Output() submit = new EventEmitter<{
     exercises: Partial<Listening>[];
     imageFiles: File[];
@@ -56,6 +58,48 @@ export class ListeningExerciseFormComponent implements OnDestroy {
 
   // Prevent double submit
   isSubmitting = false;
+
+  ngOnInit() {
+    // If editing, populate form with existing data
+    if (this.editingListening) {
+      this.exercises = [
+        {
+          name: this.editingListening.name || '',
+          transcript: this.editingListening.transcript || '',
+          question: this.editingListening.question || '',
+          options: {
+            A:
+              this.editingListening.options?.['A'] ||
+              this.editingListening.options?.['a'] ||
+              '',
+            B:
+              this.editingListening.options?.['B'] ||
+              this.editingListening.options?.['b'] ||
+              '',
+            C:
+              this.editingListening.options?.['C'] ||
+              this.editingListening.options?.['c'] ||
+              '',
+            D:
+              this.editingListening.options?.['D'] ||
+              this.editingListening.options?.['d'] ||
+              '',
+          },
+          correctAnswer: this.editingListening.correctAnswer || '',
+        },
+      ];
+
+      // Set existing image and audio URLs for preview
+      this.exerciseFiles = [
+        {
+          imageFile: null,
+          audioFile: null,
+          audioPreviewUrl: this.editingListening.audioUrl || null,
+          imagePreviewUrl: this.editingListening.imageUrl || null,
+        },
+      ];
+    }
+  }
 
   addExercise() {
     this.exercises.push({

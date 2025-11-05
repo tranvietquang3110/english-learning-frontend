@@ -5,4 +5,5 @@ export interface TopicBase {
   imageUrl: string;
   status?: string;
   progress?: number;
+  favoriteId?: string;
 }

@@ -11,6 +11,7 @@ import {
   faFileAlt,
   faListCheck,
   faUserShield,
+  faChartLine,
 } from '@fortawesome/free-solid-svg-icons';
 import { UserService } from '../../../services/UserService';
 
@@ -83,6 +84,11 @@ export class AdminSideBarComponent implements OnInit {
           icon: faFileAlt,
         },
       ],
+    },
+    {
+      label: 'Statistic',
+      icon: faChartLine,
+      href: '/admin/statistic',
     },
   ];
   name: string = 'Admin';

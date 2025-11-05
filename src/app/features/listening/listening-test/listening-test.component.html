@@ -1,12 +1,12 @@
 <div class="min-h-screen bg-gray-50">
   <div class="container mx-auto px-4 py-8 w-full">
     <!-- Loading -->
-    <div *ngIf="isLoading" class="text-center space-y-4">
+    <!-- <div *ngIf="isLoading" class="text-center space-y-4">
       <h1 class="text-2xl font-bold">Loading test...</h1>
-    </div>
+    </div> -->
 
     <!-- Test not found -->
-    <div *ngIf="!isLoading" class="text-center space-y-4">
+    <!-- <div *ngIf="!isLoading" class="text-center space-y-4">
       <h1 class="text-2xl font-bold">Test not found</h1>
       <button
         (click)="goBack()"
@@ -14,7 +14,7 @@
       >
         <fa-icon [icon]="faArrowLeft" class="mr-2"></fa-icon> Back to Topics
       </button>
-    </div>
+    </div> -->
 
     <!-- Start screen -->
     <div
@@ -203,10 +203,10 @@
           <div class="flex items-start gap-2">
             <fa-icon
               [icon]="
-                testResults.details[i].isCorrect ? faCheckCircle : faTimesCircle
+                testResults.details[i].correct ? faCheckCircle : faTimesCircle
               "
-              [class.text-green-600]="testResults.details[i].isCorrect"
-              [class.text-red-600]="!testResults.details[i].isCorrect"
+              [class.text-green-600]="testResults.details[i].correct"
+              [class.text-red-600]="!testResults.details[i].correct"
             ></fa-icon>
             <div>
               <p class="font-medium">Question {{ i + 1 }}: {{ q.question }}</p>

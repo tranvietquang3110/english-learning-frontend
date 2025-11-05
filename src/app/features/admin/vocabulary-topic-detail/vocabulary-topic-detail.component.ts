@@ -5,6 +5,9 @@ import { ActivatedRoute } from '@angular/router';
 import { Vocabulary } from '../../../models/vocabulary/vocabulary.model';
 import { CommonModule } from '@angular/common';
 import { VocabEditComponent } from '../vocab-edit/vocab-edit.component';
+import { VocabularyRequest } from '../../../models/request/vocabulary-request.model';
+import { RequestType } from '../../../models/request-type.model';
+import { ConfirmDialogComponent } from '../../../shared/confirm-dialog/confirm-dialog.component';
 
 enum State {
   View,
@@ -15,7 +18,12 @@ enum State {
 @Component({
   selector: 'app-vocabulary-topic-detail',
   standalone: true,
-  imports: [AdminVocabItemComponent, CommonModule, VocabEditComponent],
+  imports: [
+    AdminVocabItemComponent,
+    CommonModule,
+    VocabEditComponent,
+    ConfirmDialogComponent,
+  ],
   templateUrl: './vocabulary-topic-detail.component.html',
   styleUrl: './vocabulary-topic-detail.component.scss',
 })
@@ -26,6 +34,8 @@ export class VocabularyTopicDetailComponent implements OnInit {
   currentState: State = State.View;
   vocabToEdit!: Vocabulary;
   topicId: string | null = '';
+  vocabId: string | null = '';
+  isShowConfirmDialog: boolean = false;
   constructor(
     private vocabService: VocabularyService,
     private route: ActivatedRoute
@@ -33,6 +43,7 @@ export class VocabularyTopicDetailComponent implements OnInit {
   ngOnInit(): void {
     console.log('VocabularyTopicDetailComponent initialized');
     this.topicId = this.route.snapshot.paramMap.get('topicId');
+
     if (this.topicId) {
       this.loadVocabularies(this.topicId);
     }
@@ -42,6 +53,7 @@ export class VocabularyTopicDetailComponent implements OnInit {
       next: (data) => {
         console.log('Loaded vocabularies for topic:', data);
         this.vocabList = data.vocabularies;
+        console.log(this.vocabList);
         this.name = data.name;
       },
       error: (err) => {
@@ -50,15 +62,39 @@ export class VocabularyTopicDetailComponent implements OnInit {
     });
   }
 
-  handleEdit(vocab: Vocabulary) {
-    console.log('Edit vocabulary:', vocab);
-    // Implement edit functionality here
+  handleEdit(vocab: any) {
+    const request: VocabularyRequest = {
+      id: vocab.id,
+      word: vocab.word,
+      phonetic: vocab.phonetic,
+      meaning: vocab.meaning,
+      example: vocab.example,
+      exampleMeaning: vocab.exampleMeaning,
+      imageName: vocab.imageUrl,
+      audioName: vocab.audioUrl,
+      action: RequestType.UPDATE,
+    };
+
+    this.vocabService
+      .updateVocabulary(vocab.id, request, vocab.imageFile, vocab.audioFile)
+      .subscribe({
+        next: (res) => {
+          console.log(res);
+          this.vocabList = this.vocabList.map((v) =>
+            v.id === vocab.id ? res : v
+          );
+          this.backToView();
+        },
+        error: (err) => {
+          console.log(err);
+        },
+      });
   }
 
   handleDelete(vocabId: string) {
-    console.log('Delete vocabulary with ID:', vocabId);
-
-    // Implement delete functionality here
+    this.isShowConfirmDialog = true;
+    this.vocabId = vocabId;
+    console.log('Show confirm dialog for vocabulary ID:', vocabId);
   }
 
   changeToEdit(vocab: Vocabulary) {
@@ -87,8 +123,12 @@ export class VocabularyTopicDetailComponent implements OnInit {
       const audios: File[] = [];
       const images: File[] = [];
       const vocabs: Vocabulary[] = [];
-      audios.push(vocabToCreate.audioUrl as any);
-      images.push(vocabToCreate.imageUrl as any);
+      if (vocabToCreate.audioFile) {
+        audios.push(vocabToCreate.audioFile);
+      }
+      if (vocabToCreate.imageFile) {
+        images.push(vocabToCreate.imageFile);
+      }
       vocabs.push(vocabToCreate);
       this.vocabService
         .addVocabularies(this.topicId, vocabs, images, audios)
@@ -104,5 +144,29 @@ export class VocabularyTopicDetailComponent implements OnInit {
         });
       console.log(vocabToCreate);
     }
+  }
+
+  handleConfirmDelete() {
+    if (this.vocabId) {
+      console.log('Confirm delete vocabulary with ID:', this.vocabId);
+      this.vocabService.deleteVocabulary(this.vocabId).subscribe({
+        next: (res) => {
+          console.log('Vocabulary deleted successfully:', res);
+          this.vocabList = this.vocabList.filter((v) => v.id !== this.vocabId);
+          this.isShowConfirmDialog = false;
+          this.vocabId = null;
+        },
+        error: (err) => {
+          console.error('Error deleting vocabulary:', err);
+          this.isShowConfirmDialog = false;
+          this.vocabId = null;
+        },
+      });
+    }
+  }
+
+  handleCancelDelete() {
+    this.isShowConfirmDialog = false;
+    this.vocabId = null;
   }
 }

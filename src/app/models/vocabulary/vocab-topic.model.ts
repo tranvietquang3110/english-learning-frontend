@@ -6,4 +6,5 @@ export interface VocabTopic {
   createdAt: string;
   status: string;
   progress: number;
+  favoriteId?: string;
 }

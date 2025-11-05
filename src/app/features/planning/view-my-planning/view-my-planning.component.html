@@ -1,0 +1,207 @@
+<div class="p-6 planning-container">
+  <!-- Header -->
+  <div class="flex justify-between items-center mb-6">
+    <h1 class="text-2xl font-bold text-gray-800">Kế hoạch học tập của tôi</h1>
+    <div class="flex gap-3">
+      <app-ai-button (click)="showAIPlanningModal = true">
+        AI Planning
+      </app-ai-button>
+      <button
+        class="bg-primary text-white px-4 py-2 rounded-lg hover:opacity-80 transition-colors"
+        routerLink="/planning/create"
+      >
+        Tạo kế hoạch mới
+      </button>
+      <button
+        (click)="loadPlans(currentPage - 1)"
+        class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-lg transition-colors"
+      >
+        Làm mới
+      </button>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="isLoading" class="text-center py-12">
+    <div
+      class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-primary loading-spinner"
+    ></div>
+    <p class="text-gray-600 mt-2">Đang tải danh sách kế hoạch...</p>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="error && !isLoading" class="text-center py-12">
+    <div class="text-red-400 text-6xl mb-4">⚠️</div>
+    <h3 class="text-xl font-semibold text-red-600 mb-2">Có lỗi xảy ra</h3>
+    <p class="text-red-500 mb-4">{{ error }}</p>
+    <button
+      (click)="loadPlans(currentPage - 1)"
+      class="bg-primary text-white px-6 py-2 rounded-lg hover:opacity-80"
+    >
+      Thử lại
+    </button>
+  </div>
+
+  <!-- Plans Table -->
+  <div *ngIf="!isLoading && !error" class="bg-white rounded-lg shadow-md">
+    <div class="p-6 border-b border-gray-200">
+      <h2 class="text-lg font-semibold text-gray-800">Danh sách kế hoạch</h2>
+      <p class="text-gray-600 text-sm mt-1">
+        Tổng cộng: {{ plans.length }} kế hoạch
+      </p>
+    </div>
+
+    <div class="p-6">
+      <!-- Plans Table -->
+      <div *ngIf="plans.length > 0" class="overflow-x-auto">
+        <table class="w-full">
+          <thead>
+            <tr class="border-b border-gray-200">
+              <th class="text-left py-3 px-4 font-semibold text-gray-700">
+                Tên kế hoạch
+              </th>
+              <th class="text-left py-3 px-4 font-semibold text-gray-700">
+                Mô tả
+              </th>
+              <th class="text-left py-3 px-4 font-semibold text-gray-700">
+                Thời gian
+              </th>
+              <th class="text-left py-3 px-4 font-semibold text-gray-700">
+                Mục tiêu
+              </th>
+              <th class="text-left py-3 px-4 font-semibold text-gray-700">
+                Tiến độ
+              </th>
+              <th class="text-left py-3 px-4 font-semibold text-gray-700">
+                Trạng thái
+              </th>
+              <th class="text-center py-3 px-4 font-semibold text-gray-700">
+                Thao tác
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr
+              *ngFor="let plan of plans"
+              class="border-b border-gray-100 hover:bg-gray-50 transition-colors"
+            >
+              <td class="py-4 px-4">
+                <div class="font-medium text-gray-800">{{ plan.title }}</div>
+                <div class="text-sm text-gray-500">ID: {{ plan.id }}</div>
+              </td>
+              <td class="py-4 px-4">
+                <div
+                  class="text-gray-600 max-w-xs truncate"
+                  [title]="plan.description"
+                >
+                  {{ plan.description }}
+                </div>
+              </td>
+              <td class="py-4 px-4 text-gray-600">
+                <div class="text-sm">
+                  <div>Từ: {{ formatDate(plan.startDate) }}</div>
+                  <div>Đến: {{ formatDate(plan.endDate) }}</div>
+                </div>
+              </td>
+              <td class="py-4 px-4 text-gray-600">
+                <div class="text-center">
+                  <span class="text-lg font-semibold text-blue-600">{{
+                    plan.target
+                  }}</span>
+                  <div class="text-xs text-gray-500">điểm</div>
+                </div>
+              </td>
+              <td class="py-4 px-4">
+                <div class="w-full bg-gray-200 rounded-full h-2">
+                  <div
+                    class="bg-blue-600 h-2 rounded-full transition-all duration-300"
+                    [style.width.%]="getProgressPercentage(plan)"
+                  ></div>
+                </div>
+                <div class="text-xs text-gray-500 mt-1">
+                  {{ getProgressPercentage(plan) | number : "1.0-0" }}%
+                </div>
+              </td>
+              <td class="py-4 px-4">
+                <span
+                  class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
+                  [class]="
+                    getStatusBackgroundColor(plan.isCompleted) +
+                    ' ' +
+                    getStatusColor(plan.isCompleted)
+                  "
+                >
+                  {{ getStatusLabel(plan.isCompleted) }}
+                </span>
+              </td>
+              <td class="py-4 px-4">
+                <div class="flex justify-center gap-2">
+                  <button
+                    (click)="onViewPlan(plan)"
+                    class="bg-blue-100 hover:bg-blue-200 text-blue-700 px-3 py-1 rounded text-sm transition-colors"
+                    title="Xem chi tiết"
+                    aria-label="Xem chi tiết"
+                  >
+                    <i class="fas fa-eye"></i>
+                    Xem chi tiết
+                  </button>
+                  <button
+                    (click)="onEditPlan(plan)"
+                    class="bg-yellow-100 hover:bg-yellow-200 text-yellow-700 px-3 py-1 rounded text-sm transition-colors"
+                    title="Chỉnh sửa"
+                    aria-label="Chỉnh sửa"
+                  >
+                    <i class="fas fa-edit"></i>
+                    Chỉnh sửa
+                  </button>
+                  <button
+                    (click)="onDeletePlan(plan)"
+                    class="bg-red-100 hover:bg-red-200 text-red-700 px-3 py-1 rounded text-sm transition-colors"
+                    title="Xóa"
+                    aria-label="Xóa"
+                  >
+                    <i class="fas fa-trash"></i>
+                    Xóa
+                  </button>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Empty State -->
+      <div *ngIf="plans.length === 0" class="text-center py-12">
+        <div class="text-gray-400 text-6xl mb-4">📋</div>
+        <h3 class="text-xl font-semibold text-gray-600 mb-2">
+          Chưa có kế hoạch nào
+        </h3>
+        <p class="text-gray-500 mb-4">
+          Hãy tạo kế hoạch học tập đầu tiên để bắt đầu hành trình học tiếng Anh
+          của bạn.
+        </p>
+        <button
+          class="bg-primary text-white px-6 py-2 rounded-lg hover:opacity-80"
+          routerLink="/planning/create"
+        >
+          Tạo kế hoạch mới
+        </button>
+      </div>
+
+      <!-- Pagination -->
+      <div *ngIf="totalPages > 1" class="mt-6">
+        <app-pagination
+          [currentPage]="currentPage"
+          [totalPages]="totalPages"
+          (pageChange)="handlePageChange($event)"
+        ></app-pagination>
+      </div>
+    </div>
+  </div>
+</div>
+<app-ai-planning-modal
+  [isOpen]="showAIPlanningModal"
+  [isLoading]="isLoading"
+  (onClose)="showAIPlanningModal = false"
+  (onGenerate)="handleGenerate($event)"
+></app-ai-planning-modal>

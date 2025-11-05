@@ -1,0 +1,151 @@
+<div class="rich-text-editor-container" [style.height]="height">
+  <!-- Toolbar -->
+  <div class="editor-toolbar">
+    <div class="toolbar-left">
+      <button
+        type="button"
+        class="toolbar-btn"
+        [class.active]="isEditMode && !isSplitMode"
+        (click)="turnEditMode()"
+        title="Chế độ chỉnh sửa"
+      >
+        <i class="fas fa-edit"></i>
+        <span>Chỉnh sửa</span>
+      </button>
+
+      <button
+        type="button"
+        class="toolbar-btn"
+        [class.active]="!isEditMode && !isSplitMode"
+        (click)="turnViewMode()"
+        title="Chế độ xem trước"
+      >
+        <i class="fas fa-eye"></i>
+        <span>Xem trước</span>
+      </button>
+
+      <button
+        type="button"
+        class="toolbar-btn"
+        [class.active]="isSplitMode"
+        (click)="turnSplitMode()"
+        title="Chia màn hình"
+      >
+        <i class="fas fa-columns"></i>
+        <span>Chia màn hình</span>
+      </button>
+    </div>
+
+    <div class="toolbar-right">
+      <button
+        type="button"
+        class="toolbar-btn"
+        (click)="clearContent()"
+        title="Xóa nội dung"
+      >
+        <i class="fas fa-trash"></i>
+        <span>Xóa</span>
+      </button>
+
+      <input
+        type="file"
+        id="image-upload"
+        accept="image/*"
+        (change)="onImageUpload($event)"
+        style="display: none"
+      />
+      <label for="image-upload" class="toolbar-btn">
+        <i class="fas fa-image"></i>
+        <span>Tải ảnh</span>
+      </label>
+
+      <button
+        type="button"
+        class="toolbar-btn"
+        (click)="deleteSelectedImage()"
+        title="Xóa ảnh được chọn"
+      >
+        <i class="fas fa-trash-alt"></i>
+        <span>Xóa ảnh</span>
+      </button>
+
+      <button
+        type="button"
+        class="toolbar-btn"
+        [disabled]="!hasImages()"
+        (click)="deleteAllImages()"
+        title="Xóa tất cả ảnh"
+        [class.disabled]="!hasImages()"
+      >
+        <i class="fas fa-images"></i>
+        <span>Xóa tất cả ảnh</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Loading indicator -->
+  <div *ngIf="isLoading" class="loading-overlay">
+    <div class="loading-spinner">
+      <i class="fas fa-spinner fa-spin"></i>
+      <span>Đang tải ảnh...</span>
+    </div>
+  </div>
+
+  <!-- Error message -->
+  <div *ngIf="error" class="error-message">
+    <i class="fas fa-exclamation-triangle"></i>
+    <span>{{ error }}</span>
+    <button type="button" class="close-btn" (click)="error = null">
+      <i class="fas fa-times"></i>
+    </button>
+  </div>
+
+  <!-- Editor Content -->
+  <div class="editor-content" [class.split-mode]="isSplitMode">
+    <!-- Edit Mode -->
+    <div
+      class="editor-panel edit-panel w-full"
+      [class.hidden]="!isEditMode && !isSplitMode"
+      [class.split]="isSplitMode"
+    >
+      <div class="panel-header">
+        <h3>Chỉnh sửa</h3>
+      </div>
+      <div #editor class="quill-editor" (keydown)="onKeyDown($event)"></div>
+    </div>
+
+    <!-- Preview Mode -->
+    <div
+      class="editor-panel preview-panel w-full"
+      [class.hidden]="isEditMode && !isSplitMode"
+      [class.split]="isSplitMode"
+    >
+      <div class="panel-header">
+        <h3>Xem trước</h3>
+      </div>
+      <div
+        #preview
+        class="preview-content"
+        [innerHTML]="getPreviewContent()"
+      ></div>
+    </div>
+  </div>
+
+  <!-- Status Bar -->
+  <div class="status-bar">
+    <div class="status-left">
+      <span class="mode-indicator">
+        <i class="fas fa-info-circle"></i>
+        {{
+          isSplitMode ? "Chia màn hình" : isEditMode ? "Chỉnh sửa" : "Xem trước"
+        }}
+      </span>
+    </div>
+    <!-- <div class="status-right">
+      <span class="word-count">
+        <i class="fas fa-font"></i>
+        {{ getContent().replace(/<[^>]*>/g, '').length }} ký tự
+      </span>
+    </div> -->
+  </div>
+</div>

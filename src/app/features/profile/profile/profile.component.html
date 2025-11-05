@@ -1,34 +1,259 @@
-<div *ngIf="profile" class="p-6 bg-white shadow rounded-lg mt-24">
-  <div class="flex items-center gap-4">
-    <img
-      [src]="profile?.avartarUrl"
-      alt="Avatar"
-      class="w-20 h-20 rounded-full border"
-    />
-    <div>
-      <h2 class="text-xl font-bold">{{ profile?.fullname }}</h2>
-      <p class="text-gray-500">{{ profile?.email }}</p>
+<div
+  *ngIf="profile"
+  class="max-w mx-auto p-6 bg-white shadow-lg rounded-lg mt-24"
+>
+  <!-- Header Section -->
+  <div class="flex items-center justify-between mb-6 pb-6 border-b">
+    <div class="flex items-center gap-4">
+      <div class="relative">
+        <div class="relative">
+          <img
+            [src]="profile?.avartarUrl || '/assets/default-avatar.png'"
+            alt="Avatar"
+            class="w-24 h-24 rounded-full border-4 border-gray-200 object-cover"
+            onerror="this.src='/assets/default-avatar.png'"
+          />
+          <div
+            class="absolute inset-0 flex items-center justify-center bg-black rounded-full p-2 opacity-0 hover:opacity-30 transition-opacity"
+          ></div>
+          <div
+            class="absolute bottom-0 right-0 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity"
+          >
+            <label
+              for="avatar"
+              class="bg-blue-600 text-white p-2 rounded-full cursor-pointer hover:bg-blue-700 transition-colors shadow-lg"
+              title="Đổi avatar"
+            >
+              <fa-icon [icon]="faCamera"></fa-icon>
+            </label>
+            <input
+              type="file"
+              id="avatar"
+              class="hidden"
+              accept="image/*"
+              (change)="onAvatarChange($event)"
+              [disabled]="isLoading"
+              title="Chọn ảnh đại diện"
+              aria-label="Chọn ảnh đại diện"
+            />
+          </div>
+        </div>
+      </div>
+      <div>
+        <h2 class="text-2xl font-bold text-gray-800">
+          {{ profile?.fullname }}
+        </h2>
+        <p class="text-gray-500">{{ profile?.email }}</p>
+        <p class="text-sm text-gray-400 mt-1">{{ "@" + profile?.username }}</p>
+      </div>
+    </div>
+    <button
+      *ngIf="!isEditing"
+      (click)="startEdit()"
+      class="bg-primary hover:opacity-80 text-white px-4 py-2 rounded-lg transition-colors flex items-center gap-2"
+    >
+      <fa-icon [icon]="faPencil"></fa-icon>
+      Chỉnh sửa
+    </button>
+  </div>
+
+  <!-- Success/Error Messages -->
+  <div
+    *ngIf="success"
+    class="mb-4 p-4 bg-green-50 border border-green-200 rounded-lg flex items-center"
+  >
+    <i class="fas fa-check-circle text-green-600"></i>
+    <p class="text-green-700">{{ success }}</p>
+  </div>
+
+  <div
+    *ngIf="error"
+    class="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg flex items-center"
+  >
+    <i class="fas fa-exclamation-circle text-red-600"></i>
+    <p class="text-red-700">{{ error }}</p>
+  </div>
+
+  <!-- View Mode -->
+  <div *ngIf="!isEditing" class="space-y-6">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div class="bg-gray-50 p-4 rounded-lg">
+        <div class="flex items-center gap-3 mb-2">
+          <div class="bg-blue-100 p-2 rounded-lg">
+            <i class="fas fa-target text-blue-600"></i>
+          </div>
+          <div>
+            <p class="text-sm text-gray-600">Mục tiêu học tập</p>
+            <p class="text-xl font-semibold text-gray-800">
+              {{ profile?.target }}
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-gray-50 p-4 rounded-lg">
+        <div class="flex items-center gap-3 mb-2">
+          <div class="bg-green-100 p-2 rounded-lg">
+            <i class="fas fa-clock text-green-600"></i>
+          </div>
+          <div>
+            <p class="text-sm text-gray-600">Thời gian học</p>
+            <p class="text-xl font-semibold text-gray-800">
+              {{ getStudyLevelLabel() }}
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-gray-50 p-4 rounded-lg">
+        <div class="flex items-center gap-3 mb-2">
+          <div class="bg-purple-100 p-2 rounded-lg">
+            <i class="fas fa-star text-purple-600"></i>
+          </div>
+          <div>
+            <p class="text-sm text-gray-600">Trình độ</p>
+            <p class="text-xl font-semibold text-gray-800">
+              {{ getLevelLabel() }}
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-gray-50 p-4 rounded-lg">
+        <div class="flex items-center gap-3 mb-2">
+          <div class="bg-yellow-100 p-2 rounded-lg">
+            <i class="fas fa-calendar text-yellow-600"></i>
+          </div>
+          <div>
+            <p class="text-sm text-gray-600">Thành viên từ</p>
+            <p class="text-xl font-semibold text-gray-800">
+              {{ profile?.createdAt | date : "dd/MM/yyyy" }}
+            </p>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 
-  <div class="mt-4">
-    <p>🎯 Target: {{ profile?.target }} minutes/day</p>
-    <p>⏱ Study Time: {{ profile?.studyTime }}</p>
-    <p>⭐ Level: {{ profile?.level }}</p>
-  </div>
+  <!-- Edit Mode -->
+  <form
+    *ngIf="isEditing"
+    (ngSubmit)="onSubmit()"
+    class="space-y-6"
+    [class.opacity-50]="isLoading"
+  >
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <!-- Fullname -->
+      <div class="md:col-span-2">
+        <label class="block text-sm font-medium text-gray-700 mb-2">
+          Họ và tên <span class="text-red-500">*</span>
+        </label>
+        <input
+          type="text"
+          [(ngModel)]="editForm.fullname"
+          name="fullname"
+          class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+          placeholder="Nhập họ và tên"
+          [disabled]="isLoading"
+          required
+        />
+      </div>
 
-  <div class="mt-4">
-    <label
-      for="avatar"
-      class="cursor-pointer bg-navy-header text-white px-3 py-2 rounded"
-    >
-      Change Avatar
-    </label>
-    <input
-      type="file"
-      id="avatar"
-      class="hidden"
-      (change)="onAvatarChange($event)"
-    />
+      <!-- Target -->
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-2">
+          Mục tiêu học tập (phút/ngày) <span class="text-red-500">*</span>
+        </label>
+        <input
+          type="number"
+          [(ngModel)]="editForm.target"
+          name="target"
+          min="1"
+          class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+          placeholder="Nhập số phút"
+          [disabled]="isLoading"
+          required
+        />
+      </div>
+
+      <!-- Study Level -->
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-2">
+          Thời gian học <span class="text-red-500">*</span>
+        </label>
+        <select
+          [(ngModel)]="editForm.studyTime"
+          name="studyTime"
+          title="Chọn thời gian học"
+          aria-label="Chọn thời gian học"
+          class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white"
+          [disabled]="isLoading"
+          required
+        >
+          <option
+            *ngFor="let option of studyLevelOptions"
+            [value]="option.value"
+          >
+            {{ option.label }}
+          </option>
+        </select>
+      </div>
+
+      <!-- Level -->
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-2">
+          Trình độ <span class="text-red-500">*</span>
+        </label>
+        <select
+          [(ngModel)]="editForm.level"
+          name="level"
+          title="Chọn trình độ"
+          aria-label="Chọn trình độ"
+          class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white"
+          [disabled]="isLoading"
+          required
+        >
+          <option *ngFor="let option of levelOptions" [value]="option.value">
+            {{ option.label }}
+          </option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="flex justify-end gap-4 pt-4 border-t">
+      <button
+        type="button"
+        (click)="cancelEdit()"
+        [disabled]="isLoading"
+        class="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors disabled:opacity-50"
+      >
+        Hủy
+      </button>
+      <button
+        type="submit"
+        [disabled]="isLoading"
+        class="px-6 py-2 bg-primary hover:opacity-80 text-white rounded-lg transition-colors disabled:opacity-50 flex items-center gap-2"
+      >
+        <span
+          *ngIf="isLoading"
+          class="inline-block animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"
+        ></span>
+        {{ isLoading ? "Đang lưu..." : "Lưu thay đổi" }}
+      </button>
+    </div>
+  </form>
+
+  <!-- Loading Overlay -->
+  <div
+    *ngIf="isLoading"
+    class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+  >
+    <div class="bg-white rounded-lg p-6 flex flex-col items-center">
+      <div
+        class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mb-4"
+      ></div>
+      <p class="text-gray-700">Đang xử lý...</p>
+    </div>
   </div>
 </div>

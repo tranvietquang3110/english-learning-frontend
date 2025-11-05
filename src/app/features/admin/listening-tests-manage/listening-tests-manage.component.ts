@@ -24,10 +24,13 @@ import { TopicBase } from '../../../models/topic-base';
 import { TopicTestCardGridComponent } from '../../../shared/topic-test-card-grid/topic-test-card-grid.component';
 import { TestListComponent } from '../../../shared/test-list/test-list.component';
 import { TestBase } from '../../../models/test-base';
+import { ListeningTest } from '../../../models/listening/listening-test.model';
+import { RequestType } from '../../../models/request-type.model';
 
 enum State {
   View,
   Create,
+  Edit,
 }
 
 @Component({
@@ -55,8 +58,11 @@ export class ListeningTestsManageComponent implements OnInit {
   readonly PAGE_SIZE = environment.PAGE_SIZE;
   private destroy$ = new Subject<void>();
   showDeleteConfirm = false;
-  testToDelete: Listening | null = null;
+  idToDelete: string | null = null;
   testsBase: TestBase[] = [];
+  listeningTests: ListeningTest[] = [];
+  testToEdit: ListeningTest | null = null;
+  editTestData: TestFormData | null = null;
   listeningTestConfig: TestFormConfig = {
     testType: TestType.LISTENING,
     topicName: '',
@@ -64,7 +70,6 @@ export class ListeningTestsManageComponent implements OnInit {
     showAudioUpload: false, // No test-level audio
     supportsImage: true, // Enable individual question images (1 per question)
     supportsAudio: true, // Enable audio for listening (1 per question)
-    correctAnswerType: 'text',
     maxOptions: 4,
   };
 
@@ -109,14 +114,14 @@ export class ListeningTestsManageComponent implements OnInit {
   }
 
   loadTestsForTopic(topicId: string) {
-    this.listeningService.getListeningsByTopic(topicId).subscribe({
+    this.listeningService.getTestsByTopicId(topicId).subscribe({
       next: (data) => {
         console.log('Loaded listening tests:', data);
-        this.tests = data.listenings;
-        this.testsBase = data.listenings.map((test) => ({
+        this.listeningTests = data.tests.content;
+        this.testsBase = data.tests.content.map((test) => ({
           id: test.id,
           name: test.name,
-          duration: 0, // Listening tests don't have duration
+          duration: test.duration, // Listening tests don't have duration
           createdAt: test.createdAt,
         }));
         // For listening, we don't have pagination from API, so set to 1
@@ -141,6 +146,7 @@ export class ListeningTestsManageComponent implements OnInit {
   }
 
   onSaveTest(testData: TestFormData) {
+    console.log('onSaveTest', testData);
     if (!this.selectedTopic) {
       console.error('No topic selected');
       return;
@@ -151,6 +157,7 @@ export class ListeningTestsManageComponent implements OnInit {
       name: testData.name,
       duration: testData.duration,
       questions: testData.questions.map((question, index) => ({
+        id: (question as any).id || '', // Add id for existing questions
         name: question.question, // Use question as name for listening
         transcript: (question as any).transcript || '',
         question: question.question,
@@ -163,6 +170,9 @@ export class ListeningTestsManageComponent implements OnInit {
         correctAnswer: question.correctAnswer as string,
         questionOrder: index + 1,
         explaination: question.explaination || '',
+        imageName: (question as any).imageName || '',
+        audioName: (question as any).audioName || '',
+        action: (question as any).action || 'UPDATE',
       })),
     };
 
@@ -217,40 +227,154 @@ export class ListeningTestsManageComponent implements OnInit {
     this.currentState = State.View;
   }
 
+  onUpdateTest(testData: TestFormData) {
+    console.log('onUpdateTest', testData);
+    if (!this.selectedTopic || !this.testToEdit) {
+      console.error('No topic or test selected for editing');
+      return;
+    }
+
+    // Convert TestFormData to API format for listening test
+    const testDataForAPI = {
+      name: testData.name,
+      duration: testData.duration,
+      questions: testData.questions
+        .filter((question) => question.requestType != null)
+        .map((question, index) => ({
+          id: (question as any).id || '', // Add id for existing questions
+          name: question.question, // Use question as name for listening
+          transcript: (question as any).transcript || '',
+          question: question.question,
+          options: {
+            a: question.options[0] || '',
+            b: question.options[1] || '',
+            c: question.options[2] || '',
+            d: question.options[3] || '',
+          },
+          correctAnswer: question.correctAnswer as string,
+          questionOrder: index + 1,
+          explaination: question.explaination || '',
+          imageName: (question as any).imageName || '',
+          audioName: (question as any).audioName || '',
+          action: question.requestType || RequestType.UPDATE,
+        })),
+    };
+
+    console.log('Updating listening test:', testDataForAPI);
+
+    // Collect question images and audios
+    const questionImages: File[] = [];
+    const questionAudios: File[] = [];
+
+    testData.questions.forEach((question, index) => {
+      if (question.image) {
+        questionImages.push(question.image);
+      }
+      if ((question as any).audio) {
+        questionAudios.push((question as any).audio);
+      }
+    });
+
+    console.log('Question images:', questionImages.length);
+    console.log('Question audios:', questionAudios.length);
+
+    // Use the updateTest API
+    this.listeningService
+      .updateTest(
+        this.testToEdit!.id,
+        testDataForAPI,
+        questionImages,
+        questionAudios
+      )
+      .subscribe({
+        next: (response: any) => {
+          console.log('Listening test updated successfully:', response);
+          this.currentState = State.View;
+          this.testToEdit = null;
+          this.editTestData = null;
+          // Reload tests for the current topic
+          this.loadTestsForTopic(this.selectedTopic!.id);
+        },
+        error: (error: any) => {
+          console.error('Error updating listening test:', error);
+        },
+      });
+  }
+
+  onCancelEdit() {
+    this.currentState = State.View;
+    this.testToEdit = null;
+    this.editTestData = null;
+  }
+
   onViewTest(test: TestBase) {
     // Navigate to test detail or edit page
     this.router.navigate(['/admin/listening/tests', test.id]);
   }
 
   onDeleteTest(test: TestBase) {
-    this.testToDelete = this.tests.find((t) => t.id === test.id) || null;
+    this.idToDelete = test.id;
     this.showDeleteConfirm = true;
   }
 
   onConfirmDelete() {
-    if (this.testToDelete) {
-      // Note: deleteListening method needs to be implemented in ListeningService
-      // For now, just show success message
-      console.log('Delete listening test:', this.testToDelete.id);
-      alert('Delete functionality needs to be implemented in ListeningService');
-
-      // Reload tests for the current topic
-      if (this.selectedTopic) {
-        this.loadTestsForTopic(this.selectedTopic.id);
-      }
-      this.showDeleteConfirm = false;
-      this.testToDelete = null;
+    if (this.idToDelete) {
+      this.listeningService.deleteTest(this.idToDelete).subscribe({
+        next: (response: any) => {
+          this.loadTestsForTopic(this.selectedTopic!.id);
+          console.log('Listening test deleted successfully:', response);
+          this.showDeleteConfirm = false;
+          this.idToDelete = null;
+        },
+        error: (error: any) => {
+          console.error('Error deleting listening test:', error);
+          this.showDeleteConfirm = false;
+          this.idToDelete = null;
+        },
+      });
     }
   }
 
   onCancelDelete() {
     this.showDeleteConfirm = false;
-    this.testToDelete = null;
+    this.idToDelete = null;
   }
 
   onEditTest(test: TestBase) {
-    // Navigate to edit test page
-    this.router.navigate(['/admin/listening/tests/edit', test.id]);
+    // Find the full test data
+    this.listeningService.getTestById(test.id).subscribe({
+      next: (data) => {
+        this.testToEdit = data;
+        if (this.testToEdit) {
+          // Convert ListeningTest to TestFormData
+          this.editTestData = {
+            name: this.testToEdit.name,
+            duration: this.testToEdit.duration || 30,
+            questions:
+              this.testToEdit.questions?.map((q) => ({
+                id: q.id,
+                question: q.question,
+                options: [
+                  q.options['a'],
+                  q.options['b'],
+                  q.options['c'],
+                  q.options['d'],
+                ],
+                correctAnswer: q.correctAnswer,
+                explaination: q.explanation || '',
+                imageUrl: q.imageUrl,
+                audioUrl: q.audioUrl,
+              })) || [],
+            images: [],
+            audios: [],
+          };
+          this.currentState = State.Edit;
+        }
+      },
+      error: (error) => {
+        console.error('Error getting test:', error);
+      },
+    });
   }
 
   goBackToTopics() {
@@ -260,5 +384,7 @@ export class ListeningTestsManageComponent implements OnInit {
     this.currentPage = 1;
     this.totalPages = 0;
     this.currentState = State.View;
+    this.testToEdit = null;
+    this.editTestData = null;
   }
 }

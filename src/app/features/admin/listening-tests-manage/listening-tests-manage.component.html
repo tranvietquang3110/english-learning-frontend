@@ -79,18 +79,30 @@
   <div *ngIf="currentState === State.Create" class="view-transition">
     <app-test-form
       [config]="listeningTestConfig"
+      [isEditMode]="false"
       (save)="onSaveTest($event)"
       (cancel)="onCancelCreate()"
+    ></app-test-form>
+  </div>
+
+  <!-- Edit Test Form -->
+  <div *ngIf="currentState === State.Edit" class="view-transition">
+    <app-test-form
+      [config]="listeningTestConfig"
+      [isEditMode]="true"
+      [editData]="editTestData || undefined"
+      (save)="onUpdateTest($event)"
+      (cancel)="onCancelEdit()"
     ></app-test-form>
   </div>
 
   <!-- Confirm Delete Dialog -->
   <app-confirm-dialog
     [isVisible]="showDeleteConfirm"
-    title="Xóa bài test"
+    title="Xóa bài test nghe"
     [message]="
       'Bạn có chắc chắn muốn xóa bài test \'' +
-      (testToDelete?.name || '') +
+      (idToDelete || '') +
       '\'? Hành động này không thể hoàn tác.'
     "
     confirmText="Xóa"

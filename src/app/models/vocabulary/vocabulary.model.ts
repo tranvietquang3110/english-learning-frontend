@@ -7,6 +7,8 @@ export interface Vocabulary {
   example: string;
   audioUrl: string;
   imageUrl: string;
+  imageFile?: File;
+  audioFile?: File;
   createdAt: string;
   exampleMeaning: string;
 }

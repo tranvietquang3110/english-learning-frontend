@@ -1,0 +1,227 @@
+// History Detail Component Styles
+.history-detail-container {
+  min-height: 100vh;
+  background-color: #f8fafc;
+}
+
+// Loading spinner
+.loading-spinner {
+  border-color: #3b82f6;
+  border-top-color: transparent;
+}
+
+// Score cards animation
+.score-card {
+  transition: all 0.3s ease-in-out;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  }
+}
+
+// Question cards
+.question-card {
+  transition: all 0.2s ease-in-out;
+
+  &:hover {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  }
+}
+
+// Answer status indicators
+.answer-correct {
+  border-left: 4px solid #10b981;
+  background: linear-gradient(90deg, #f0fdf4 0%, #ffffff 100%);
+}
+
+.answer-incorrect {
+  border-left: 4px solid #ef4444;
+  background: linear-gradient(90deg, #fef2f2 0%, #ffffff 100%);
+}
+
+// Option styling
+.option-correct {
+  animation: pulse-green 0.5s ease-in-out;
+}
+
+.option-user-answer {
+  animation: pulse-blue 0.5s ease-in-out;
+}
+
+@keyframes pulse-green {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.02); }
+  100% { transform: scale(1); }
+}
+
+@keyframes pulse-blue {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.02); }
+  100% { transform: scale(1); }
+}
+
+// Audio player styling
+audio {
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+
+  &::-webkit-media-controls-panel {
+    background-color: #f8fafc;
+  }
+}
+
+// Stats grid responsive
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+}
+
+// Test type badges
+.test-type-badge {
+  font-size: 0.75rem;
+  font-weight: 500;
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+
+  &.listening {
+    background-color: #dbeafe;
+    color: #1e40af;
+  }
+
+  &.grammar {
+    background-color: #dcfce7;
+    color: #166534;
+  }
+
+  &.vocabulary {
+    background-color: #f3e8ff;
+    color: #7c3aed;
+  }
+
+  &.full-test {
+    background-color: #fed7aa;
+    color: #c2410c;
+  }
+}
+
+// Answer summary styling
+.answer-summary {
+  border-radius: 8px;
+  transition: all 0.2s ease-in-out;
+
+  &.correct {
+    background: linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 100%);
+    border: 1px solid #bbf7d0;
+  }
+
+  &.incorrect {
+    background: linear-gradient(135deg, #fef2f2 0%, #fef7f7 100%);
+    border: 1px solid #fecaca;
+  }
+}
+
+// Explanation box
+.explanation-box {
+  border-left: 4px solid #3b82f6;
+  background: linear-gradient(90deg, #eff6ff 0%, #f8fafc 100%);
+  border-radius: 8px;
+  transition: all 0.2s ease-in-out;
+
+  &:hover {
+    box-shadow: 0 2px 8px rgba(59, 130, 246, 0.1);
+  }
+}
+
+// Action buttons
+.action-buttons {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  flex-wrap: wrap;
+
+  button {
+    transition: all 0.2s ease-in-out;
+
+    &:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+  }
+}
+
+// Responsive design
+@media (max-width: 768px) {
+  .history-detail-container {
+    padding: 1rem;
+  }
+
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.5rem;
+  }
+
+  .question-card {
+    padding: 1rem;
+  }
+
+  .action-buttons {
+    flex-direction: column;
+    align-items: center;
+
+    button {
+      width: 100%;
+      max-width: 300px;
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .question-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+}
+
+// Empty state animation
+.empty-state {
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+// Error state styling
+.error-state {
+  animation: shake 0.5s ease-in-out;
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-5px); }
+  75% { transform: translateX(5px); }
+}
+
+// Loading state
+.loading-state {
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}

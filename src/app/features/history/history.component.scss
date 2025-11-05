@@ -1,0 +1,132 @@
+// History Component Styles
+.history-container {
+  min-height: 100vh;
+  background-color: #f8fafc;
+}
+
+// Filter buttons animation
+.filter-button {
+  transition: all 0.2s ease-in-out;
+
+  &:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  }
+}
+
+// Table row hover effect
+.history-table {
+  tbody tr {
+    transition: all 0.2s ease-in-out;
+
+    &:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+  }
+}
+
+// Score color animations
+.score-excellent {
+  color: #059669;
+  font-weight: 700;
+}
+
+.score-good {
+  color: #d97706;
+  font-weight: 700;
+}
+
+.score-poor {
+  color: #dc2626;
+  font-weight: 700;
+}
+
+// Loading spinner
+.loading-spinner {
+  border-color: #3b82f6;
+  border-top-color: transparent;
+}
+
+// Test type badges
+.test-type-badge {
+  font-size: 0.75rem;
+  font-weight: 500;
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+
+  &.listening {
+    background-color: #dbeafe;
+    color: #1e40af;
+  }
+
+  &.grammar {
+    background-color: #dcfce7;
+    color: #166534;
+  }
+
+  &.vocabulary {
+    background-color: #f3e8ff;
+    color: #7c3aed;
+  }
+
+  &.full-test {
+    background-color: #fed7aa;
+    color: #c2410c;
+  }
+}
+
+// Action buttons
+.action-button {
+  transition: all 0.2s ease-in-out;
+
+  &:hover {
+    transform: scale(1.05);
+  }
+}
+
+// Responsive design
+@media (max-width: 768px) {
+  .history-table {
+    font-size: 0.875rem;
+
+    th, td {
+      padding: 0.5rem 0.25rem;
+    }
+  }
+
+  .filter-buttons {
+    flex-direction: column;
+    gap: 0.5rem;
+
+    button {
+      width: 100%;
+    }
+  }
+}
+
+// Empty state animation
+.empty-state {
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+// Card shadows
+.history-card {
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+  transition: box-shadow 0.2s ease-in-out;
+
+  &:hover {
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  }
+}

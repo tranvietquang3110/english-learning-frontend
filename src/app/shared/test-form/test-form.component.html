@@ -1,7 +1,7 @@
 <div class="mx-auto p-6 bg-white rounded-lg shadow-lg">
   <div class="mb-6">
     <h2 class="text-2xl font-bold text-gray-800 mb-2">
-      Tạo bài test
+      {{ getFormTitle() }}
       {{
         config.testType === "vocabulary"
           ? "từ vựng"
@@ -67,9 +67,24 @@
       </div>
     </div>
 
-    <!-- Add Question Form -->
-    <div class="form-section">
-      <h3 class="form-section-title">Thêm câu hỏi</h3>
+    <!-- Add/Edit Question Form -->
+    <div
+      class="form-section"
+      [class.bg-blue-50]="isEditingQuestion()"
+      [class.border-blue-200]="isEditingQuestion()"
+      [class.border]="isEditingQuestion()"
+      [class.rounded-lg]="isEditingQuestion()"
+      [class.p-4]="isEditingQuestion()"
+    >
+      <h3 class="form-section-title">
+        {{ isEditingQuestion() ? "Chỉnh sửa câu hỏi" : "Thêm câu hỏi" }}
+        <span
+          *ngIf="isEditingQuestion()"
+          class="text-sm text-blue-600 font-normal"
+        >
+          (Đang chỉnh sửa)
+        </span>
+      </h3>
 
       <div class="form-group">
         <label class="form-label-required">Câu hỏi</label>
@@ -214,182 +229,106 @@
       <div class="form-group">
         <label class="form-label-required">Các lựa chọn</label>
         <div class="space-y-3">
-          <!-- Option 1 -->
+          <!-- Option A -->
           <div
             class="flex items-center gap-3 p-3 border-2 border-gray-300 rounded-xl bg-white transition-all duration-200 cursor-pointer hover:border-gray-400 hover:shadow-md"
-            [class.border-blue-500]="
-              newQuestion.correctAnswer ===
-              (config.correctAnswerType === 'index'
-                ? 0
-                : newQuestion.options[0])
-            "
-            [class.bg-blue-50]="
-              newQuestion.correctAnswer ===
-              (config.correctAnswerType === 'index'
-                ? 0
-                : newQuestion.options[0])
-            "
+            [class.border-blue-500]="newQuestion.correctAnswer === 'a'"
+            [class.bg-blue-50]="newQuestion.correctAnswer === 'a'"
             (click)="selectOption(0)"
           >
             <input
               type="radio"
               name="correctAnswer"
-              [value]="
-                config.correctAnswerType === 'index'
-                  ? 0
-                  : newQuestion.options[0]
-              "
-              [checked]="
-                newQuestion.correctAnswer ===
-                (config.correctAnswerType === 'index'
-                  ? 0
-                  : newQuestion.options[0])
-              "
+              value="a"
+              [checked]="newQuestion.correctAnswer === 'a'"
               class="w-5 h-5 text-blue-600 border-gray-300 focus:ring-blue-500"
-              title="Chọn đáp án đúng cho lựa chọn 1"
+              title="Chọn đáp án đúng cho lựa chọn A"
             />
             <input
               type="text"
               [(ngModel)]="newQuestion.options[0]"
               name="option0"
               class="flex-1 bg-transparent border-none outline-none text-sm placeholder-gray-400"
-              placeholder="Lựa chọn 1"
-              title="Lựa chọn 1"
+              placeholder="Lựa chọn A"
+              title="Lựa chọn A"
               (click)="$event.stopPropagation()"
             />
           </div>
 
-          <!-- Option 2 -->
+          <!-- Option B -->
           <div
             class="flex items-center gap-3 p-3 border-2 border-gray-300 rounded-xl bg-white transition-all duration-200 cursor-pointer hover:border-gray-400 hover:shadow-md"
-            [class.border-blue-500]="
-              newQuestion.correctAnswer ===
-              (config.correctAnswerType === 'index'
-                ? 1
-                : newQuestion.options[1])
-            "
-            [class.bg-blue-50]="
-              newQuestion.correctAnswer ===
-              (config.correctAnswerType === 'index'
-                ? 1
-                : newQuestion.options[1])
-            "
+            [class.border-blue-500]="newQuestion.correctAnswer === 'b'"
+            [class.bg-blue-50]="newQuestion.correctAnswer === 'b'"
             (click)="selectOption(1)"
           >
             <input
               type="radio"
               name="correctAnswer"
-              [value]="
-                config.correctAnswerType === 'index'
-                  ? 1
-                  : newQuestion.options[1]
-              "
-              [checked]="
-                newQuestion.correctAnswer ===
-                (config.correctAnswerType === 'index'
-                  ? 1
-                  : newQuestion.options[1])
-              "
+              value="b"
+              [checked]="newQuestion.correctAnswer === 'b'"
               class="w-5 h-5 text-blue-600 border-gray-300 focus:ring-blue-500"
-              title="Chọn đáp án đúng cho lựa chọn 2"
+              title="Chọn đáp án đúng cho lựa chọn B"
             />
             <input
               type="text"
               [(ngModel)]="newQuestion.options[1]"
               name="option1"
               class="flex-1 bg-transparent border-none outline-none text-sm placeholder-gray-400"
-              placeholder="Lựa chọn 2"
-              title="Lựa chọn 2"
+              placeholder="Lựa chọn B"
+              title="Lựa chọn B"
               (click)="$event.stopPropagation()"
             />
           </div>
 
-          <!-- Option 3 -->
+          <!-- Option C -->
           <div
             class="flex items-center gap-3 p-3 border-2 border-gray-300 rounded-xl bg-white transition-all duration-200 cursor-pointer hover:border-gray-400 hover:shadow-md"
-            [class.border-blue-500]="
-              newQuestion.correctAnswer ===
-              (config.correctAnswerType === 'index'
-                ? 2
-                : newQuestion.options[2])
-            "
-            [class.bg-blue-50]="
-              newQuestion.correctAnswer ===
-              (config.correctAnswerType === 'index'
-                ? 2
-                : newQuestion.options[2])
-            "
+            [class.border-blue-500]="newQuestion.correctAnswer === 'c'"
+            [class.bg-blue-50]="newQuestion.correctAnswer === 'c'"
             (click)="selectOption(2)"
           >
             <input
               type="radio"
               name="correctAnswer"
-              [value]="
-                config.correctAnswerType === 'index'
-                  ? 2
-                  : newQuestion.options[2]
-              "
-              [checked]="
-                newQuestion.correctAnswer ===
-                (config.correctAnswerType === 'index'
-                  ? 2
-                  : newQuestion.options[2])
-              "
+              value="c"
+              [checked]="newQuestion.correctAnswer === 'c'"
               class="w-5 h-5 text-blue-600 border-gray-300 focus:ring-blue-500"
-              title="Chọn đáp án đúng cho lựa chọn 3"
+              title="Chọn đáp án đúng cho lựa chọn C"
             />
             <input
               type="text"
               [(ngModel)]="newQuestion.options[2]"
               name="option2"
               class="flex-1 bg-transparent border-none outline-none text-sm placeholder-gray-400"
-              placeholder="Lựa chọn 3"
-              title="Lựa chọn 3"
+              placeholder="Lựa chọn C"
+              title="Lựa chọn C"
               (click)="$event.stopPropagation()"
             />
           </div>
 
-          <!-- Option 4 -->
+          <!-- Option D -->
           <div
             class="flex items-center gap-3 p-3 border-2 border-gray-300 rounded-xl bg-white transition-all duration-200 cursor-pointer hover:border-gray-400 hover:shadow-md"
-            [class.border-blue-500]="
-              newQuestion.correctAnswer ===
-              (config.correctAnswerType === 'index'
-                ? 3
-                : newQuestion.options[3])
-            "
-            [class.bg-blue-50]="
-              newQuestion.correctAnswer ===
-              (config.correctAnswerType === 'index'
-                ? 3
-                : newQuestion.options[3])
-            "
+            [class.border-blue-500]="newQuestion.correctAnswer === 'd'"
+            [class.bg-blue-50]="newQuestion.correctAnswer === 'd'"
             (click)="selectOption(3)"
           >
             <input
               type="radio"
               name="correctAnswer"
-              [value]="
-                config.correctAnswerType === 'index'
-                  ? 3
-                  : newQuestion.options[3]
-              "
-              [checked]="
-                newQuestion.correctAnswer ===
-                (config.correctAnswerType === 'index'
-                  ? 3
-                  : newQuestion.options[3])
-              "
+              value="d"
+              [checked]="newQuestion.correctAnswer === 'd'"
               class="w-5 h-5 text-blue-600 border-gray-300 focus:ring-blue-500"
-              title="Chọn đáp án đúng cho lựa chọn 4"
+              title="Chọn đáp án đúng cho lựa chọn D"
             />
             <input
               type="text"
               [(ngModel)]="newQuestion.options[3]"
               name="option3"
               class="flex-1 bg-transparent border-none outline-none text-sm placeholder-gray-400"
-              placeholder="Lựa chọn 4"
-              title="Lựa chọn 4"
+              placeholder="Lựa chọn D"
+              title="Lựa chọn D"
               (click)="$event.stopPropagation()"
             />
           </div>
@@ -409,10 +348,24 @@
         </div>
       </div>
 
-      <!-- Add Question Button -->
-      <button type="button" (click)="addQuestion()" class="form-button-primary">
-        Thêm câu hỏi
-      </button>
+      <!-- Add/Update Question Button -->
+      <div class="flex gap-3">
+        <button
+          type="button"
+          (click)="isEditingQuestion() ? updateQuestion() : addQuestion()"
+          class="form-button-primary"
+        >
+          {{ isEditingQuestion() ? "Cập nhật câu hỏi" : "Thêm câu hỏi" }}
+        </button>
+        <button
+          *ngIf="isEditingQuestion()"
+          type="button"
+          (click)="cancelEdit()"
+          class="form-button-secondary"
+        >
+          Hủy chỉnh sửa
+        </button>
+      </div>
     </div>
 
     <!-- Questions List -->
@@ -426,88 +379,89 @@
           *ngFor="let question of testData.questions; let i = index"
           class="p-4 border border-gray-200 rounded-lg"
         >
-          <div class="flex justify-between items-start mb-2">
-            <h5 class="font-medium text-gray-800">Câu {{ i + 1 }}</h5>
-            <button
-              type="button"
-              (click)="removeQuestion(i)"
-              class="form-button-danger text-sm"
-            >
-              Xóa
-            </button>
-          </div>
+          <div *ngIf="question.requestType !== RequestType.DELETE">
+            <div class="flex justify-between items-start mb-2">
+              <h5 class="font-medium text-gray-800">Câu {{ i + 1 }}</h5>
+              <div class="flex gap-2">
+                <button
+                  type="button"
+                  (click)="editQuestion(i)"
+                  class="form-button-secondary text-sm"
+                  title="Chỉnh sửa câu hỏi"
+                >
+                  Sửa
+                </button>
+                <button
+                  type="button"
+                  (click)="removeQuestion(i)"
+                  class="form-button-danger text-sm"
+                  title="Xóa câu hỏi"
+                >
+                  Xóa
+                </button>
+              </div>
+            </div>
 
-          <p class="text-gray-700 mb-3">{{ question.question }}</p>
+            <p class="text-gray-700 mb-3">{{ question.question }}</p>
 
-          <div class="space-y-1">
-            <div
-              *ngFor="let option of question.options; let j = index"
-              class="flex items-center gap-2"
-            >
-              <span
-                class="w-4 h-4 rounded-full border-2 flex items-center justify-center"
-                [class.bg-blue-600]="
-                  config.correctAnswerType === 'index'
-                    ? j === question.correctAnswer
-                    : false
-                "
-                [class.border-blue-600]="
-                  config.correctAnswerType === 'index'
-                    ? j === question.correctAnswer
-                    : false
-                "
+            <div class="space-y-1">
+              <div
+                *ngFor="let option of question.options; let j = index"
+                class="flex items-center gap-2"
               >
                 <span
-                  *ngIf="
-                    config.correctAnswerType === 'index'
-                      ? j === question.correctAnswer
-                      : false
+                  class="w-4 h-4 rounded-full border-2 flex items-center justify-center"
+                  [class.bg-blue-600]="
+                    getOptionLetter(j) === question.correctAnswer
                   "
-                  class="w-2 h-2 bg-white rounded-full"
-                ></span>
-              </span>
-              <span
-                [class.font-semibold]="
-                  config.correctAnswerType === 'index'
-                    ? j === question.correctAnswer
-                    : false
-                "
-                [class.text-blue-600]="
-                  config.correctAnswerType === 'index'
-                    ? j === question.correctAnswer
-                    : false
-                "
-              >
-                {{ option }}
-              </span>
+                  [class.border-blue-600]="
+                    getOptionLetter(j) === question.correctAnswer
+                  "
+                >
+                  <span
+                    *ngIf="getOptionLetter(j) === question.correctAnswer"
+                    class="w-2 h-2 bg-white rounded-full"
+                  ></span>
+                </span>
+                <span
+                  [class.font-semibold]="
+                    getOptionLetter(j) === question.correctAnswer
+                  "
+                  [class.text-blue-600]="
+                    getOptionLetter(j) === question.correctAnswer
+                  "
+                >
+                  {{ option }}
+                </span>
+              </div>
             </div>
-          </div>
 
-          <div class="mt-2 p-2 bg-green-50 rounded">
-            <p class="text-sm text-green-700">
-              <strong>{{ getCorrectAnswerLabel(question) }}:</strong>
-              {{ getCorrectAnswerDisplay(question) }}
-            </p>
-          </div>
+            <div class="mt-2 p-2 bg-green-50 rounded">
+              <p class="text-sm text-green-700">
+                <strong>{{ getCorrectAnswerLabel(question) }}:</strong>
+                {{ getCorrectAnswerDisplay(question) }}
+              </p>
+            </div>
 
-          <!-- Question Image -->
-          <div *ngIf="question.imageUrl" class="mt-2">
-            <img
-              [src]="question.imageUrl"
-              alt="Question image"
-              class="w-32 h-32 object-cover rounded border"
-              title="Hình ảnh câu hỏi"
-            />
-          </div>
+            <!-- Question Image -->
+            <div *ngIf="question.imageUrl" class="mt-2">
+              <img
+                [src]="question.imageUrl"
+                alt="Question image"
+                class="w-32 h-32 object-cover rounded border"
+                title="Hình ảnh câu hỏi"
+              />
+            </div>
 
-          <!-- Explanation -->
-          <div
-            *ngIf="question.explaination"
-            class="mt-2 p-2 bg-blue-50 rounded"
-          >
-            <p class="text-sm text-blue-700">
-              <strong>Giải thích:</strong> {{ question.explaination }}
-            </p>
+            <!-- Explanation -->
+            <div
+              *ngIf="question.explaination"
+              class="mt-2 p-2 bg-blue-50 rounded"
+            >
+              <p class="text-sm text-blue-700">
+                <strong>Giải thích:</strong> {{ question.explaination }}
+              </p>
+            </div>
           </div>
         </div>
       </div>
@@ -523,7 +477,7 @@
         [disabled]="!testData.name.trim() || testData.questions.length === 0"
         class="form-button-primary"
       >
-        Lưu bài test
+        {{ getSaveButtonText() }}
       </button>
     </div>
   </form>

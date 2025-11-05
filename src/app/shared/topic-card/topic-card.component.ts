@@ -5,7 +5,9 @@ import {
   faBookOpen,
   faFileAlt,
   faEye,
+  faHeart as faHeartSolid,
 } from '@fortawesome/free-solid-svg-icons';
+import { faHeart as faHeartRegular } from '@fortawesome/free-regular-svg-icons';
 import { TopicBase } from '../../models/topic-base';
 
 @Component({
@@ -16,6 +18,9 @@ import { TopicBase } from '../../models/topic-base';
 })
 export class TopicCardComponent {
   @Input() topic!: TopicBase;
+  @Input() isFavorite = false;
+  @Output() favorite = new EventEmitter<TopicBase>();
+  @Output() unfavorite = new EventEmitter<TopicBase>();
   @Output() learn = new EventEmitter<TopicBase>();
   @Output() test = new EventEmitter<TopicBase>();
   @Output() detail = new EventEmitter<TopicBase>();
@@ -23,6 +28,8 @@ export class TopicCardComponent {
   faBookOpen = faBookOpen;
   faFileAlt = faFileAlt;
   faEye = faEye;
+  faHeartSolid = faHeartSolid;
+  faHeartRegular = faHeartRegular;
 
   badgeClass(status: TopicBase['status']) {
     if (status === 'Completed') return 'bg-primary text-primary-foreground';
@@ -43,5 +50,14 @@ export class TopicCardComponent {
   onDetail(e: MouseEvent) {
     e.stopPropagation();
     this.detail.emit(this.topic);
+  }
+
+  toggleFavorite(e: MouseEvent) {
+    e.stopPropagation();
+    if (this.isFavorite) {
+      this.unfavorite.emit(this.topic);
+    } else {
+      this.favorite.emit(this.topic);
+    }
   }
 }

@@ -40,3 +40,14 @@
     </div>
   </div>
 </div>
+<app-confirm-dialog
+  [isVisible]="isShowConfirmDialog"
+  title="Xóa từ vựng"
+  message="Bạn có chắc chắn muốn xóa từ vựng này? Hành động này không thể hoàn tác."
+  confirmText="Xóa"
+  cancelText="Hủy"
+  confirmButtonClass="form-button-danger"
+  cancelButtonClass="form-button-secondary"
+  (confirm)="handleConfirmDelete()"
+  (cancel)="handleCancelDelete()"
+></app-confirm-dialog>

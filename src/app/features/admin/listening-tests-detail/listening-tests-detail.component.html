@@ -1,0 +1,23 @@
+<div class="p-6">
+  <div class="flex justify-between items-center mb-6">
+    <h1 class="text-2xl font-bold text-gray-800">
+      Quản lý bài test nghe - {{ testName }}
+    </h1>
+    <div class="flex gap-3">
+      <button
+        *ngIf="testName"
+        (click)="goBackToTopics()"
+        class="bg-navy-header text-white px-4 py-2 rounded-lg hover:opacity-80"
+      >
+        Quay lại danh sách chủ đề
+      </button>
+    </div>
+  </div>
+  <app-listening-exercise-list
+    [listenings]="listenings"
+    [showEmptyState]="showEmptyState"
+    [emptyStateTitle]="emptyStateTitle"
+    [emptyStateMessage]="emptyStateMessage"
+    [emptyStateButtonText]="emptyStateButtonText"
+  ></app-listening-exercise-list>
+</div>

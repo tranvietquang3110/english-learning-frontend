@@ -1,0 +1,172 @@
+<div class="p-6 history-container">
+  <!-- Header -->
+  <div class="flex justify-between items-center mb-6">
+    <h1 class="text-2xl font-bold text-gray-800">Lịch sử bài thi</h1>
+    <div class="text-sm text-gray-600">
+      Tổng cộng: {{ history.length }} bài thi
+    </div>
+  </div>
+
+  <!-- Filter Section -->
+  <div class="bg-white rounded-lg shadow-md mb-6 history-card">
+    <div class="p-6 border-b border-gray-200">
+      <h2 class="text-lg font-semibold text-gray-800 mb-4">Bộ lọc</h2>
+      <div class="flex flex-wrap gap-3 filter-buttons">
+        <button
+          *ngFor="let option of filterOptions"
+          (click)="onFilterChange(option.value)"
+          [class.bg-primary]="selectedFilter === option.value"
+          [class.text-white]="selectedFilter === option.value"
+          [class.bg-gray-100]="selectedFilter !== option.value"
+          [class.text-gray-700]="selectedFilter !== option.value"
+          class="px-4 py-2 rounded-lg font-medium transition-colors hover:opacity-80 filter-button"
+        >
+          {{ option.label }}
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- History Table -->
+  <div class="bg-white rounded-lg shadow-md history-card">
+    <div class="p-6 border-b border-gray-200">
+      <h2 class="text-lg font-semibold text-gray-800">
+        Danh sách bài thi đã làm
+      </h2>
+      <p class="text-gray-600 text-sm mt-1">
+        Hiển thị kết quả cho: {{ getSelectedFilterLabel() }}
+      </p>
+    </div>
+
+    <div class="p-6">
+      <!-- Loading State -->
+      <div *ngIf="isLoading" class="text-center py-12">
+        <div
+          class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-primary loading-spinner"
+        ></div>
+        <p class="text-gray-600 mt-2">Đang tải dữ liệu...</p>
+      </div>
+
+      <!-- History Table -->
+      <div *ngIf="!isLoading && history.length > 0" class="overflow-x-auto">
+        <table class="w-full history-table">
+          <thead>
+            <tr class="border-b border-gray-200">
+              <th class="text-left py-3 px-4 font-semibold text-gray-700">
+                Tên bài thi
+              </th>
+              <th class="text-left py-3 px-4 font-semibold text-gray-700">
+                Loại
+              </th>
+              <th class="text-left py-3 px-4 font-semibold text-gray-700">
+                Điểm số
+              </th>
+              <th class="text-left py-3 px-4 font-semibold text-gray-700">
+                Thời gian làm bài
+              </th>
+              <th class="text-left py-3 px-4 font-semibold text-gray-700">
+                Ngày làm
+              </th>
+              <th class="text-center py-3 px-4 font-semibold text-gray-700">
+                Thao tác
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr
+              *ngFor="let exam of history"
+              class="border-b border-gray-100 hover:bg-gray-50 transition-colors"
+            >
+              <td class="py-4 px-4">
+                <div class="font-medium text-gray-800">{{ exam.name }}</div>
+                <div class="text-sm text-gray-500">ID: {{ exam.id }}</div>
+              </td>
+              <td class="py-4 px-4">
+                <span
+                  class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium test-type-badge"
+                  [class.listening]="exam.testType === 'LISTENING'"
+                  [class.grammar]="exam.testType === 'GRAMMAR'"
+                  [class.vocabulary]="exam.testType === 'VOCABULARY'"
+                  [class.full-test]="exam.testType === 'FULL_TEST'"
+                >
+                  {{ getTestTypeLabel(exam.testType) }}
+                </span>
+              </td>
+              <td class="py-4 px-4">
+                <div class="flex items-center">
+                  <span
+                    class="text-2xl font-bold"
+                    [class]="getScoreColor(exam.score)"
+                  >
+                    {{ exam.score }}%
+                  </span>
+                </div>
+              </td>
+              <td class="py-4 px-4 text-gray-600">
+                {{ formatDuration(exam.duration) }}
+              </td>
+              <td class="py-4 px-4 text-gray-600">
+                <div>{{ exam.takenAt | date : "dd/MM/yyyy" }}</div>
+                <div class="text-sm">{{ exam.takenAt | date : "HH:mm" }}</div>
+              </td>
+              <td class="py-4 px-4">
+                <div class="flex justify-center gap-2">
+                  <button
+                    class="bg-blue-100 hover:bg-blue-200 text-blue-700 px-3 py-1 rounded text-sm transition-colors action-button"
+                    title="Xem chi tiết"
+                    routerLink="/history/{{ exam.id }}"
+                  >
+                    Xem chi tiết
+                    <i class="fas fa-eye"></i>
+                  </button>
+                  <!-- <button
+                    class="bg-green-100 hover:bg-green-200 text-green-700 px-3 py-1 rounded text-sm transition-colors action-button"
+                    title="Làm lại"
+                  >
+                    <i class="fas fa-redo"></i>
+                  </button> -->
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Empty State -->
+      <div
+        *ngIf="!isLoading && history.length === 0"
+        class="text-center py-12 empty-state"
+      >
+        <div class="text-gray-400 text-6xl mb-4">📚</div>
+        <h3 class="text-xl font-semibold text-gray-600 mb-2">
+          Chưa có lịch sử bài thi
+        </h3>
+        <p class="text-gray-500 mb-4">
+          <span *ngIf="selectedFilter === 'ALL'">
+            Bạn chưa làm bài thi nào. Hãy bắt đầu với một bài thi để xem lịch sử
+            ở đây.
+          </span>
+          <span *ngIf="selectedFilter !== 'ALL'">
+            Chưa có bài thi loại
+            {{ getSelectedFilterLabel().toLowerCase() }} nào.
+          </span>
+        </p>
+        <button
+          class="bg-primary text-white px-6 py-2 rounded-lg hover:opacity-80"
+          routerLink="/"
+        >
+          Bắt đầu làm bài thi
+        </button>
+      </div>
+
+      <!-- Pagination -->
+      <div *ngIf="!isLoading && totalPages > 1" class="mt-6">
+        <app-pagination
+          [currentPage]="currentPage"
+          [totalPages]="totalPages"
+          (pageChange)="handlePageChange($event)"
+        ></app-pagination>
+      </div>
+    </div>
+  </div>
+</div>

@@ -7,6 +7,8 @@ import { VocabTopic } from '../models/vocabulary/vocab-topic.model';
 import { Vocabulary } from '../models/vocabulary/vocabulary.model';
 import { VocabularyTest } from '../models/vocabulary/vocabulary-test.model';
 import { VocabularyTestQuestion } from '../models/vocabulary/vocabulary-test-question.model';
+import { VocabularyRequest } from '../models/request/vocabulary-request.model';
+import { VocabularyTestRequest } from '../models/request/vocabulary-test-request.model';
 
 @Injectable({
   providedIn: 'root',
@@ -33,7 +35,9 @@ export class VocabularyService {
       name: string;
       topicId: string;
       vocabularies: Vocabulary[];
-    }>(`${this.apiUrl}/${topicId}/vocabularies?page=${page}&size=${size}`);
+    }>(
+      `${this.apiUrl}/topics/${topicId}/vocabularies?page=${page}&size=${size}`
+    );
   }
 
   // 3. Get tests by topic id
@@ -50,7 +54,7 @@ export class VocabularyService {
       topicName: string;
       topicId: string;
       vocabularyTests: Page<VocabularyTest>;
-    }>(`${this.apiUrl}/${topicId}/tests?page=${page}&size=${size}`);
+    }>(`${this.apiUrl}/topics/${topicId}/tests?page=${page}&size=${size}`);
   }
 
   // 4. Get test questions by test id
@@ -102,7 +106,9 @@ export class VocabularyService {
     audioFiles: File[]
   ): Observable<Vocabulary[]> {
     const formData = new FormData();
-    console.log(imageFiles);
+    console.log(vocabularies);
+    console.log('imageFiles', imageFiles);
+    console.log('audioFiles', audioFiles);
     // append list object dưới dạng JSON
     formData.append(
       'vocabularies',
@@ -116,7 +122,7 @@ export class VocabularyService {
     audioFiles.forEach((file) => formData.append('audios', file));
 
     return this.http.post<any>(
-      `${this.apiUrl}/${topicId}/vocabularies`,
+      `${this.apiUrl}/topics/${topicId}/vocabularies`,
       formData
     );
   }
@@ -132,16 +138,76 @@ export class VocabularyService {
 
     images.forEach((file) => formData.append('images', file));
 
-    return this.http.post<any>(`${this.apiUrl}/${topicId}/tests`, formData);
+    return this.http.post<any>(
+      `${this.apiUrl}/topics/${topicId}/tests`,
+      formData
+    );
   }
 
   // 9. Get test by id
   getTestById(testId: string): Observable<VocabularyTest> {
-    return this.http.get<VocabularyTest>(`${this.apiUrl}/tests/${testId}`);
+    return this.http.get<VocabularyTest>(
+      `${this.apiUrl}/tests/${testId}/questions`
+    );
   }
 
   // 10. Delete test
   deleteTest(testId: string): Observable<any> {
     return this.http.delete<any>(`${this.apiUrl}/tests/${testId}`);
+  }
+
+  updateVocabulary(
+    vocabularyId: string,
+    vocabulary: VocabularyRequest,
+    image: any,
+    audio: any
+  ): Observable<Vocabulary> {
+    console.log(vocabulary);
+    const formData = new FormData();
+    formData.append(
+      'request',
+      new Blob([JSON.stringify(vocabulary)], { type: 'application/json' })
+    );
+    if (image && image instanceof File) {
+      formData.append('image', image);
+    }
+    if (audio && audio instanceof File) {
+      formData.append('audio', audio);
+    }
+    return this.http.put<Vocabulary>(
+      `${this.apiUrl}/vocabularies/${vocabularyId}`,
+      formData
+    );
+  }
+
+  updateTest(
+    testId: string,
+    test: VocabularyTestRequest,
+    images: File[]
+  ): Observable<VocabularyTest> {
+    const formData = new FormData();
+    formData.append(
+      'test',
+      new Blob([JSON.stringify(test)], { type: 'application/json' })
+    );
+    images.forEach((file) => formData.append('images', file));
+    return this.http.put<VocabularyTest>(
+      `${this.apiUrl}/tests/${testId}`,
+      formData
+    );
+  }
+
+  deleteVocabulary(vocabularyId: string): Observable<any> {
+    return this.http.delete<any>(`${this.apiUrl}/vocabularies/${vocabularyId}`);
+  }
+
+  searchVocabularies(
+    query: string,
+    page: number = 0,
+    limit: number = 10
+  ): Observable<Page<Vocabulary>> {
+    return this.http.get<Page<Vocabulary>>(
+      `${this.apiUrl}/search?q=${query}&page=${page}&limit=${limit}`
+    );
   }
 }

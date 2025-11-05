@@ -6,16 +6,26 @@ import { Listening } from '../../../models/listening/listening.model';
 import { ListeningRequest } from '../../../models/request/listening-request';
 import { AudioPlayerComponent } from '../../../shared/audio-player/audio-player.component';
 import { ListeningExerciseFormComponent } from '../listening-exercise-form/listening-exercise-form.component';
+import {
+  ListeningExercise,
+  ListeningExerciseListComponent,
+} from '../../../shared/listening-exercise-list/listening-exercise-list.component';
+import { RequestType } from '../../../models/request-type.model';
 
 enum State {
   View,
   AddExercise,
+  EditExercise,
 }
 
 @Component({
   selector: 'app-listening-topic-detail',
   standalone: true,
-  imports: [CommonModule, AudioPlayerComponent, ListeningExerciseFormComponent],
+  imports: [
+    CommonModule,
+    ListeningExerciseFormComponent,
+    ListeningExerciseListComponent,
+  ],
   templateUrl: './listening-topic-detail.component.html',
   styleUrl: './listening-topic-detail.component.scss',
 })
@@ -27,7 +37,9 @@ export class ListeningTopicDetailComponent implements OnInit {
   listenings: Listening[] = [];
   isLoading = true;
   isAddingExercise = false;
-
+  isEditingExercise = false;
+  listeningExercises: ListeningExercise[] = [];
+  selectedListeningForEdit: ListeningExercise | null = null;
   constructor(
     private route: ActivatedRoute,
     private router: Router,
@@ -46,6 +58,18 @@ export class ListeningTopicDetailComponent implements OnInit {
       next: (data) => {
         this.topicName = data.name;
         this.listenings = data.listenings;
+        this.listeningExercises = data.listenings.map((listening) => ({
+          id: listening.id,
+          name: listening.name,
+          audioUrl: listening.audioUrl,
+          imageUrl: listening.imageUrl,
+          transcript: listening.transcript,
+          question: listening.question,
+          options: listening.options,
+          correctAnswer: listening.correctAnswer,
+          createdAt: listening.createdAt,
+        }));
+        console.log('Listening exercises:', this.listeningExercises);
         this.isLoading = false;
       },
       error: (err) => {
@@ -59,17 +83,17 @@ export class ListeningTopicDetailComponent implements OnInit {
     this.router.navigate(['/admin/listening/manage']);
   }
 
-  onViewListening(listening: Listening) {
+  onViewListening(listening: ListeningExercise) {
     // Navigate to listening detail or open in modal
     console.log('View listening:', listening);
   }
 
-  onEditListening(listening: Listening) {
-    // Navigate to edit listening form
-    console.log('Edit listening:', listening);
+  onEditListening(listening: ListeningExercise) {
+    this.selectedListeningForEdit = listening;
+    this.currentState = State.EditExercise;
   }
 
-  onDeleteListening(listening: Listening) {
+  onDeleteListening(listening: ListeningExercise) {
     // Show confirmation dialog and delete
     if (confirm('Are you sure you want to delete this listening exercise?')) {
       console.log('Delete listening:', listening);
@@ -139,6 +163,100 @@ export class ListeningTopicDetailComponent implements OnInit {
   }
 
   onCancelAddExercise() {
+    this.changeToView();
+  }
+
+  changeToEditExercise() {
+    this.currentState = State.EditExercise;
+  }
+
+  onUpdateExercise(data: {
+    exercises: Partial<Listening>[];
+    imageFiles: File[];
+    audioFiles: File[];
+  }) {
+    // Prevent double call
+    if (this.isEditingExercise) {
+      console.log('Already editing exercise, ignoring duplicate call');
+      return;
+    }
+
+    this.isEditingExercise = true;
+
+    if (!this.selectedListeningForEdit) {
+      console.error('No listening selected for edit');
+      this.isEditingExercise = false;
+      return;
+    }
+
+    // Prepare exercise as ListeningRequest
+    const exercise = data.exercises[0];
+    const listeningRequest: ListeningRequest = {
+      id: this.selectedListeningForEdit.id || undefined,
+      name: exercise.name || this.selectedListeningForEdit.name || '',
+      transcript:
+        exercise.transcript || this.selectedListeningForEdit.transcript || '',
+      question:
+        exercise.question || this.selectedListeningForEdit.question || '',
+      options: {
+        a:
+          exercise.options?.['A'] ||
+          exercise.options?.['a'] ||
+          this.selectedListeningForEdit.options?.['A'] ||
+          this.selectedListeningForEdit.options?.['a'] ||
+          '',
+        b:
+          exercise.options?.['B'] ||
+          exercise.options?.['b'] ||
+          this.selectedListeningForEdit.options?.['B'] ||
+          this.selectedListeningForEdit.options?.['b'] ||
+          '',
+        c:
+          exercise.options?.['C'] ||
+          exercise.options?.['c'] ||
+          this.selectedListeningForEdit.options?.['C'] ||
+          this.selectedListeningForEdit.options?.['c'] ||
+          '',
+        d:
+          exercise.options?.['D'] ||
+          exercise.options?.['d'] ||
+          this.selectedListeningForEdit.options?.['D'] ||
+          this.selectedListeningForEdit.options?.['d'] ||
+          '',
+      },
+      correctAnswer:
+        exercise.correctAnswer ||
+        this.selectedListeningForEdit.correctAnswer ||
+        '',
+      action: RequestType.UPDATE,
+      imageName:
+        data.imageFiles.length > 0 ? data.imageFiles[0].name : undefined,
+      audioName:
+        data.audioFiles.length > 0 ? data.audioFiles[0].name : undefined,
+    };
+
+    this.listeningService
+      .updateListening([listeningRequest], data.imageFiles, data.audioFiles)
+      .subscribe({
+        next: (response: Listening) => {
+          console.log('Exercise updated successfully:', response);
+          // Reload the listenings list
+          this.loadListenings();
+          this.changeToView();
+          this.selectedListeningForEdit = null;
+          this.isEditingExercise = false;
+        },
+        error: (err) => {
+          console.error('Error updating exercise:', err);
+          this.isEditingExercise = false;
+          // Show error message to user
+          alert('Error updating exercise. Please try again.');
+        },
+      });
+  }
+
+  onCancelEditExercise() {
+    this.selectedListeningForEdit = null;
     this.changeToView();
   }
 }

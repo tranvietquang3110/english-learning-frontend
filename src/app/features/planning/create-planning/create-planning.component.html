@@ -1,0 +1,38 @@
+<!-- Loading State -->
+<div *ngIf="isLoading" class="flex justify-center items-center min-h-screen">
+  <div class="text-center">
+    <div
+      class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"
+    ></div>
+    <p class="text-gray-600 mt-2">Đang tải kế hoạch...</p>
+  </div>
+</div>
+
+<!-- Error State -->
+<div
+  *ngIf="error && !isLoading"
+  class="flex justify-center items-center min-h-screen"
+>
+  <div class="text-center">
+    <div class="text-red-400 text-6xl mb-4">⚠️</div>
+    <h3 class="text-xl font-semibold text-red-600 mb-2">Có lỗi xảy ra</h3>
+    <p class="text-red-500 mb-4">{{ error }}</p>
+    <button
+      (click)="loadPlanForEdit()"
+      class="bg-blue-500 text-white px-6 py-2 rounded-lg hover:opacity-80"
+    >
+      Thử lại
+    </button>
+  </div>
+</div>
+
+<!-- Form Component -->
+<app-form-planning
+  *ngIf="!isLoading && !error"
+  [isEditMode]="isEditMode"
+  [isGenerateMode]="isGenerateMode"
+  [planToEdit]="planToEdit"
+  (planSaved)="onPlanSaved($event)"
+  (cancel)="onCancel()"
+>
+</app-form-planning>

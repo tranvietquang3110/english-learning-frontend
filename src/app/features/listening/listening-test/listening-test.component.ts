@@ -17,6 +17,9 @@ import {
   ListeningTest,
   ListeningTestQuestion,
 } from '../../../models/listening/listening-test.model';
+import { HistoryService } from '../../../services/HistoryService';
+import { ItemTypeEnum } from '../../../models/item-type-enum';
+import { ExamHistoryResponse } from '../../../models/response/exam-history-response.model';
 
 @Component({
   selector: 'app-listening-test',
@@ -50,6 +53,8 @@ export class ListeningTestComponent {
   duration = 0;
   title = '';
   topicName = '';
+  startDate = '';
+
   // For QuestionGridComponent
   get questionGridAnswers(): (string | undefined)[] {
     if (!this.questions) return [];
@@ -76,7 +81,7 @@ export class ListeningTestComponent {
     incorrectAnswers: number;
     details: Array<{
       questionId: string;
-      isCorrect: boolean;
+      correct: boolean;
       selectedAnswer: string;
       correctAnswer: string;
     }>;
@@ -85,7 +90,8 @@ export class ListeningTestComponent {
   constructor(
     private route: ActivatedRoute,
     private router: Router,
-    private listeningService: ListeningService
+    private listeningService: ListeningService,
+    private historyService: HistoryService
   ) {
     this.route.paramMap.subscribe((params) => {
       this.testId = params.get('testId') || '';
@@ -122,7 +128,7 @@ export class ListeningTestComponent {
     if (!this.questions) return;
     this.isTestStarted = true;
     this.timeRemaining = this.duration * 60; // Convert minutes to seconds
-
+    this.startDate = new Date().toISOString();
     const timer = setInterval(() => {
       if (!this.isTestStarted || this.isTestCompleted) {
         clearInterval(timer);
@@ -166,7 +172,7 @@ export class ListeningTestComponent {
       if (isCorrect) correctCount++;
       return {
         questionId: q.id,
-        isCorrect,
+        correct: isCorrect,
         selectedAnswer: userAnswer,
         correctAnswer: q.correctAnswer,
       };
@@ -181,6 +187,27 @@ export class ListeningTestComponent {
       details,
     };
 
+    this.historyService
+      .addHistory({
+        testType: ItemTypeEnum.LISTENING,
+        testId: this.testId,
+        score: score,
+        answers: details.map((d) => ({
+          questionId: d.questionId,
+          selectedAnswer: d.selectedAnswer,
+          correct: d.correct,
+        })),
+        takenAt: this.startDate,
+        submittedAt: new Date().toISOString(),
+      })
+      .subscribe({
+        next: (data: ExamHistoryResponse) => {
+          console.log('History added:', data);
+        },
+        error: (err: any) => {
+          console.error('Failed to add history', err);
+        },
+      });
     this.isTestCompleted = true;
   }
 

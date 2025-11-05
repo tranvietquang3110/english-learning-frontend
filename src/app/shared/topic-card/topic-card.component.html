@@ -1,6 +1,19 @@
 <div
   class="group cursor-pointer hover:shadow-lg transition-all duration-200 hover:-translate-y-1 relative overflow-hidden rounded-xl border bg-card text-card-foreground"
 >
+  <!-- Favorite Button -->
+  <button
+    class="absolute top-3 right-3 z-10 p-2 rounded-full bg-white/80 backdrop-blur-sm hover:bg-white transition-all duration-200 shadow-sm"
+    (click)="toggleFavorite($event)"
+    [title]="isFavorite ? 'Bỏ yêu thích' : 'Thêm vào yêu thích'"
+  >
+    <fa-icon
+      [icon]="isFavorite ? faHeartSolid : faHeartRegular"
+      [class]="isFavorite ? 'text-red-500' : 'text-gray-400 hover:text-red-500'"
+      class="w-4 h-4 transition-colors duration-200"
+    ></fa-icon>
+  </button>
+
   <div class="p-6">
     <div class="space-y-4">
       <!-- Image -->

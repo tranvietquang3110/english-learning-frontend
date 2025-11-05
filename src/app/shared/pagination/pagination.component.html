@@ -10,13 +10,13 @@
   </button>
 
   <!-- Page numbers -->
-  <div class="flex gap-1">
+  <div class="flex p-2 rounded-md">
     <button
       *ngFor="let page of pages"
       (click)="goToPage(page)"
       [class.bg-primary]="currentPage === page"
       [class.text-black]="currentPage !== page"
-      class="border px-2 py-1 rounded w-8 h-8 text-sm text-white"
+      class="border px-2 py-1 rounded w-8 h-8 text-sm text-white bg-navy-header"
     >
       {{ page }}
     </button>

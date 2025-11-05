@@ -1,0 +1,152 @@
+<div class="favorite-container">
+  <!-- Header -->
+  <div class="favorite-header">
+    <h1 class="page-title">
+      <i class="fas fa-heart"></i>
+      Danh sách yêu thích
+    </h1>
+
+    <!-- Filter Section -->
+    <div class="filter-section">
+      <label for="filter-select" class="filter-label">Lọc theo loại:</label>
+      <select
+        id="filter-select"
+        class="filter-select"
+        [(ngModel)]="selectedFilter"
+        (change)="onFilterChange()"
+      >
+        <option *ngFor="let option of filterOptions" [value]="option.value">
+          {{ option.label }}
+        </option>
+      </select>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="isLoading" class="loading-container">
+    <div class="loading-spinner">
+      <i class="fas fa-spinner fa-spin"></i>
+      <span>Đang tải...</span>
+    </div>
+  </div>
+
+  <!-- Error Message -->
+  <div *ngIf="error" class="error-message">
+    <i class="fas fa-exclamation-triangle"></i>
+    <span>{{ error }}</span>
+    <button type="button" class="close-btn" (click)="error = null">
+      <i class="fas fa-times"></i>
+    </button>
+  </div>
+
+  <!-- Empty State -->
+  <div
+    *ngIf="!isLoading && !error && filteredFavorites.length === 0"
+    class="empty-state"
+  >
+    <div class="empty-icon">
+      <i class="fas fa-heart-broken"></i>
+    </div>
+    <h3>Chưa có mục yêu thích nào</h3>
+    <p *ngIf="selectedFilter === 'ALL'">
+      Bạn chưa thêm mục nào vào danh sách yêu thích.
+    </p>
+    <p *ngIf="selectedFilter !== 'ALL'">
+      Không có mục yêu thích nào thuộc loại "{{
+        getItemTypeLabel(selectedFilter)
+      }}".
+    </p>
+  </div>
+
+  <!-- Favorites List -->
+  <div
+    *ngIf="!isLoading && !error && filteredFavorites.length > 0"
+    class="favorites-list"
+  >
+    <div class="favorites-count">
+      <span class="count-badge"> {{ filteredFavorites.length }} mục </span>
+    </div>
+
+    <div class="favorites-grid">
+      <div *ngFor="let favorite of filteredFavorites" class="favorite-card">
+        <!-- Card Header -->
+        <div class="card-header">
+          <div
+            class="item-type-badge"
+            [class]="'type-' + favorite.itemType.toLowerCase()"
+          >
+            <i class="fas" [class]="getTypeIcon(favorite.itemType)"></i>
+            <span>{{ getItemTypeLabel(favorite.itemType) }}</span>
+          </div>
+          <button
+            type="button"
+            class="delete-btn"
+            (click)="deleteFavorite(favorite.id)"
+            title="Xóa khỏi yêu thích"
+          >
+            <fa-icon [icon]="FaTrash"></fa-icon>
+          </button>
+        </div>
+
+        <!-- Card Content -->
+        <div class="card-content">
+          <div class="content-with-image">
+            <div class="image-container">
+              <img
+                [src]="getItemImage(favorite)"
+                [alt]="getItemTitle(favorite)"
+                class="topic-image"
+                (error)="onImageError($event)"
+              />
+            </div>
+            <div class="text-content">
+              <h3 class="item-title">{{ getItemTitle(favorite) }}</h3>
+              <p class="item-description">{{ getItemDescription(favorite) }}</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card Footer -->
+        <div class="card-footer">
+          <div class="added-date">
+            <i class="fas fa-calendar-plus"></i>
+            <span>Thêm vào: {{ formatDate(favorite.addedAt) }}</span>
+          </div>
+          <div class="action-buttons">
+            <button
+              type="button"
+              class="learn-btn"
+              (click)="learnItem(favorite)"
+              title="Học chủ đề này"
+            >
+              <i class="fas fa-book-open"></i>
+              <span>Học</span>
+            </button>
+            <button
+              type="button"
+              class="test-btn"
+              (click)="takeTest(favorite)"
+              title="Làm bài test"
+            >
+              <i class="fas fa-file-alt"></i>
+              <span>Làm bài test</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Confirm Dialog -->
+  <app-confirm-dialog
+    [isVisible]="showConfirmDialog"
+    title="Xóa khỏi yêu thích"
+    message="Bạn có chắc chắn muốn xóa mục này khỏi danh sách yêu thích?"
+    confirmText="Xóa"
+    cancelText="Hủy"
+    confirmButtonClass="form-button-danger"
+    cancelButtonClass="form-button-secondary"
+    (confirm)="onConfirmDelete()"
+    (cancel)="onCancelDelete()"
+  ></app-confirm-dialog>
+</div>

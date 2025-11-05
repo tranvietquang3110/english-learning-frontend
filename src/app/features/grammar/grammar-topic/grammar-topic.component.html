@@ -12,7 +12,13 @@
         *ngFor="let topic of topics"
         class="group cursor-pointer hover:shadow-lg transition-all duration-200 hover:-translate-y-1 relative overflow-hidden rounded-xl border bg-card text-card-foreground"
       >
-        <app-topic-card [topic]="topic" (learn)="onLearn($event)">
+        <app-topic-card
+          [topic]="topic"
+          (learn)="onLearn($event)"
+          (favorite)="onFavorite($event)"
+          (unfavorite)="onUnfavorite($event)"
+          [isFavorite]="isFavorite(topic)"
+        >
         </app-topic-card>
       </div>
     </div>

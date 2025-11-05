@@ -1,0 +1,257 @@
+<div class="p-6 history-detail-container">
+  <!-- Error State -->
+  <!-- <div *ngIf="error && !isLoading" class="text-center py-12">
+    <div class="text-red-400 text-6xl mb-4">⚠️</div>
+    <h3 class="text-xl font-semibold text-red-600 mb-2">Có lỗi xảy ra</h3>
+    <p class="text-red-500 mb-4">{{ error }}</p>
+    <button
+      (click)="loadHistoryDetail()"
+      class="bg-primary text-white px-6 py-2 rounded-lg hover:opacity-80"
+    >
+      Thử lại
+    </button>
+  </div> -->
+
+  <!-- History Detail Content -->
+  <div *ngIf="historyDetail" class="space-y-6">
+    <!-- Header Section -->
+    <div class="bg-white rounded-lg shadow-md p-6">
+      <div class="flex justify-between items-start mb-4">
+        <div>
+          <h1 class="text-2xl font-bold text-gray-800 mb-2">
+            {{ historyDetail.name }}
+          </h1>
+          <div class="flex items-center gap-4 text-sm text-gray-600">
+            <span
+              class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
+              [class.bg-blue-100]="historyDetail.testType === 'LISTENING'"
+              [class.text-blue-800]="historyDetail.testType === 'LISTENING'"
+              [class.bg-green-100]="historyDetail.testType === 'GRAMMAR'"
+              [class.text-green-800]="historyDetail.testType === 'GRAMMAR'"
+              [class.bg-purple-100]="historyDetail.testType === 'VOCABULARY'"
+              [class.text-purple-800]="historyDetail.testType === 'VOCABULARY'"
+              [class.bg-orange-100]="historyDetail.testType === 'FULL_TEST'"
+              [class.text-orange-800]="historyDetail.testType === 'FULL_TEST'"
+            >
+              {{ getTestTypeLabel(historyDetail.testType) }}
+            </span>
+            <span>ID: {{ historyDetail.id }}</span>
+          </div>
+        </div>
+        <button
+          routerLink="/history"
+          class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-lg transition-colors"
+        >
+          ← Quay lại
+        </button>
+      </div>
+
+      <!-- Score and Stats -->
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div
+          class="text-center p-4 rounded-lg"
+          [class]="getScoreBackgroundColor(historyDetail.score)"
+        >
+          <div
+            class="text-3xl font-bold"
+            [class]="getScoreColor(historyDetail.score)"
+          >
+            {{ historyDetail.score }}%
+          </div>
+          <div class="text-sm text-gray-600">Điểm số</div>
+        </div>
+        <div class="text-center p-4 bg-blue-50 rounded-lg">
+          <div class="text-2xl font-bold text-blue-600">
+            {{ historyDetail.questions.length || 0 }}
+          </div>
+          <div class="text-sm text-gray-600">Tổng câu hỏi</div>
+        </div>
+        <div class="text-center p-4 bg-green-50 rounded-lg">
+          <div class="text-2xl font-bold text-green-600">
+            {{ getCorrectAnswersCount() }}
+          </div>
+          <div class="text-sm text-gray-600">Câu đúng</div>
+        </div>
+        <div class="text-center p-4 bg-purple-50 rounded-lg">
+          <div class="text-2xl font-bold text-purple-600">
+            {{ formatDuration(historyDetail.duration) }}
+          </div>
+          <div class="text-sm text-gray-600">Thời gian</div>
+        </div>
+      </div>
+
+      <!-- Test Info -->
+      <div class="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+        <div>
+          <span class="font-semibold text-gray-700">Ngày làm bài:</span>
+          <span class="text-gray-600 ml-2">{{
+            historyDetail.takenAt | date : "dd/MM/yyyy HH:mm"
+          }}</span>
+        </div>
+        <div>
+          <span class="font-semibold text-gray-700">Hoàn thành lúc:</span>
+          <span class="text-gray-600 ml-2">{{
+            historyDetail.submittedAt | date : "dd/MM/yyyy HH:mm"
+          }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Questions Section -->
+    <div class="bg-white rounded-lg shadow-md">
+      <div class="p-6 border-b border-gray-200">
+        <h2 class="text-xl font-semibold text-gray-800">Chi tiết câu hỏi</h2>
+        <p class="text-gray-600 text-sm mt-1">
+          Xem lại từng câu hỏi và đáp án của bạn
+        </p>
+      </div>
+
+      <div class="p-6">
+        <div
+          *ngIf="historyDetail.questions && historyDetail.questions.length > 0"
+          class="space-y-6"
+        >
+          <div
+            *ngFor="let question of historyDetail.questions; let i = index"
+            class="border rounded-lg p-6"
+            [class]="getAnswerStatusClass(question)"
+          >
+            <!-- Question Header -->
+            <div class="flex justify-between items-start mb-4">
+              <h3 class="text-lg font-semibold text-gray-800">
+                Câu {{ question.questionOrder || i + 1 }}:
+              </h3>
+              <div class="flex items-center gap-2">
+                <span
+                  *ngIf="isAnswerCorrect(question)"
+                  class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800"
+                >
+                  ✓ Đúng
+                </span>
+                <span
+                  *ngIf="!isAnswerCorrect(question)"
+                  class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800"
+                >
+                  ✗ Sai
+                </span>
+              </div>
+            </div>
+
+            <!-- Question Text -->
+            <div class="mb-4">
+              <p class="text-gray-800 text-base leading-relaxed">
+                {{ question.question }}
+              </p>
+            </div>
+
+            <!-- Audio (if exists) -->
+            <div *ngIf="question.audioUrl" class="mb-4">
+              <audio controls class="w-full">
+                <source [src]="question.audioUrl" type="audio/mpeg" />
+                Trình duyệt của bạn không hỗ trợ phát audio.
+              </audio>
+            </div>
+
+            <!-- Options -->
+            <div class="space-y-2 mb-4">
+              <div
+                *ngFor="
+                  let option of getObjectKeys(question.options);
+                  let j = index
+                "
+                class="flex items-center gap-3 p-3 rounded-lg border-2 transition-colors"
+                [class.border-green-500]="option === question.correctAnswer"
+                [class.bg-green-50]="option === question.correctAnswer"
+                [class.border-red-500]="
+                  option === question.userAnswer &&
+                  option !== question.correctAnswer
+                "
+                [class.bg-red-50]="
+                  option === question.userAnswer &&
+                  option !== question.correctAnswer
+                "
+                [class.border-gray-300]="
+                  option !== question.correctAnswer &&
+                  option !== question.userAnswer
+                "
+              >
+                <span
+                  class="w-6 h-6 rounded-full border-2 flex items-center justify-center font-semibold text-sm"
+                  [class.bg-green-600]="option === question.correctAnswer"
+                  [class.border-green-600]="option === question.correctAnswer"
+                  [class.text-white]="option === question.correctAnswer"
+                  [class.bg-red-600]="
+                    option === question.userAnswer &&
+                    option !== question.correctAnswer
+                  "
+                  [class.border-red-600]="
+                    option === question.userAnswer &&
+                    option !== question.correctAnswer
+                  "
+                  [class.text-white]="
+                    option === question.userAnswer &&
+                    option !== question.correctAnswer
+                  "
+                  [class.bg-gray-100]="
+                    option !== question.correctAnswer &&
+                    option !== question.userAnswer
+                  "
+                  [class.border-gray-400]="
+                    option !== question.correctAnswer &&
+                    option !== question.userAnswer
+                  "
+                >
+                  {{ option.toUpperCase() }}
+                </span>
+                <span class="flex-1 text-gray-800">{{
+                  question.options[option]
+                }}</span>
+                <div class="flex gap-2"></div>
+              </div>
+            </div>
+
+            <!-- Answer Summary -->
+            <div
+              class="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 rounded-lg"
+              [class.bg-green-50]="isAnswerCorrect(question)"
+              [class.bg-red-50]="!isAnswerCorrect(question)"
+            ></div>
+
+            <!-- Explanation -->
+            <div
+              *ngIf="question.explanation"
+              class="mt-4 p-4 bg-blue-50 rounded-lg"
+            >
+              <h4 class="font-semibold text-blue-800 mb-2">Giải thích:</h4>
+              <p class="text-blue-700">{{ question.explanation }}</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Empty State -->
+        <div
+          *ngIf="
+            !historyDetail.questions || historyDetail.questions.length === 0
+          "
+          class="text-center py-12"
+        >
+          <div class="text-gray-400 text-6xl mb-4">📝</div>
+          <h3 class="text-xl font-semibold text-gray-600 mb-2">
+            Không có câu hỏi
+          </h3>
+          <p class="text-gray-500">Bài thi này không có câu hỏi nào.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="flex justify-center gap-4">
+      <button
+        routerLink="/history"
+        class="bg-navy-header text-white px-6 py-2 rounded-lg transition-colors"
+      >
+        Quay lại lịch sử
+      </button>
+    </div>
+  </div>
+</div>

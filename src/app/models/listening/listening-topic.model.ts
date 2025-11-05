@@ -4,4 +4,5 @@ export interface ListeningTopic {
   description: string;
   imageUrl: string;
   createdAt: string;
+  favoriteId?: string;
 }

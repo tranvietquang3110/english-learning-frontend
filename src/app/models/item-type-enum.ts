@@ -1,0 +1,6 @@
+export enum ItemTypeEnum {
+  LISTENING = 'LISTENING',
+  VOCABULARY = 'VOCABULARY',
+  GRAMMAR = 'GRAMMAR',
+  FULL_TEST = 'FULL_TEST',
+}

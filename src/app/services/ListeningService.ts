@@ -10,6 +10,7 @@ import {
 } from '../models/listening/listening-test.model';
 import { Page } from '../models/page.model';
 import { ListeningRequest } from '../models/request/listening-request';
+import { ListeningTestRequest } from '../models/request/listening-test-request.model';
 
 // Models
 
@@ -156,5 +157,52 @@ export class ListeningService {
       createdAt: string;
       questions: ListeningTestQuestion[];
     }>(`${this.apiUrl}/tests/${testId}`);
+  }
+
+  deleteTest(testId: string): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/tests/${testId}`);
+  }
+
+  updateTest(
+    testId: string,
+    request: ListeningTestRequest,
+    imageFiles: File[],
+    audioFiles: File[]
+  ): Observable<any> {
+    console.log('Updating listening test:', request);
+    const formData = new FormData();
+    formData.append(
+      'request',
+      new Blob([JSON.stringify(request)], { type: 'application/json' })
+    );
+    imageFiles.forEach((file) => formData.append('images', file));
+    audioFiles.forEach((file) => formData.append('audios', file));
+    return this.http.put<any>(`${this.apiUrl}/tests/${testId}`, formData);
+  }
+
+  updateListening(
+    request: ListeningRequest[],
+    imageFiles: File[],
+    audioFiles: File[]
+  ): Observable<Listening> {
+    console.log('Updating listening:', request);
+    const formData = new FormData();
+    formData.append(
+      'requests',
+      new Blob([JSON.stringify(request)], { type: 'application/json' })
+    );
+    imageFiles.forEach((file) => formData.append('images', file));
+    audioFiles.forEach((file) => formData.append('audios', file));
+    return this.http.put<Listening>(`${this.apiUrl}/listenings`, formData);
+  }
+
+  searchListenings(
+    query: string,
+    page: number = 0,
+    limit: number = 10
+  ): Observable<Page<Listening>> {
+    return this.http.get<Page<Listening>>(
+      `${this.apiUrl}/search?q=${query}&page=${page}&limit=${limit}`
+    );
   }
 }

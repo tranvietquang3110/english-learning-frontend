@@ -1,0 +1,171 @@
+<div class="p-6">
+  <!-- Header -->
+  <div class="flex justify-between items-center mb-6">
+    <h1 class="text-2xl font-bold text-gray-800">
+      {{
+        selectedGrammar
+          ? "Quản lý bài test - " + selectedGrammar.title
+          : selectedTopic
+          ? "Chọn ngữ pháp - " + selectedTopic.name
+          : "Quản lý bài test ngữ pháp"
+      }}
+    </h1>
+    <div class="flex gap-3">
+      <button
+        *ngIf="selectedGrammar && currentState === State.View"
+        (click)="onCreateTest()"
+        class="bg-primary text-white px-4 py-2 rounded-lg hover:opacity-80"
+      >
+        Tạo bài test mới
+      </button>
+      <button
+        *ngIf="selectedGrammar"
+        (click)="goBackToGrammars()"
+        class="bg-navy-header text-white px-4 py-2 rounded-lg hover:opacity-80"
+      >
+        Quay lại danh sách ngữ pháp
+      </button>
+      <button
+        *ngIf="selectedTopic && !selectedGrammar"
+        (click)="goBackToTopics()"
+        class="bg-navy-header text-white px-4 py-2 rounded-lg hover:opacity-80"
+      >
+        Quay lại danh sách chủ đề
+      </button>
+    </div>
+  </div>
+
+  <!-- Topic Selection View -->
+  <div
+    *ngIf="!selectedTopic && currentState === State.View"
+    class="view-transition"
+  >
+    <div class="mb-6">
+      <h2 class="text-xl font-semibold text-gray-700 mb-4">
+        Chọn chủ đề để quản lý bài test
+      </h2>
+      <p class="text-gray-600">
+        Vui lòng chọn một chủ đề ngữ pháp để xem và quản lý các bài test.
+      </p>
+    </div>
+
+    <!-- Topics Grid -->
+    <app-topic-test-card-grid
+      [topics]="topicsBase"
+      (topicSelect)="onTopicSelect($event)"
+    ></app-topic-test-card-grid>
+
+    <!-- Empty State -->
+    <div *ngIf="topics.length === 0" class="text-center py-12">
+      <div class="text-gray-400 text-6xl mb-4">📚</div>
+      <h3 class="text-xl font-semibold text-gray-600 mb-2">
+        Chưa có chủ đề nào
+      </h3>
+      <p class="text-gray-500">
+        Hãy tạo chủ đề ngữ pháp trước khi quản lý bài test.
+      </p>
+    </div>
+  </div>
+
+  <!-- Grammar Selection View -->
+  <div
+    *ngIf="selectedTopic && !selectedGrammar && currentState === State.View"
+    class="view-transition"
+  >
+    <div class="mb-6">
+      <h2 class="text-xl font-semibold text-gray-700 mb-4">
+        Chọn ngữ pháp để quản lý bài test
+      </h2>
+      <p class="text-gray-600">
+        Chủ đề: <span class="font-medium">{{ selectedTopic.name }}</span>
+      </p>
+    </div>
+
+    <!-- Grammars Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div
+        *ngFor="let grammar of grammars"
+        (click)="onGrammarSelect(grammar)"
+        class="bg-white rounded-lg border p-6 cursor-pointer hover:shadow-md transition-shadow"
+      >
+        <h3 class="text-lg font-semibold mb-2">{{ grammar.title }}</h3>
+        <p class="text-gray-600 text-sm mb-4 line-clamp-3">
+          {{ grammar.description }}
+        </p>
+        <div class="text-xs text-gray-500">
+          Tạo lúc: {{ grammar.createdAt | date : "dd/MM/yyyy" }}
+        </div>
+      </div>
+    </div>
+
+    <!-- Empty State -->
+    <div *ngIf="grammars.length === 0" class="text-center py-12">
+      <div class="text-gray-400 text-6xl mb-4">📝</div>
+      <h3 class="text-xl font-semibold text-gray-600 mb-2">
+        Chưa có ngữ pháp nào
+      </h3>
+      <p class="text-gray-500">
+        Hãy tạo ngữ pháp cho chủ đề này trước khi quản lý bài test.
+      </p>
+    </div>
+  </div>
+
+  <!-- Tests Management View -->
+  <div
+    *ngIf="selectedGrammar && currentState === State.View"
+    class="view-transition"
+  >
+    <!-- Tests List -->
+    <app-test-list
+      [tests]="testsBase"
+      (viewTest)="onViewTest($event)"
+      (editTest)="onEditTest($event)"
+      (deleteTest)="onDeleteTest($event)"
+      [selectedTopicName]="selectedGrammar.title || ''"
+      (createTest)="onCreateTest()"
+      (pageChange)="onPageChange($event)"
+    ></app-test-list>
+  </div>
+
+  <!-- Create Test Form -->
+  <div *ngIf="currentState === State.Create" class="view-transition">
+    <app-test-form
+      [config]="grammarTestConfig"
+      (save)="onSaveTest($event)"
+      (cancel)="onCancelCreate()"
+    ></app-test-form>
+  </div>
+
+  <!-- Edit Test Form -->
+  <div *ngIf="currentState === State.Edit" class="view-transition">
+    <div class="mb-4">
+      <h2 class="text-2xl font-bold text-gray-800 mb-2">Chỉnh sửa bài test</h2>
+      <p class="text-gray-600">
+        Chỉnh sửa thông tin bài test: {{ testToEdit?.name }}
+      </p>
+    </div>
+    <app-test-form
+      [config]="grammarTestConfig"
+      [testToEdit]="getTestWithQuestions()"
+      (save)="onSaveTest($event)"
+      (cancel)="onCancelCreate()"
+    ></app-test-form>
+  </div>
+
+  <!-- Confirm Delete Dialog -->
+  <app-confirm-dialog
+    [isVisible]="showDeleteConfirm"
+    title="Xóa bài test"
+    [message]="
+      'Bạn có chắc chắn muốn xóa bài test \'' +
+      (testToDelete?.name || '') +
+      '\'? Hành động này không thể hoàn tác.'
+    "
+    confirmText="Xóa"
+    cancelText="Hủy"
+    confirmButtonClass="form-button-danger"
+    cancelButtonClass="form-button-secondary"
+    (confirm)="onConfirmDelete()"
+    (cancel)="onCancelDelete()"
+  ></app-confirm-dialog>
+</div>

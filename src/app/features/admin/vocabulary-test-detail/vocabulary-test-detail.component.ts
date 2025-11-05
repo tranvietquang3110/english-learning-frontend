@@ -72,7 +72,7 @@ export class VocabularyTestDetailComponent implements OnInit, OnDestroy {
           this.test = {
             id: data.testId,
             topicId: data.topicId,
-            name: data.testName,
+            topicName: data.topicName,
             duration: data.duration,
             createdAt: '', // Not provided by this API
             questions: data.questions,

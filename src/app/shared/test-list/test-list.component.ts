@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnInit } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
 import { PaginationComponent } from '../pagination/pagination.component'; // đường dẫn tùy bạn
 import { TestBase } from '../../models/test-base';
@@ -9,7 +9,7 @@ import { TestBase } from '../../models/test-base';
   imports: [CommonModule, DatePipe, PaginationComponent],
   templateUrl: './test-list.component.html',
 })
-export class TestListComponent {
+export class TestListComponent implements OnInit {
   @Input() selectedTopicName: string = '';
   @Input() tests: TestBase[] = [];
   @Input() totalPages: number = 1;
@@ -20,6 +20,16 @@ export class TestListComponent {
   @Output() deleteTest = new EventEmitter<TestBase>();
   @Output() createTest = new EventEmitter<void>();
   @Output() pageChange = new EventEmitter<number>();
+
+  constructor() {
+    console.log('TestListComponent constructor');
+    console.log(this.tests);
+  }
+
+  ngOnInit(): void {
+    console.log('TestListComponent ngOnInit');
+    console.log(this.tests);
+  }
 
   onViewTest(test: TestBase) {
     this.viewTest.emit(test);

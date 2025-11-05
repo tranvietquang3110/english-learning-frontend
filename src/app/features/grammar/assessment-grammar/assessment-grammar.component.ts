@@ -14,6 +14,10 @@ import {
 import { GrammarService } from '../../../services/GrammarService';
 import { QuestionGridComponent } from '../../../shared/question-grid-component/question-grid.component';
 import { GrammarTestQuestion } from '../../../models/grammar/grammar-test-question.model';
+import { HistoryService } from '../../../services/HistoryService';
+
+import { ItemTypeEnum } from '../../../models/item-type-enum';
+import { ExamHistoryResponse } from '../../../models/response/exam-history-response.model';
 
 @Component({
   selector: 'app-assessment-grammar',
@@ -42,6 +46,7 @@ export class AssessmentGrammarComponent implements OnDestroy {
   faXmarkCircle = faXmarkCircle;
   faStar = faStar;
   faRegularStar = faRegularStar;
+  startDate = '';
 
   private timerId: any = null;
   testId = '';
@@ -52,7 +57,8 @@ export class AssessmentGrammarComponent implements OnDestroy {
   constructor(
     private route: ActivatedRoute,
     private router: Router,
-    private grammarService: GrammarService
+    private grammarService: GrammarService,
+    private historyService: HistoryService
   ) {
     this.route.paramMap.subscribe((params) => {
       this.testId = params.get('testId') || '';
@@ -74,6 +80,7 @@ export class AssessmentGrammarComponent implements OnDestroy {
         this.selectedAnswers = new Array(this.questions.length).fill(undefined);
         this.showResults = false;
         this.startTimer();
+        this.startDate = new Date().toISOString();
       },
       error: (err) => {
         console.error('Failed to load grammar questions', err);
@@ -112,6 +119,27 @@ export class AssessmentGrammarComponent implements OnDestroy {
   handleFinish() {
     this.showResults = true;
     this.clearTimer();
+    this.historyService
+      .addHistory({
+        testType: ItemTypeEnum.GRAMMAR,
+        testId: this.testId,
+        score: this.calculateScore().percentage,
+        answers: this.selectedAnswers.map((answer, index) => ({
+          questionId: this.questions[index].id,
+          selectedAnswer: answer || '',
+          correct: this.questions[index].correctAnswer === answer,
+        })),
+        takenAt: this.startDate,
+        submittedAt: new Date().toISOString(),
+      })
+      .subscribe({
+        next: (data: ExamHistoryResponse) => {
+          console.log('History added:', data);
+        },
+        error: (err: any) => {
+          console.error('Failed to add history', err);
+        },
+      });
   }
 
   calculateScore() {

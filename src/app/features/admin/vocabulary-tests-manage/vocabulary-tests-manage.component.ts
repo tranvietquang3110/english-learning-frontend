@@ -25,10 +25,12 @@ import { TopicBase } from '../../../models/topic-base';
 import { TopicTestCardGridComponent } from '../../../shared/topic-test-card-grid/topic-test-card-grid.component';
 import { TestListComponent } from '../../../shared/test-list/test-list.component';
 import { TestBase } from '../../../models/test-base';
+import { RequestType } from '../../../models/request-type.model';
 
 enum State {
   View,
   Create,
+  Edit,
 }
 
 @Component({
@@ -58,6 +60,7 @@ export class VocabularyTestsManageComponent implements OnInit {
   private destroy$ = new Subject<void>();
   showDeleteConfirm = false;
   testToDelete: VocabularyTest | null = null;
+  testToEdit: VocabularyTest | null = null;
   testsBase: TestBase[] = [];
   vocabularyTestConfig: TestFormConfig = {
     testType: TestType.VOCABULARY,
@@ -66,7 +69,6 @@ export class VocabularyTestsManageComponent implements OnInit {
     showAudioUpload: false,
     supportsImage: true, // Enable individual question images
     supportsAudio: false,
-    correctAnswerType: 'index',
     maxOptions: 4,
   };
 
@@ -84,6 +86,7 @@ export class VocabularyTestsManageComponent implements OnInit {
       .getTopics(this.currentPage - 1, this.PAGE_SIZE) // Load all topics for selection
       .subscribe({
         next: (data) => {
+          console.log('Topics loaded:', data);
           this.topics = data.content;
           this.topicsBase = data.content.map((topic) => ({
             id: topic.id,
@@ -110,12 +113,13 @@ export class VocabularyTestsManageComponent implements OnInit {
       .getTestsByTopicId(topicId, this.currentPage - 1, this.PAGE_SIZE)
       .subscribe({
         next: (data) => {
+          console.log('Tests loaded:', data);
           this.tests = data.vocabularyTests.content;
           this.currentPage = data.vocabularyTests.pageable.pageNumber + 1;
           this.totalPages = data.vocabularyTests.totalPages;
           this.testsBase = data.vocabularyTests.content.map((test) => ({
             id: test.id,
-            name: test.name,
+            name: test.name || test.topicName || '',
             duration: test.duration,
             createdAt: test.createdAt,
           }));
@@ -136,41 +140,35 @@ export class VocabularyTestsManageComponent implements OnInit {
   }
 
   onSaveTest(testData: TestFormData) {
+    console.log('Test data to save:', this.testToEdit);
     if (!this.selectedTopic) {
       console.error('No topic selected');
       return;
     }
-
+    console.log('Test data to save:', testData);
     const formData = new FormData();
 
-    // Convert TestFormData to API format
     const testDataForAPI = {
       name: testData.name,
       duration: testData.duration,
       questions: testData.questions.map((question, index) => ({
+        id: question.id || '',
         question: question.question,
+        imageName: question.imageName || '',
+        audioName: question.audioName || '',
         options: {
           a: question.options[0] || '',
           b: question.options[1] || '',
           c: question.options[2] || '',
           d: question.options[3] || '',
         },
-        correctAnswer: this.convertIndexToLetter(
-          question.correctAnswer as number
-        ),
+        correctAnswer: question.correctAnswer, // Already a letter now
         questionOrder: index + 1,
         explaination: question.explaination || '',
+        action: question.requestType || null,
       })),
     };
-    console.log('testDataForAPI', testDataForAPI);
-    console.log(
-      'Questions with correct answers:',
-      testDataForAPI.questions.map((q) => ({
-        question: q.question,
-        correctAnswer: q.correctAnswer,
-        options: q.options,
-      }))
-    );
+
     // Add test data as JSON
     formData.append(
       'test',
@@ -190,28 +188,69 @@ export class VocabularyTestsManageComponent implements OnInit {
       formData.append('images', image);
     });
 
-    this.vocabService
-      .createTest(this.selectedTopic.id, testDataForAPI, questionImages)
-      .subscribe({
-        next: (response) => {
-          console.log('Test created successfully:', response);
-          this.currentState = State.View;
-          // Reload tests for the current topic
-          this.loadTestsForTopic(this.selectedTopic!.id);
-        },
-        error: (error) => {
-          console.error('Error creating test:', error);
-        },
-      });
+    // Check if editing or creating
+    if (this.currentState === State.Edit && this.testToEdit) {
+      // Edit existing test - map to VocabularyTestRequest format
+      const updateTestData = {
+        name: testDataForAPI.name,
+        duration: testDataForAPI.duration,
+        questions: testDataForAPI.questions
+          .filter((question) => question.action)
+          .map((question, index) => ({
+            id: question.id || '',
+            question: question.question,
+            imageName: question.imageName || '',
+            audioName: question.audioName || '',
+            options: question.options,
+            correctAnswer: question.correctAnswer,
+            explaination: question.explaination,
+            action: question.action || RequestType.UPDATE,
+            questionOrder: question.questionOrder,
+          })),
+      };
+
+      this.vocabService
+        .updateTest(
+          this.testToEdit.testId || '',
+          updateTestData,
+          questionImages
+        )
+        .subscribe({
+          next: (response) => {
+            console.log('Test updated successfully:', response);
+            this.currentState = State.View;
+            this.testToEdit = null;
+            // Reload tests for the current topic
+            this.loadTestsForTopic(this.selectedTopic!.id);
+          },
+          error: (error) => {
+            console.error('Error updating test:', error);
+            alert('Không thể cập nhật bài test');
+          },
+        });
+    } else {
+      // Create new test
+      this.vocabService
+        .createTest(this.selectedTopic.id, testDataForAPI, questionImages)
+        .subscribe({
+          next: (response) => {
+            console.log('Test created successfully:', response);
+            this.currentState = State.View;
+            // Reload tests for the current topic
+            this.loadTestsForTopic(this.selectedTopic!.id);
+          },
+          error: (error) => {
+            console.error('Error creating test:', error);
+            alert('Không thể tạo bài test');
+          },
+        });
+    }
   }
   onCancelCreate() {
     this.currentState = State.View;
+    this.testToEdit = null;
   }
 
-  private convertIndexToLetter(index: number): string {
-    const letters = ['a', 'b', 'c', 'd'];
-    return letters[index] || 'a';
-  }
   onViewTest(test: TestBase) {
     // Navigate to test detail or edit page
     this.router.navigate(['/admin/vocabulary/tests', test.id]);
@@ -250,8 +289,22 @@ export class VocabularyTestsManageComponent implements OnInit {
     this.testToDelete = null;
   }
   onEditTest(test: TestBase) {
-    // Navigate to edit test page
-    this.router.navigate(['/admin/vocabulary/tests/edit', test.id]);
+    this.loadTestForEdit(test.id);
+  }
+
+  loadTestForEdit(testId: string) {
+    this.vocabService.getTestById(testId).subscribe({
+      next: (test) => {
+        console.log('Test for edit:', test);
+        this.testToEdit = test;
+        this.currentState = State.Edit;
+        this.vocabularyTestConfig.topicName = this.selectedTopic?.name || '';
+      },
+      error: (error) => {
+        console.error('Error loading test for edit:', error);
+        alert('Không thể tải thông tin bài test');
+      },
+    });
   }
   goBackToTopics() {
     this.selectedTopic = null;
@@ -260,5 +313,10 @@ export class VocabularyTestsManageComponent implements OnInit {
     this.currentPage = 1;
     this.totalPages = 0;
     this.currentState = State.View;
+  }
+
+  onCancelEdit() {
+    this.currentState = State.View;
+    this.testToEdit = null;
   }
 }

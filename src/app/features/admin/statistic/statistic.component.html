@@ -1,0 +1,124 @@
+<div class="p-6 bg-gray-50 min-h-screen">
+  <!-- Header -->
+  <div class="mb-6">
+    <h1 class="text-3xl font-bold text-gray-800 mb-2">Thống kê</h1>
+    <p class="text-gray-600">Theo dõi lượt xem và phân tích dữ liệu</p>
+  </div>
+
+  <!-- Summary Cards -->
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+    <div class="bg-white rounded-lg shadow-md p-6">
+      <div class="flex items-center justify-between">
+        <div>
+          <p class="text-sm text-gray-600 mb-1">Tổng lượt xem</p>
+          <p class="text-3xl font-bold text-blue-600">{{ totalViews }}</p>
+        </div>
+        <div class="bg-blue-100 p-3 rounded-full">
+          <i class="fas fa-eye text-blue-600 text-2xl"></i>
+        </div>
+      </div>
+    </div>
+
+    <div class="bg-white rounded-lg shadow-md p-6">
+      <div class="flex items-center justify-between">
+        <div>
+          <p class="text-sm text-gray-600 mb-1">Số chủ đề hàng đầu</p>
+          <p class="text-3xl font-bold text-green-600">{{ topCount }}</p>
+        </div>
+        <div class="bg-green-100 p-3 rounded-full">
+          <i class="fas fa-chart-bar text-green-600 text-2xl"></i>
+        </div>
+      </div>
+    </div>
+
+    <div class="bg-white rounded-lg shadow-md p-6">
+      <div class="flex items-center justify-between">
+        <div>
+          <p class="text-sm text-gray-600 mb-1">Khoảng thời gian</p>
+          <p class="text-lg font-semibold text-purple-600">
+            {{ getTimeRangeLabel() }}
+          </p>
+        </div>
+        <div class="bg-purple-100 p-3 rounded-full">
+          <i class="fas fa-clock text-purple-600 text-2xl"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Charts Section -->
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+    <!-- Time Series Chart -->
+    <div class="bg-white rounded-lg shadow-md p-6">
+      <div class="mb-4 flex justify-between items-center">
+        <h2 class="text-xl font-semibold text-gray-800">
+          Lượt xem theo thời gian
+        </h2>
+        <select
+          [(ngModel)]="selectedTimeRange"
+          (ngModelChange)="onTimeRangeChange()"
+          title="Chọn khoảng thời gian"
+          aria-label="Chọn khoảng thời gian"
+          class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white text-sm"
+        >
+          <option *ngFor="let range of timeRanges" [value]="range.value">
+            {{ range.label }}
+          </option>
+        </select>
+      </div>
+      <div class="h-64">
+        <canvas
+          baseChart
+          [data]="timeSeriesChartData"
+          [options]="timeSeriesChartOptions"
+          type="line"
+        ></canvas>
+      </div>
+    </div>
+
+    <!-- Top Topics Bar Chart -->
+    <div class="bg-white rounded-lg shadow-md p-6">
+      <div class="mb-4 flex justify-between items-center">
+        <h2 class="text-xl font-semibold text-gray-800">
+          Top chủ đề được xem nhiều nhất
+        </h2>
+        <div class="flex items-center gap-2">
+          <label class="text-sm text-gray-600">Top:</label>
+          <select
+            [(ngModel)]="topCount"
+            (ngModelChange)="onTopCountChange()"
+            title="Chọn số lượng chủ đề hiển thị"
+            aria-label="Chọn số lượng chủ đề hiển thị"
+            class="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white text-sm w-20"
+          >
+            <option value="5">5</option>
+            <option value="10">10</option>
+            <option value="15">15</option>
+            <option value="20">20</option>
+          </select>
+        </div>
+      </div>
+      <div class="h-64">
+        <canvas
+          baseChart
+          [data]="topTopicsChartData"
+          [options]="topTopicsChartOptions"
+          type="bar"
+        ></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div
+    *ngIf="isLoading"
+    class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+  >
+    <div class="bg-white rounded-lg p-6 flex flex-col items-center">
+      <div
+        class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mb-4"
+      ></div>
+      <p class="text-gray-700">Đang tải dữ liệu...</p>
+    </div>
+  </div>
+</div>

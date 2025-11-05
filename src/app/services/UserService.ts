@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, Observable, Subject } from 'rxjs';
 import { environment } from '../../environments/environment';
 import { User } from '../models/user/user.model';
+import { UserProfileUpdateRequest } from '../models/request/user-profile-update-request.model';
 
 @Injectable({
   providedIn: 'root',
@@ -66,11 +67,15 @@ export class UserService {
     return this.http.get<User>(`${this.apiUrl}/users/profile`);
   }
 
+  updateProfile(data: UserProfileUpdateRequest): Observable<User> {
+    return this.http.put<User>(`${this.apiUrl}/users/profile`, data);
+  }
+
   // Upload avatar
   uploadAvatar(file: File): Observable<string> {
     const formData = new FormData();
     formData.append('avatar', file);
-    return this.http.post(`${this.apiUrl}/avatar`, formData, {
+    return this.http.post(`${this.apiUrl}/users/avatar`, formData, {
       responseType: 'text',
     });
   }
@@ -95,5 +100,8 @@ export class UserService {
         error: () => this.userSource.next(null),
       });
     }
+  }
+  getJwt() {
+    return localStorage.getItem('token');
   }
 }

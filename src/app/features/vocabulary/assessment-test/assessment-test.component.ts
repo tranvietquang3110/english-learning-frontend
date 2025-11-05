@@ -14,6 +14,9 @@ import {
   faStar,
 } from '@fortawesome/free-solid-svg-icons';
 import { QuestionGridComponent } from '../../../shared/question-grid-component/question-grid.component';
+import { HistoryService } from '../../../services/HistoryService';
+import { ItemTypeEnum } from '../../../models/item-type-enum';
+import { ExamHistoryResponse } from '../../../models/response/exam-history-response.model';
 
 @Component({
   selector: 'app-assessment-test',
@@ -33,7 +36,8 @@ export class AssessmentTestComponent implements OnDestroy {
   selectedAnswers: (string | undefined)[] = [];
   showResults = false;
   timeRemaining = 300;
-
+  startDate = new Date();
+  endDate = new Date();
   // icons
   faChevronRight = faChevronRight;
   faCheckCircle = faCheckCircle;
@@ -51,7 +55,8 @@ export class AssessmentTestComponent implements OnDestroy {
   constructor(
     private route: ActivatedRoute,
     private router: Router,
-    private vocabService: VocabularyService
+    private vocabService: VocabularyService,
+    private historyService: HistoryService
   ) {
     this.route.paramMap.subscribe((params) => {
       this.testId = params.get('testId') || '';
@@ -118,8 +123,41 @@ export class AssessmentTestComponent implements OnDestroy {
   }
 
   handleFinish() {
+    console.log({
+      testType: ItemTypeEnum.VOCABULARY,
+      testId: this.testId,
+      score: this.calculateScore().percentage,
+      answers: this.selectedAnswers.map((answer, index) => ({
+        questionId: this.questions[index].id,
+        selectedAnswer: answer || '',
+        isCorrect: this.questions[index].correctAnswer === answer,
+      })),
+      takenAt: this.startDate.toISOString(),
+      submittedAt: new Date().toISOString(),
+    });
     this.showResults = true;
     this.clearTimer();
+    this.historyService
+      .addHistory({
+        testType: ItemTypeEnum.VOCABULARY,
+        testId: this.testId,
+        score: this.calculateScore().percentage,
+        answers: this.selectedAnswers.map((answer, index) => ({
+          questionId: this.questions[index].id,
+          selectedAnswer: answer || '',
+          correct: this.questions[index].correctAnswer === answer,
+        })),
+        takenAt: this.startDate.toISOString(),
+        submittedAt: new Date().toISOString(),
+      })
+      .subscribe({
+        next: (data: ExamHistoryResponse) => {
+          console.log('History added:', data);
+        },
+        error: (err: any) => {
+          console.error('Failed to add history', err);
+        },
+      });
   }
 
   calculateScore() {

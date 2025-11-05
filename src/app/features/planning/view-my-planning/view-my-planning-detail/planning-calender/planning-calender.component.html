@@ -1,0 +1,70 @@
+<div class="calendar-container bg-white rounded-lg shadow-md p-6">
+  <div class="calendar-wrapper">
+    <full-calendar [options]="calendarOptions"></full-calendar>
+  </div>
+
+  <!-- Tooltip hiển thị plan details khi hover -->
+  <div
+    *ngIf="showTooltip && getHoveredGroup()"
+    class="plan-detail-tooltip"
+    [style.left.px]="tooltipPosition.x"
+    [style.top.px]="tooltipPosition.y"
+    [style.transform]="tooltipTransform"
+    (mouseenter)="onTooltipMouseEnter()"
+    (mouseleave)="onTooltipMouseLeave()"
+  >
+    <div class="tooltip-header">
+      <h4 class="tooltip-title">{{ getHoveredGroup()?.name }}</h4>
+      <button
+        type="button"
+        class="tooltip-close"
+        (click)="showTooltip = false; hoveredGroupId = null"
+        aria-label="Đóng tooltip"
+      >
+        <fa-icon [icon]="faTimes"></fa-icon>
+      </button>
+    </div>
+    <p class="tooltip-description" *ngIf="getHoveredGroup()?.description">
+      {{ getHoveredGroup()?.description }}
+    </p>
+    <div class="tooltip-details">
+      <h5 class="details-title">Chi tiết kế hoạch:</h5>
+      <div
+        *ngIf="
+          getHoveredGroup()?.planDetails &&
+          getHoveredGroup()!.planDetails.length > 0
+        "
+        class="details-list"
+      >
+        <div
+          *ngFor="let detail of getHoveredGroup()!.planDetails"
+          class="detail-item"
+        >
+          <div class="detail-header">
+            <span class="detail-icon">{{
+              getTopicTypeIcon(detail.topicType)
+            }}</span>
+            <span class="detail-name">{{ detail.topicName }}</span>
+          </div>
+          <div class="detail-info">
+            <span class="detail-type">{{
+              getTopicTypeLabel(detail.topicType)
+            }}</span>
+          </div>
+          <p class="detail-description" *ngIf="detail.description">
+            {{ detail.description }}
+          </p>
+        </div>
+      </div>
+      <div
+        *ngIf="
+          !getHoveredGroup()?.planDetails ||
+          getHoveredGroup()!.planDetails.length === 0
+        "
+        class="no-details"
+      >
+        Chưa có chi tiết kế hoạch
+      </div>
+    </div>
+  </div>
+</div>

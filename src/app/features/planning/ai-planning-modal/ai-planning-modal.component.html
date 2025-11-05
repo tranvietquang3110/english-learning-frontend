@@ -1,0 +1,108 @@
+<div
+  *ngIf="isOpen"
+  class="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
+>
+  <div
+    class="bg-white rounded-xl shadow-lg w-full max-w-lg p-6 relative animate-fadeIn"
+  >
+    <!-- Header -->
+    <div class="flex items-center justify-between mb-4">
+      <h2 class="text-lg font-semibold flex items-center gap-2">
+        <fa-icon [icon]="faWandMagicSparkles" class="text-primary"></fa-icon>
+        AI Planing
+      </h2>
+      <button
+        (click)="closeModal()"
+        class="text-gray-500 hover:text-gray-700 transition"
+      >
+        ✕
+      </button>
+    </div>
+
+    <p class="text-sm text-gray-500 mb-6">
+      Tạo planning bằng AI. Chọn một trong hai cách để bắt đầu.
+    </p>
+
+    <!-- Form section -->
+    <div class="space-y-4 bg-gray-50 rounded-lg p-4">
+      <div>
+        <label class="text-sm font-medium">Mục tiêu (Target)</label>
+        <input
+          [(ngModel)]="target"
+          type="text"
+          placeholder="Ví dụ: 550"
+          [disabled]="isLoading"
+          class="mt-1 w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary"
+        />
+      </div>
+
+      <div>
+        <label class="text-sm font-medium">Mô tả (Description)</label>
+        <textarea
+          [(ngModel)]="description"
+          rows="3"
+          placeholder="Mô tả chi tiết về chủ đề..."
+          [disabled]="isLoading"
+          class="resize-none mt-1 w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary"
+        ></textarea>
+      </div>
+
+      <div>
+        <label class="text-sm font-medium">Mức độ (Level)</label>
+        <select
+          [(ngModel)]="level"
+          [disabled]="isLoading"
+          class="mt-1 w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary"
+        >
+          <option value="BEGINNER">Beginner</option>
+          <option value="INTERMEDIATE">Intermediate</option>
+          <option value="ADVANCED">Advanced</option>
+        </select>
+      </div>
+
+      <button
+        (click)="handleGenerateWithInputs()"
+        [disabled]="isLoading || target === 0 || !description.trim()"
+        class="cursor-pointer w-full flex items-center justify-center gap-2 bg-primary text-white py-2 rounded-lg hover:opacity-80 transition"
+      >
+        <ng-container *ngIf="isLoading; else genBtn">
+          <i class="fa-solid fa-spinner animate-spin"></i> Đang tạo...
+        </ng-container>
+        <ng-template #genBtn>
+          <fa-icon [icon]="faWandMagicSparkles" class="text-white"></fa-icon>
+          Generate với thông tin trên
+        </ng-template>
+      </button>
+    </div>
+
+    <!-- Divider -->
+    <div class="my-6 relative">
+      <div class="absolute inset-0 flex items-center">
+        <div class="w-full border-t border-gray-300"></div>
+      </div>
+      <div class="relative flex justify-center text-xs uppercase">
+        <span class="bg-white px-2 text-gray-500">Hoặc</span>
+      </div>
+    </div>
+
+    <!-- Account info section -->
+    <div class="bg-indigo-50 rounded-lg p-4">
+      <p class="text-sm text-gray-600 mb-3">
+        Sử dụng thông tin từ tài khoản của bạn để tạo planning được cá nhân hóa.
+      </p>
+      <button
+        (click)="handleGenerateWithAccountInfo()"
+        [disabled]="isLoading"
+        class="w-full flex items-center justify-center gap-2 border border-primary text-primary py-2 rounded-lg hover:opacity-80 transition"
+      >
+        <ng-container *ngIf="isLoading; else accBtn">
+          <i class="fa-solid fa-spinner animate-spin"></i> Đang tạo...
+        </ng-container>
+        <ng-template #accBtn>
+          <fa-icon [icon]="faWandMagicSparkles" class="text-primary"></fa-icon>
+          Generate từ thông tin tài khoản
+        </ng-template>
+      </button>
+    </div>
+  </div>
+</div>

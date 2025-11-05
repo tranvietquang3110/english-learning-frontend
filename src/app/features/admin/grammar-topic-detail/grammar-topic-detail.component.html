@@ -1,5 +1,5 @@
 <div class="space-y-6 py-8 px-4">
-  <div class="max-w-6xl">
+  <div class="w-full">
     <div class="flex items-center justify-between">
       <div>
         <h1 class="text-3xl font-bold mb-2">{{ name }}</h1>
@@ -37,7 +37,7 @@
               Edit
             </button>
             <button
-              (click)="handleDelete(grammar.id); $event.stopPropagation()"
+              (click)="handleDelete(grammar); $event.stopPropagation()"
               class="px-3 py-1 text-sm bg-red-600 text-white rounded hover:bg-red-700"
             >
               Delete
@@ -95,12 +95,21 @@
 
           <div>
             <label class="block text-sm font-medium mb-1">Content *</label>
-            <textarea
-              [(ngModel)]="grammarToEdit.content"
-              rows="10"
-              class="w-full border rounded px-3 py-2"
-              placeholder="Enter grammar content"
-            ></textarea>
+            <app-rich-text-editor
+              [content]="grammarToEdit.content"
+              [height]="'1200px'"
+              [placeholder]="'Nhập nội dung ngữ pháp...'"
+              [uploadEndpoint]="'/api/grammar/upload'"
+              [maxFileSize]="5242880"
+              [allowedImageTypes]="[
+                'image/jpeg',
+                'image/png',
+                'image/gif',
+                'image/webp'
+              ]"
+              (contentChange)="onContentChange($event)"
+              (imageUpload)="onImageUpload($event)"
+            ></app-rich-text-editor>
           </div>
 
           <div class="flex justify-end gap-3">
@@ -111,10 +120,18 @@
               Cancel
             </button>
             <button
+              *ngIf="currentState === State.Create"
               (click)="handleCreate(grammarToEdit)"
               class="px-4 py-2 bg-primary text-white rounded hover:opacity-90"
             >
-              {{ currentState === State.Create ? "Create" : "Update" }}
+              Create
+            </button>
+            <button
+              *ngIf="currentState === State.Edit"
+              (click)="handleSaveEdit()"
+              class="px-4 py-2 bg-primary text-white rounded hover:opacity-90"
+            >
+              Update
             </button>
           </div>
         </div>
@@ -144,7 +161,7 @@
             <h3 class="text-lg font-semibold mb-2">Content</h3>
             <div
               class="prose max-w-none text-gray-700"
-              [innerHTML]="grammarToView.content"
+              [innerHTML]="getSafeContent(grammarToView.content)"
             ></div>
           </div>
 
@@ -156,7 +173,7 @@
               Edit Grammar
             </button>
             <button
-              (click)="handleDelete(grammarToView.id)"
+              (click)="handleDelete(grammarToView)"
               class="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
             >
               Delete Grammar
@@ -166,4 +183,17 @@
       </div>
     </div>
   </div>
+
+  <!-- Confirm Delete Dialog -->
+  <app-confirm-dialog
+    [isVisible]="showDeleteConfirm"
+    title="Xóa ngữ pháp"
+    [message]="
+      'Bạn có chắc chắn muốn xóa ngữ pháp \'' +
+      (grammarToDelete?.title || '') +
+      '\'? Hành động này không thể hoàn tác.'
+    "
+    (confirm)="onConfirmDelete()"
+    (cancel)="onCancelDelete()"
+  ></app-confirm-dialog>
 </div>

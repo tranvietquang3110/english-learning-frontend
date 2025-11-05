@@ -1,0 +1,418 @@
+<div class="p-6 form-planning-container">
+  <!-- Header -->
+  <div class="flex justify-between items-center mb-6">
+    <h1 class="text-2xl font-bold text-gray-800">
+      {{ isEditMode ? "Chỉnh sửa kế hoạch" : "Tạo kế hoạch mới" }}
+    </h1>
+    <button
+      (click)="onCancel()"
+      class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-lg transition-colors"
+    >
+      ← Quay lại
+    </button>
+  </div>
+
+  <!-- Error Message -->
+  <div
+    *ngIf="error"
+    class="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg"
+  >
+    <div class="flex items-center">
+      <div class="text-red-400 mr-3">⚠️</div>
+      <p class="text-red-700">{{ error }}</p>
+    </div>
+  </div>
+
+  <!-- Form -->
+  <form (ngSubmit)="onSubmit()" class="space-y-6">
+    <!-- Basic Information -->
+    <div class="bg-white rounded-lg shadow-md p-6">
+      <h2 class="text-lg font-semibold text-gray-800 mb-4">Thông tin cơ bản</h2>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <!-- Title -->
+        <div class="md:col-span-2">
+          <label class="block text-sm font-medium text-gray-700 mb-2">
+            Tên kế hoạch <span class="text-red-500">*</span>
+          </label>
+          <input
+            type="text"
+            [(ngModel)]="planRequest.title"
+            name="title"
+            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            placeholder="Nhập tên kế hoạch"
+            [class.border-red-500]="formErrors['title']"
+          />
+          <p *ngIf="formErrors['title']" class="text-red-500 text-sm mt-1">
+            {{ formErrors["title"] }}
+          </p>
+        </div>
+
+        <!-- Description -->
+        <div class="md:col-span-2">
+          <label class="block text-sm font-medium text-gray-700 mb-2">
+            Mô tả <span class="text-red-500">*</span>
+          </label>
+          <textarea
+            [(ngModel)]="planRequest.description"
+            name="description"
+            rows="3"
+            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            placeholder="Nhập mô tả kế hoạch"
+            [class.border-red-500]="formErrors['description']"
+          ></textarea>
+          <p
+            *ngIf="formErrors['description']"
+            class="text-red-500 text-sm mt-1"
+          >
+            {{ formErrors["description"] }}
+          </p>
+        </div>
+
+        <!-- Start Date -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">
+            Ngày bắt đầu <span class="text-red-500">*</span>
+          </label>
+          <input
+            type="datetime-local"
+            [(ngModel)]="planRequest.startDate"
+            name="startDate"
+            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            [class.border-red-500]="formErrors['startDate']"
+            aria-label="Ngày bắt đầu kế hoạch"
+          />
+          <p *ngIf="formErrors['startDate']" class="text-red-500 text-sm mt-1">
+            {{ formErrors["startDate"] }}
+          </p>
+        </div>
+
+        <!-- End Date -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">
+            Ngày kết thúc <span class="text-red-500">*</span>
+          </label>
+          <input
+            type="datetime-local"
+            [(ngModel)]="planRequest.endDate"
+            name="endDate"
+            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            [class.border-red-500]="formErrors['endDate']"
+            aria-label="Ngày kết thúc kế hoạch"
+          />
+          <p *ngIf="formErrors['endDate']" class="text-red-500 text-sm mt-1">
+            {{ formErrors["endDate"] }}
+          </p>
+        </div>
+
+        <!-- Target -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">
+            Mục tiêu điểm số <span class="text-red-500">*</span>
+          </label>
+          <input
+            type="number"
+            [(ngModel)]="planRequest.target"
+            name="target"
+            min="10"
+            max="990"
+            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            [class.border-red-500]="formErrors['target']"
+            aria-label="Mục tiêu điểm số"
+            placeholder="Nhập mục tiêu điểm số (10-990)"
+          />
+          <p *ngIf="formErrors['target']" class="text-red-500 text-sm mt-1">
+            {{ formErrors["target"] }}
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Plan Groups -->
+    <div class="bg-white rounded-lg shadow-md p-6">
+      <div class="flex justify-between items-center mb-4">
+        <h2 class="text-lg font-semibold text-gray-800">Nhóm kế hoạch</h2>
+        <button
+          type="button"
+          (click)="addPlanGroup()"
+          class="bg-blue-100 hover:bg-blue-200 text-blue-700 px-4 py-2 rounded-lg transition-colors"
+        >
+          + Thêm nhóm
+        </button>
+      </div>
+
+      <!-- Add New Group Form -->
+      <div class="mb-6 p-4 bg-gray-50 rounded-lg">
+        <h3 class="text-md font-medium text-gray-700 mb-3">Thêm nhóm mới</h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1"
+              >Tên nhóm</label
+            >
+            <input
+              type="text"
+              [(ngModel)]="newPlanGroup.name"
+              name="newGroupName"
+              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              placeholder="Nhập tên nhóm"
+            />
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1"
+              >Mô tả</label
+            >
+            <input
+              type="text"
+              [(ngModel)]="newPlanGroup.description"
+              name="newGroupDescription"
+              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              placeholder="Nhập mô tả nhóm"
+            />
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1"
+              >Ngày bắt đầu</label
+            >
+            <input
+              type="datetime-local"
+              [(ngModel)]="newPlanGroup.startDate"
+              name="newGroupStartDate"
+              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              placeholder="Nhập ngày bắt đầu nhóm"
+            />
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1"
+              >Ngày kết thúc</label
+            >
+            <input
+              type="datetime-local"
+              [(ngModel)]="newPlanGroup.endDate"
+              name="newGroupEndDate"
+              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              placeholder="Nhập ngày kết thúc nhóm"
+            />
+          </div>
+        </div>
+      </div>
+
+      <!-- Existing Groups -->
+      <div *ngIf="planRequest.planGroups.length > 0" class="space-y-4">
+        <div
+          *ngFor="let group of planRequest.planGroups; let groupIndex = index"
+          class="border border-gray-200 rounded-lg p-4"
+        >
+          <div class="flex justify-between items-start mb-3">
+            <div>
+              <div class="flex justify-between items-start">
+                <h4 class="font-medium text-gray-800">{{ group.name }}</h4>
+                <div class="text-right">
+                  <p class="text-sm text-gray-600">
+                    Ngày bắt đầu:
+                    {{ group.startDate | date : "dd/MM/yyyy HH:mm" }}
+                  </p>
+                  <p class="text-sm text-gray-600">
+                    Ngày kết thúc:
+                    {{ group.endDate | date : "dd/MM/yyyy HH:mm" }}
+                  </p>
+                </div>
+              </div>
+              <p class="text-sm text-gray-600">{{ group.description }}</p>
+            </div>
+            <button
+              type="button"
+              (click)="removePlanGroup(groupIndex)"
+              class="text-red-500 hover:text-red-700"
+              title="Xóa nhóm kế hoạch"
+              aria-label="Xóa nhóm kế hoạch"
+            >
+              <i class="fas fa-trash"></i>
+            </button>
+          </div>
+
+          <!-- Plan Details for this group -->
+          <div class="space-y-3">
+            <div class="flex justify-between items-center">
+              <h5 class="text-sm font-medium text-gray-700">
+                Chi tiết kế hoạch
+              </h5>
+              <button
+                type="button"
+                (click)="addPlanDetail(groupIndex)"
+                class="text-blue-600 hover:text-blue-800 text-sm"
+              >
+                + Thêm chi tiết
+              </button>
+            </div>
+
+            <!-- Add New Detail Form -->
+            <div class="p-4 bg-blue-50/60 border border-blue-100 rounded-lg">
+              <div class="grid grid-cols-1 md:grid-cols-5 gap-3 items-end">
+                <div class="md:col-span-2">
+                  <label class="block text-xs font-medium text-gray-700 mb-1"
+                    >Loại chủ đề</label
+                  >
+                  <select
+                    [(ngModel)]="getNewPlanDetailForGroup(groupIndex).topicType"
+                    name="newDetailTopicType"
+                    [ngModelOptions]="{ standalone: true }"
+                    (ngModelChange)="onTopicTypeChange(groupIndex)"
+                    class="w-full px-2 py-2 border border-gray-300 rounded-md text-sm focus:ring-1 focus:ring-blue-500 focus:border-blue-500 bg-white"
+                    aria-label="Loại chủ đề"
+                  >
+                    <option
+                      *ngFor="let type of topicTypes"
+                      [value]="type.value"
+                    >
+                      {{ type.label }}
+                    </option>
+                  </select>
+                </div>
+                <div class="md:col-span-3">
+                  <label class="block text-xs font-medium text-gray-700 mb-1"
+                    >Chủ đề</label
+                  >
+                  <div class="relative">
+                    <select
+                      [(ngModel)]="getNewPlanDetailForGroup(groupIndex).topicId"
+                      name="newDetailTopicId"
+                      class="w-full px-2 py-2 border border-gray-300 rounded-md text-sm focus:ring-1 focus:ring-blue-500 focus:border-blue-500 bg-white disabled:bg-gray-100 disabled:text-gray-400"
+                      aria-label="Chọn chủ đề"
+                      [disabled]="
+                        isLoadingTopics || availableTopics.length === 0
+                      "
+                    >
+                      <option value="" disabled>
+                        {{
+                          isLoadingTopics
+                            ? "Đang tải..."
+                            : !getNewPlanDetailForGroup(groupIndex).topicType
+                            ? "Vui lòng chọn loại chủ đề"
+                            : availableTopics.length === 0
+                            ? "Chưa có chủ đề nào"
+                            : "Chọn chủ đề"
+                        }}
+                      </option>
+                      <option
+                        *ngFor="let topic of availableTopics"
+                        [value]="getTopicId(topic)"
+                      >
+                        {{ getTopicName(topic) }}
+                      </option>
+                    </select>
+
+                    <!-- Loading indicator -->
+                    <div
+                      *ngIf="isLoadingTopics"
+                      class="absolute right-2 top-1/2 transform -translate-y-1/2"
+                    >
+                      <div
+                        class="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-500"
+                      ></div>
+                    </div>
+                  </div>
+
+                  <!-- Error message -->
+                  <p *ngIf="topicsError" class="text-red-500 text-xs mt-1">
+                    {{ topicsError }}
+                  </p>
+
+                  <!-- Topic description -->
+                  <!-- <p
+                    *ngIf="
+                      getNewPlanDetailForGroup(groupIndex).topicId &&
+                      !isLoadingTopics
+                    "
+                    class="text-gray-500 text-xs mt-1"
+                  >
+                    {{ getSelectedTopicDescription(groupIndex) }}
+                  </p> -->
+                </div>
+              </div>
+            </div>
+
+            <!-- Existing Details -->
+            <div *ngIf="group.planDetails.length > 0" class="space-y-2">
+              <div
+                *ngFor="
+                  let detail of group.planDetails;
+                  let detailIndex = index
+                "
+                class="group flex items-center justify-between p-3 bg-white border border-gray-200 rounded-lg hover:shadow-sm transition-all"
+              >
+                <div class="flex items-center gap-3 min-w-0">
+                  <span
+                    class="shrink-0 inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-700"
+                  >
+                    {{ getTopicTypeLabel(detail.topicType) }}
+                  </span>
+                  <div class="min-w-0">
+                    <p class="text-sm text-gray-800 truncate">
+                      {{
+                        detail.topicName ||
+                          getTopicDisplayName(detail.topicType, detail.topicId)
+                      }}
+                    </p>
+                    <p class="text-xs text-gray-400">#{{ detailIndex + 1 }}</p>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  (click)="removePlanDetail(groupIndex, detailIndex)"
+                  class="p-2 rounded-md text-red-500 hover:text-red-600 hover:bg-red-50 transition-colors"
+                  title="Xóa chi tiết kế hoạch"
+                  aria-label="Xóa chi tiết kế hoạch"
+                >
+                  <i class="fas fa-times"></i>
+                </button>
+              </div>
+            </div>
+            <div
+              *ngIf="group.planDetails.length === 0"
+              class="text-sm text-gray-400 italic"
+            >
+              Chưa có chi tiết nào. Thêm mới bằng nút "+ Thêm chi tiết".
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Empty State for Groups -->
+      <div *ngIf="planRequest.planGroups.length === 0" class="text-center py-8">
+        <div class="text-gray-400 text-4xl mb-2">📋</div>
+        <p class="text-gray-500">Chưa có nhóm kế hoạch nào</p>
+        <p class="text-sm text-gray-400">
+          Thêm nhóm để tổ chức các hoạt động học tập
+        </p>
+      </div>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="flex justify-end gap-4 pt-6 border-t">
+      <button
+        type="button"
+        (click)="onCancel()"
+        class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-6 py-2 rounded-lg transition-colors"
+      >
+        Hủy
+      </button>
+      <button
+        type="submit"
+        [disabled]="isSubmitting"
+        class="bg-primary text-white px-6 py-2 rounded-lg hover:opacity-80 transition-colors disabled:opacity-50"
+      >
+        <span
+          *ngIf="isSubmitting"
+          class="inline-block animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"
+        ></span>
+        {{
+          isSubmitting
+            ? "Đang lưu..."
+            : isEditMode
+            ? "Cập nhật"
+            : "Tạo kế hoạch"
+        }}
+      </button>
+    </div>
+  </form>
+</div>

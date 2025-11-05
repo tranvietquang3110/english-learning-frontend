@@ -17,6 +17,9 @@
         [topic]="topic"
         (learn)="goToPractice($event)"
         (test)="goToTest($event)"
+        (favorite)="onFavorite($event)"
+        (unfavorite)="onUnfavorite($event)"
+        [isFavorite]="isFavorite(topic)"
       ></app-topic-card>
     </div>
   </div>

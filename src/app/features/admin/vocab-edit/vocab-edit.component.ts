@@ -24,7 +24,7 @@ import { AudioPlayerComponent } from '../../../shared/audio-player/audio-player.
 })
 export class VocabEditComponent implements OnInit {
   @Input() vocab?: Vocabulary; // dữ liệu cũ (nếu chỉnh sửa)
-  @Output() save = new EventEmitter<Vocabulary>();
+  @Output() save = new EventEmitter<any>();
   @Output() cancel = new EventEmitter<void>();
 
   form!: FormGroup;
@@ -46,6 +46,8 @@ export class VocabEditComponent implements OnInit {
       exampleMeaning: [this.vocab?.exampleMeaning || ''],
       audioUrl: [this.vocab?.audioUrl || ''],
       imageUrl: [this.vocab?.imageUrl || ''],
+      imageFile: null,
+      audioFile: null,
     });
 
     // nếu có vocab thì set preview
@@ -60,7 +62,7 @@ export class VocabEditComponent implements OnInit {
       reader.onload = () => (this.audioPreview = reader.result as string);
       reader.readAsDataURL(file);
 
-      this.form.patchValue({ audioUrl: file });
+      this.form.patchValue({ audioFile: file });
     }
   }
 
@@ -71,13 +73,16 @@ export class VocabEditComponent implements OnInit {
       reader.onload = () => (this.imagePreview = reader.result as string);
       reader.readAsDataURL(file);
 
-      this.form.patchValue({ imageUrl: file });
+      this.form.patchValue({ imageFile: file });
     }
   }
 
   onSubmit() {
     if (this.form.valid) {
-      this.save.emit(this.form.value);
+      this.save.emit({
+        ...this.form.value,
+        id: this.vocab?.id,
+      });
     } else {
       this.form.markAllAsTouched();
     }
