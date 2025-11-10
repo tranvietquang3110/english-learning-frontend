@@ -3,6 +3,7 @@
 >
   <!-- Favorite Button -->
   <button
+    *ngIf="favorite.observers.length > 0"
     class="absolute top-3 right-3 z-10 p-2 rounded-full bg-white/80 backdrop-blur-sm hover:bg-white transition-all duration-200 shadow-sm"
     (click)="toggleFavorite($event)"
     [title]="isFavorite ? 'Bỏ yêu thích' : 'Thêm vào yêu thích'"
@@ -41,7 +42,7 @@
           class="px-2.5 py-1 rounded-full text-xs"
           [ngClass]="badgeClass(topic.status)"
         >
-          {{ topic.status || "Not Started" }}
+          {{ topic.level?.toString() }}
         </span>
 
         <div class="flex items-center gap-2">

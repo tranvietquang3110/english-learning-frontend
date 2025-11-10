@@ -124,6 +124,8 @@
       [selectedTopicName]="selectedGrammar.title || ''"
       (createTest)="onCreateTest()"
       (pageChange)="onPageChange($event)"
+      [currentPage]="currentPage"
+      [totalPages]="totalPages"
     ></app-test-list>
   </div>
 

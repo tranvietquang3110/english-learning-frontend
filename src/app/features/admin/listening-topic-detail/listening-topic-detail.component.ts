@@ -11,11 +11,13 @@ import {
   ListeningExerciseListComponent,
 } from '../../../shared/listening-exercise-list/listening-exercise-list.component';
 import { RequestType } from '../../../models/request-type.model';
-
+import { UploadByFileComponent } from '../upload-by-file/upload-by-file.component';
+import { environment } from '../../../../environments/environment';
 enum State {
   View,
   AddExercise,
   EditExercise,
+  UploadExercise,
 }
 
 @Component({
@@ -25,6 +27,7 @@ enum State {
     CommonModule,
     ListeningExerciseFormComponent,
     ListeningExerciseListComponent,
+    UploadByFileComponent,
   ],
   templateUrl: './listening-topic-detail.component.html',
   styleUrl: './listening-topic-detail.component.scss',
@@ -40,6 +43,7 @@ export class ListeningTopicDetailComponent implements OnInit {
   isEditingExercise = false;
   listeningExercises: ListeningExercise[] = [];
   selectedListeningForEdit: ListeningExercise | null = null;
+  excelTemplate = environment.excelListeningTemplate;
   constructor(
     private route: ActivatedRoute,
     private router: Router,
@@ -258,5 +262,37 @@ export class ListeningTopicDetailComponent implements OnInit {
   onCancelEditExercise() {
     this.selectedListeningForEdit = null;
     this.changeToView();
+  }
+
+  changeToUploadExercise() {
+    this.currentState = State.UploadExercise;
+  }
+
+  onUploadExercises(files: {
+    excelFile: File;
+    imageFiles: File[];
+    audioFiles: File[];
+  }) {
+    console.log(files);
+    if (this.topicId) {
+      this.listeningService
+        .uploadListeningsByFile(
+          this.topicId,
+          files.excelFile,
+          files.imageFiles,
+          files.audioFiles
+        )
+        .subscribe({
+          next: (response: Listening[]) => {
+            console.log(response);
+            this.loadListenings();
+            this.changeToView();
+          },
+          error: (err) => {
+            console.error('Error uploading exercises:', err);
+            this.changeToView();
+          },
+        });
+    }
   }
 }

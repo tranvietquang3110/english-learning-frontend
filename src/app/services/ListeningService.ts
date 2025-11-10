@@ -11,6 +11,7 @@ import {
 import { Page } from '../models/page.model';
 import { ListeningRequest } from '../models/request/listening-request';
 import { ListeningTestRequest } from '../models/request/listening-test-request.model';
+import { Level } from '../models/level.enum';
 
 // Models
 
@@ -34,7 +35,7 @@ export class ListeningService {
 
   // 2. Tạo topic mới
   addTopic(
-    topic: { name: string; description: string },
+    topic: { name: string; description: string; level?: Level },
     imageFile?: File
   ): Observable<ListeningTopic> {
     const formData = new FormData();
@@ -203,6 +204,38 @@ export class ListeningService {
   ): Observable<Page<Listening>> {
     return this.http.get<Page<Listening>>(
       `${this.apiUrl}/search?q=${query}&page=${page}&limit=${limit}`
+    );
+  }
+
+  uploadListeningsByFile(
+    topicId: string,
+    excelFile: File,
+    imageFiles: File[],
+    audioFiles: File[]
+  ): Observable<Listening[]> {
+    const formData = new FormData();
+    formData.append('listening_file', excelFile);
+    imageFiles.forEach((file) => formData.append('images', file));
+    audioFiles.forEach((file) => formData.append('audios', file));
+    return this.http.post<Listening[]>(
+      `${this.apiUrl}/topics/${topicId}/file-listening`,
+      formData
+    );
+  }
+
+  uploadTestsByFile(
+    topicId: string,
+    excelFile: File,
+    imageFiles: File[],
+    audioFiles: File[]
+  ): Observable<ListeningTest[]> {
+    const formData = new FormData();
+    formData.append('test_file', excelFile);
+    imageFiles.forEach((file) => formData.append('images', file));
+    audioFiles.forEach((file) => formData.append('audios', file));
+    return this.http.post<ListeningTest[]>(
+      `${this.apiUrl}/topics/${topicId}/file-tests`,
+      formData
     );
   }
 }

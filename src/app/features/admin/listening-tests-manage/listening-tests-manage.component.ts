@@ -26,11 +26,13 @@ import { TestListComponent } from '../../../shared/test-list/test-list.component
 import { TestBase } from '../../../models/test-base';
 import { ListeningTest } from '../../../models/listening/listening-test.model';
 import { RequestType } from '../../../models/request-type.model';
+import { UploadByFileComponent } from '../upload-by-file/upload-by-file.component';
 
 enum State {
   View,
   Create,
   Edit,
+  Upload,
 }
 
 @Component({
@@ -42,6 +44,7 @@ enum State {
     ConfirmDialogComponent,
     TopicTestCardGridComponent,
     TestListComponent,
+    UploadByFileComponent,
   ],
   templateUrl: './listening-tests-manage.component.html',
   styleUrl: './listening-tests-manage.component.scss',
@@ -72,7 +75,7 @@ export class ListeningTestsManageComponent implements OnInit {
     supportsAudio: true, // Enable audio for listening (1 per question)
     maxOptions: 4,
   };
-
+  excelTemplate = environment.excelListeningTemplate;
   constructor(
     private listeningService: ListeningService,
     private router: Router,
@@ -386,5 +389,35 @@ export class ListeningTestsManageComponent implements OnInit {
     this.currentState = State.View;
     this.testToEdit = null;
     this.editTestData = null;
+  }
+
+  changeToUpload() {
+    this.currentState = State.Upload;
+  }
+
+  onUploadTest(files: {
+    excelFile: File;
+    imageFiles: File[];
+    audioFiles: File[];
+  }) {
+    console.log(files);
+    this.listeningService
+      .uploadListeningsByFile(
+        this.selectedTopic!.id,
+        files.excelFile,
+        files.imageFiles,
+        files.audioFiles
+      )
+      .subscribe({
+        next: (response: Listening[]) => {
+          console.log('Listening tests uploaded successfully:', response);
+          this.currentState = State.View;
+          this.loadTestsForTopic(this.selectedTopic!.id);
+        },
+        error: (error) => {
+          console.error('Error uploading test:', error);
+          alert('Không thể tải lên bài test');
+        },
+      });
   }
 }

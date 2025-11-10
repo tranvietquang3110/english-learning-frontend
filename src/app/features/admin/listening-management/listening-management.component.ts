@@ -57,6 +57,7 @@ export class ListeningManagementComponent implements OnInit {
             name: item.name,
             description: item.description,
             imageUrl: item.imageUrl,
+            level: item.level,
           };
           this.topics.push(listeningTopic);
         });
@@ -93,6 +94,7 @@ export class ListeningManagementComponent implements OnInit {
           name: res.name,
           description: res.description,
           imageUrl: res.imageUrl,
+          level: res.level,
         };
         this.topics = this.topics.concat(newTopic);
         this.changeToView();

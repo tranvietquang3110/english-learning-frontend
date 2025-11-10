@@ -8,13 +8,21 @@ import {
   StudyTime,
 } from '../../../models/request/user-profile-update-request.model';
 import { Level } from '../../../models/request/plan-intent-request.model';
-import { faCamera, faPencil } from '@fortawesome/free-solid-svg-icons';
+import { faCamera, faPencil, faLock } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
+import { ChangePasswordComponent } from '../change-password/change-password.component';
+import { ConfirmDialogComponent } from '../../../shared/confirm-dialog/confirm-dialog.component';
 
 @Component({
   selector: 'app-profile',
   standalone: true,
-  imports: [CommonModule, FormsModule, FontAwesomeModule],
+  imports: [
+    CommonModule,
+    FormsModule,
+    FontAwesomeModule,
+    ChangePasswordComponent,
+    ConfirmDialogComponent,
+  ],
   templateUrl: './profile.component.html',
   styleUrl: './profile.component.scss',
 })
@@ -26,6 +34,21 @@ export class ProfileComponent implements OnInit {
   success: string | null = null;
   faCamera = faCamera;
   faPencil = faPencil;
+  faLock = faLock;
+  isChangingPassword: boolean = false;
+  showConfirmChangePassword: boolean = false;
+  confirmTitle: string = 'Xác nhận';
+  confirmMessage: string =
+    'Bạn có chắc chắn muốn đổi mật khẩu?, OTP sẽ được gửi đến email của bạn';
+  confirmText: string = 'Đổi mật khẩu';
+  cancelText: string = 'Hủy';
+  onConfirmChangePassword(): void {
+    this.showConfirmChangePassword = false;
+    this.isChangingPassword = true;
+  }
+  onCancelChangePassword(): void {
+    this.showConfirmChangePassword = false;
+  }
   // Form data
   editForm = {
     fullname: '',
@@ -122,12 +145,18 @@ export class ProfileComponent implements OnInit {
 
   startEdit(): void {
     this.isEditing = true;
+    this.isChangingPassword = false;
     this.error = null;
     this.success = null;
   }
 
+  startChangePassword(): void {
+    this.showConfirmChangePassword = true;
+  }
+
   cancelEdit(): void {
     this.isEditing = false;
+    this.isChangingPassword = false;
     this.initForm();
     this.error = null;
     this.success = null;

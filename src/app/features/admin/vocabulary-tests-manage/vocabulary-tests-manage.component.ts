@@ -26,23 +26,25 @@ import { TopicTestCardGridComponent } from '../../../shared/topic-test-card-grid
 import { TestListComponent } from '../../../shared/test-list/test-list.component';
 import { TestBase } from '../../../models/test-base';
 import { RequestType } from '../../../models/request-type.model';
+import { UploadByFileComponent } from '../upload-by-file/upload-by-file.component';
 
 enum State {
   View,
   Create,
   Edit,
+  Upload,
 }
 
 @Component({
   selector: 'app-vocabulary-tests-manage',
   standalone: true,
   imports: [
-    PaginationComponent,
     CommonModule,
     TestFormComponent,
     ConfirmDialogComponent,
     TopicTestCardGridComponent,
     TestListComponent,
+    UploadByFileComponent,
   ],
   templateUrl: './vocabulary-tests-manage.component.html',
   styleUrl: './vocabulary-tests-manage.component.scss',
@@ -71,7 +73,7 @@ export class VocabularyTestsManageComponent implements OnInit {
     supportsAudio: false,
     maxOptions: 4,
   };
-
+  excelTemplate = environment.excelVocabularyTestsTemplate;
   constructor(
     private vocabService: VocabularyService,
     private router: Router,
@@ -94,6 +96,10 @@ export class VocabularyTestsManageComponent implements OnInit {
             description: topic.description,
             imageUrl: topic.imageUrl,
           }));
+          this.currentPage = data.pageable.pageNumber + 1;
+          this.totalPages = data.totalPages;
+          console.log('Current page:', this.currentPage);
+          console.log('Total pages:', this.totalPages);
         },
         error: (error) => {
           console.error('Error loading topics:', error);
@@ -134,6 +140,10 @@ export class VocabularyTestsManageComponent implements OnInit {
     if (this.selectedTopic) {
       this.loadTestsForTopic(this.selectedTopic.id);
     }
+  }
+  onTopicPageChange(page: number) {
+    this.currentPage = page;
+    this.loadTopics();
   }
   onCreateTest() {
     this.currentState = State.Create;
@@ -318,5 +328,30 @@ export class VocabularyTestsManageComponent implements OnInit {
   onCancelEdit() {
     this.currentState = State.View;
     this.testToEdit = null;
+  }
+
+  changeToUpload() {
+    this.currentState = State.Upload;
+  }
+
+  onUploadTest(files: { excelFile: File; imageFiles: File[] }) {
+    console.log(files);
+    this.vocabService
+      .uploadTestsByFile(
+        this.selectedTopic!.id,
+        files.excelFile,
+        files.imageFiles
+      )
+      .subscribe({
+        next: (response) => {
+          console.log('Tests uploaded successfully:', response);
+          this.currentState = State.View;
+          this.loadTestsForTopic(this.selectedTopic!.id);
+        },
+        error: (error) => {
+          console.error('Error uploading test:', error);
+          alert('Không thể tải lên bài test');
+        },
+      });
   }
 }

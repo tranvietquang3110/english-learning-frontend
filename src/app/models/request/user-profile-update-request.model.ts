@@ -1,10 +1,10 @@
 import { Level } from './plan-intent-request.model';
 
 export enum StudyTime {
-  MORNING = 'MORNING',
-  AFTERNOON = 'AFTERNOON',
-  EVENING = 'EVENING',
-  NIGHT = 'NIGHT',
+  MORNING,
+  AFTERNOON,
+  EVENING,
+  NIGHT,
 }
 
 export interface UserProfileUpdateRequest {

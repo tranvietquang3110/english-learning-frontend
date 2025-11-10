@@ -48,6 +48,7 @@ export class VocabularyManagementComponent implements OnInit {
     this.vocabService
       .getTopics(this.currentPage - 1, this.PAGE_SIZE)
       .subscribe((data) => {
+        this.topics = [];
         console.log(data);
         const result = data.content;
         result.forEach((item) => {
@@ -56,6 +57,7 @@ export class VocabularyManagementComponent implements OnInit {
             name: item.name,
             description: item.description,
             imageUrl: item.imageUrl,
+            level: item.level,
           };
           this.topics.push(vocabTopic);
         });

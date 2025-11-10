@@ -14,6 +14,7 @@ import { GrammarService } from '../../services/GrammarService';
 import { ListeningService } from '../../services/ListeningService';
 import { TopicType } from '../../models/topic-type.enum';
 import { TopicBase } from '../../models/topic-base';
+import { environment } from '../../../environments/environment';
 
 interface TestInfo {
   id: string;
@@ -36,7 +37,8 @@ export class TopicDetailComponent implements OnInit {
   error: string | null = null;
   tests: TestInfo[] = [];
   totalTests: number = 0;
-
+  readonly PAGE_SIZE = environment.PAGE_SIZE;
+  TopicType = TopicType;
   // Icons
   faBook = faBook;
   faClipboardCheck = faClipboardCheck;
@@ -86,7 +88,7 @@ export class TopicDetailComponent implements OnInit {
     this.isLoading = true;
     // Assuming we need to get topic from list first or there's a getById method
     // For now, using getTopics and filtering
-    this.vocabularyService.getTopics(0, 1000).subscribe({
+    this.vocabularyService.getTopics(0, this.PAGE_SIZE).subscribe({
       next: (page) => {
         const foundTopic = page.content.find((t: any) => t.id === id);
         if (foundTopic) {
@@ -107,30 +109,32 @@ export class TopicDetailComponent implements OnInit {
 
   loadVocabularyTests(topicId: string): void {
     this.isLoadingTests = true;
-    this.vocabularyService.getTestsByTopicId(topicId, 0, 100).subscribe({
-      next: (response) => {
-        this.tests = (response.vocabularyTests?.content || []).map(
-          (test: any) => ({
-            id: test.id || test.testId || '',
-            name: test.name || '',
-            duration: test.duration || 0,
-            createdAt: test.createdAt,
-          })
-        );
-        this.totalTests = response.vocabularyTests?.totalElements || 0;
-        this.isLoadingTests = false;
-      },
-      error: (err) => {
-        console.error('Error loading vocabulary tests:', err);
-        this.isLoadingTests = false;
-        // Don't set error, just log it
-      },
-    });
+    this.vocabularyService
+      .getTestsByTopicId(topicId, 0, this.PAGE_SIZE)
+      .subscribe({
+        next: (response) => {
+          this.tests = (response.vocabularyTests?.content || []).map(
+            (test: any) => ({
+              id: test.id || test.testId || '',
+              name: test.name || '',
+              duration: test.duration || 0,
+              createdAt: test.createdAt,
+            })
+          );
+          this.totalTests = response.vocabularyTests?.totalElements || 0;
+          this.isLoadingTests = false;
+        },
+        error: (err) => {
+          console.error('Error loading vocabulary tests:', err);
+          this.isLoadingTests = false;
+          // Don't set error, just log it
+        },
+      });
   }
 
   loadGrammarTopic(id: string): void {
     this.isLoading = true;
-    this.grammarService.getAllTopics(0, 1000).subscribe({
+    this.grammarService.getAllTopics(0, this.PAGE_SIZE).subscribe({
       next: (page) => {
         const foundTopic = page.content.find((t: any) => t.id === id);
         if (foundTopic) {
@@ -171,7 +175,7 @@ export class TopicDetailComponent implements OnInit {
 
   loadListeningTopic(id: string): void {
     this.isLoading = true;
-    this.listeningService.getTopics(0, 1000).subscribe({
+    this.listeningService.getTopics(0, this.PAGE_SIZE).subscribe({
       next: (page) => {
         const foundTopic = page.content.find((t: any) => t.id === id);
         if (foundTopic) {
@@ -192,22 +196,24 @@ export class TopicDetailComponent implements OnInit {
 
   loadListeningTests(topicId: string): void {
     this.isLoadingTests = true;
-    this.listeningService.getTestsByTopicId(topicId, 0, 100).subscribe({
-      next: (response) => {
-        this.tests = (response.tests?.content || []).map((test: any) => ({
-          id: test.id || '',
-          name: test.name || '',
-          duration: test.duration || 0,
-          createdAt: test.createdAt,
-        }));
-        this.totalTests = response.tests?.totalElements || 0;
-        this.isLoadingTests = false;
-      },
-      error: (err) => {
-        console.error('Error loading listening tests:', err);
-        this.isLoadingTests = false;
-      },
-    });
+    this.listeningService
+      .getTestsByTopicId(topicId, 0, this.PAGE_SIZE)
+      .subscribe({
+        next: (response) => {
+          this.tests = (response.tests?.content || []).map((test: any) => ({
+            id: test.id || '',
+            name: test.name || '',
+            duration: test.duration || 0,
+            createdAt: test.createdAt,
+          }));
+          this.totalTests = response.tests?.totalElements || 0;
+          this.isLoadingTests = false;
+        },
+        error: (err) => {
+          console.error('Error loading listening tests:', err);
+          this.isLoadingTests = false;
+        },
+      });
   }
 
   mapToTopicBase(item: any): TopicBase {
@@ -241,7 +247,17 @@ export class TopicDetailComponent implements OnInit {
 
     const type = this.getTopicTypeRoute();
     console.log(`/${type}/learn/${this.topic.id}`);
-    this.router.navigate([`/${type}/learn/${this.topic.id}`]);
+    switch (type) {
+      case 'vocabulary':
+        this.router.navigate(['/vocabulary/learn', this.topic.id]);
+        break;
+      case 'grammar':
+        this.router.navigate(['/grammar/topics', this.topic.id]);
+        break;
+      case 'listening':
+        this.router.navigate(['/listening/practice', this.topic.id]);
+        break;
+    }
   }
 
   onTest(): void {
@@ -261,18 +277,17 @@ export class TopicDetailComponent implements OnInit {
     console.log('onTestClick', this.topic, this.topicType, testId);
     if (!this.topic) return;
 
-    const type = this.getTopicTypeRoute();
-    console.log(
-      `/${this.mapTopicTypeToRoute(this.topicType)}/tests/${
-        this.topic.id
-      }/${testId}`
-    );
-    // Navigate to specific test detail or test start page
-    this.router.navigate([
-      `/${this.mapTopicTypeToRoute(this.topicType)}/tests/${
-        this.topic.id
-      }/${testId}`,
-    ]);
+    switch (this.topicType) {
+      case TopicType.VOCABULARY:
+        this.router.navigate(['/vocabulary/tests', this.topic.id, testId]);
+        break;
+      case TopicType.GRAMMAR:
+        this.router.navigate(['/grammar/tests', this.topic.id, testId]);
+        break;
+      case TopicType.LISTENING:
+        this.router.navigate(['/listening/tests', testId]);
+        break;
+    }
   }
 
   formatDuration(minutes: number): string {

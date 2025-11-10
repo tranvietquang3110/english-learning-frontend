@@ -15,6 +15,11 @@
       />
     </div>
     <div class="p-6">
+      <div>
+        <span class="text-sm text-gray-600">
+          {{ topic.level?.toString() }}
+        </span>
+      </div>
       <h3 class="text-lg font-semibold text-gray-800 mb-2">
         {{ topic.name }}
       </h3>
@@ -24,3 +29,8 @@
     </div>
   </div>
 </div>
+<app-pagination
+  [currentPage]="currentPage"
+  [totalPages]="totalPages"
+  (pageChange)="onPageChange($event)"
+></app-pagination>

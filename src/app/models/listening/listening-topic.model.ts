@@ -1,3 +1,5 @@
+import { Level } from '../level.enum';
+
 export interface ListeningTopic {
   id: string;
   name: string;
@@ -5,4 +7,5 @@ export interface ListeningTopic {
   imageUrl: string;
   createdAt: string;
   favoriteId?: string;
+  level?: Level;
 }

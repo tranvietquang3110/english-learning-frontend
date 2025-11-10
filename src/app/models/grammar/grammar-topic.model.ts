@@ -1,3 +1,5 @@
+import { Level } from '../level.enum';
+
 export interface GrammarTopic {
   id: string;
   name: string;
@@ -7,4 +9,5 @@ export interface GrammarTopic {
   status: string;
   progress: number;
   favoriteId?: string;
+  level: Level;
 }

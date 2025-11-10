@@ -47,14 +47,24 @@
         <p class="text-sm text-gray-400 mt-1">{{ "@" + profile?.username }}</p>
       </div>
     </div>
-    <button
-      *ngIf="!isEditing"
-      (click)="startEdit()"
-      class="bg-primary hover:opacity-80 text-white px-4 py-2 rounded-lg transition-colors flex items-center gap-2"
-    >
-      <fa-icon [icon]="faPencil"></fa-icon>
-      Chỉnh sửa
-    </button>
+    <div class="flex gap-3">
+      <button
+        *ngIf="!isEditing && !isChangingPassword"
+        (click)="startEdit()"
+        class="bg-primary hover:opacity-80 text-white px-4 py-2 rounded-lg transition-colors flex items-center gap-2"
+      >
+        <fa-icon [icon]="faPencil"></fa-icon>
+        Chỉnh sửa
+      </button>
+      <button
+        *ngIf="!isEditing && !isChangingPassword"
+        (click)="showConfirmChangePassword = true"
+        class="bg-navy-header hover:opacity-80 text-white px-4 py-2 rounded-lg transition-colors flex items-center gap-2"
+      >
+        <fa-icon [icon]="faLock"></fa-icon>
+        Đổi mật khẩu
+      </button>
+    </div>
   </div>
 
   <!-- Success/Error Messages -->
@@ -75,7 +85,7 @@
   </div>
 
   <!-- View Mode -->
-  <div *ngIf="!isEditing" class="space-y-6">
+  <div *ngIf="!isEditing && !isChangingPassword" class="space-y-6">
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
       <div class="bg-gray-50 p-4 rounded-lg">
         <div class="flex items-center gap-3 mb-2">
@@ -137,7 +147,7 @@
 
   <!-- Edit Mode -->
   <form
-    *ngIf="isEditing"
+    *ngIf="isEditing && !isChangingPassword"
     (ngSubmit)="onSubmit()"
     class="space-y-6"
     [class.opacity-50]="isLoading"
@@ -244,6 +254,10 @@
     </div>
   </form>
 
+  <div *ngIf="isChangingPassword && !isEditing">
+    <app-change-password [email]="profile?.email ?? ''"></app-change-password>
+  </div>
+
   <!-- Loading Overlay -->
   <div
     *ngIf="isLoading"
@@ -257,3 +271,13 @@
     </div>
   </div>
 </div>
+<app-confirm-dialog
+  *ngIf="showConfirmChangePassword"
+  [isVisible]="showConfirmChangePassword"
+  [title]="confirmTitle"
+  [message]="confirmMessage"
+  [confirmText]="confirmText"
+  [cancelText]="cancelText"
+  (confirm)="onConfirmChangePassword()"
+  (cancel)="onCancelChangePassword()"
+></app-confirm-dialog>

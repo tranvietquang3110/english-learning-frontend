@@ -202,32 +202,35 @@
           *ngFor="let group of planRequest.planGroups; let groupIndex = index"
           class="border border-gray-200 rounded-lg p-4"
         >
-          <div class="flex justify-between items-start mb-3">
-            <div>
-              <div class="flex justify-between items-start">
-                <h4 class="font-medium text-gray-800">{{ group.name }}</h4>
-                <div class="text-right">
-                  <p class="text-sm text-gray-600">
-                    Ngày bắt đầu:
-                    {{ group.startDate | date : "dd/MM/yyyy HH:mm" }}
-                  </p>
-                  <p class="text-sm text-gray-600">
-                    Ngày kết thúc:
-                    {{ group.endDate | date : "dd/MM/yyyy HH:mm" }}
-                  </p>
-                </div>
+          <div class="flex justify-between items-start mb-3 gap-4">
+            <div class="flex-1 min-w-0">
+              <div class="flex items-start justify-between gap-4 mb-2">
+                <h4 class="font-medium text-gray-800 text-lg">
+                  {{ group.name }}
+                </h4>
+                <button
+                  type="button"
+                  (click)="removePlanGroup(groupIndex)"
+                  class="flex items-center gap-2 px-3 py-1.5 text-red-600 hover:text-red-700 hover:bg-red-50 rounded-lg transition-all duration-200 border border-red-200 hover:border-red-300 shrink-0"
+                  title="Xóa nhóm kế hoạch"
+                  aria-label="Xóa nhóm kế hoạch"
+                >
+                  <fa-icon [icon]="faTrash" class="text-sm"></fa-icon>
+                  <span class="text-sm font-medium">Xóa nhóm</span>
+                </button>
               </div>
-              <p class="text-sm text-gray-600">{{ group.description }}</p>
+              <p class="text-sm text-gray-600 mb-2">{{ group.description }}</p>
+              <div class="flex flex-wrap gap-4 text-xs text-gray-500">
+                <span>
+                  <span class="font-medium">Bắt đầu:</span>
+                  {{ group.startDate | date : "dd/MM/yyyy HH:mm" }}
+                </span>
+                <span>
+                  <span class="font-medium">Kết thúc:</span>
+                  {{ group.endDate | date : "dd/MM/yyyy HH:mm" }}
+                </span>
+              </div>
             </div>
-            <button
-              type="button"
-              (click)="removePlanGroup(groupIndex)"
-              class="text-red-500 hover:text-red-700"
-              title="Xóa nhóm kế hoạch"
-              aria-label="Xóa nhóm kế hoạch"
-            >
-              <i class="fas fa-trash"></i>
-            </button>
           </div>
 
           <!-- Plan Details for this group -->
@@ -359,11 +362,12 @@
                 <button
                   type="button"
                   (click)="removePlanDetail(groupIndex, detailIndex)"
-                  class="p-2 rounded-md text-red-500 hover:text-red-600 hover:bg-red-50 transition-colors"
+                  class="flex items-center gap-1.5 px-2.5 py-1.5 text-red-600 hover:text-red-700 hover:bg-red-50 rounded-md transition-all duration-200 border border-red-200 hover:border-red-300 shrink-0"
                   title="Xóa chi tiết kế hoạch"
                   aria-label="Xóa chi tiết kế hoạch"
                 >
-                  <i class="fas fa-times"></i>
+                  <fa-icon [icon]="faTimes" class="text-xs"></fa-icon>
+                  <span class="text-xs font-medium">Xóa</span>
                 </button>
               </div>
             </div>

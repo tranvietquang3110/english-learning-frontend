@@ -59,7 +59,7 @@ export class PlanService {
   generatePlan(planIntentRequest: PlanIntentRequest): Observable<string> {
     return new Observable<string>((observer) => {
       const eventSource = new EventSource(
-        `${this.apiUrl}/agent-generation?target=${planIntentRequest.target}&description=${planIntentRequest.description}&level=${planIntentRequest.level}&jwt=${planIntentRequest.jwt}`
+        `${this.apiUrl}/agent-generation?target=${planIntentRequest.target}&description=${planIntentRequest.description}&level=${planIntentRequest.level}&jwt=${planIntentRequest.jwt}&studyTime=${planIntentRequest.studyTime}`
       );
 
       eventSource.addEventListener('UPDATE', (event: MessageEvent) => {

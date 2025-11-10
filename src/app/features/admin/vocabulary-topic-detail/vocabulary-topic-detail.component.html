@@ -3,7 +3,14 @@
     <div *ngIf="currentState === State.View">
       <div class="mb-2 text-3xl font-bold">Danh sách từ vựng</div>
       <div class="mb-8 text-xl font-medium">Topic: {{ name }}</div>
-      <div class="flex justify-end mb-4">
+      <div class="flex justify-end mb-4 gap-3">
+        <button
+          (click)="changeToUpload()"
+          class="w-fit inline-flex items-center justify-center gap-2 rounded-md px-4 py-2 border border-primary text-primary text-primary-foreground bg-primary hover:opacity-90"
+        >
+          <fa-icon [icon]="faUpload"></fa-icon>
+          Tải lên từ vựng
+        </button>
         <button
           (click)="changeToCreate()"
           class="w-fit inline-flex items-center justify-center gap-2 rounded-md px-4 py-2 border border-primary text-primary text-primary-foreground bg-navy-header hover:opacity-90"
@@ -37,6 +44,17 @@
         (save)="handleCreate($event)"
         (cancel)="handleCancel()"
       ></app-vocab-edit>
+    </div>
+
+    <div *ngIf="currentState === State.Upload">
+      <app-upload-by-file
+        [title]="'Tải lên từ vựng'"
+        [description]="'Tải lên từ vựng để cập nhật dữ liệu'"
+        [isContainsImage]="true"
+        [isContainsAudio]="true"
+        [excelTemplate]="excelTemplate"
+        (uploadFile)="handleUpload($event)"
+      ></app-upload-by-file>
     </div>
   </div>
 </div>

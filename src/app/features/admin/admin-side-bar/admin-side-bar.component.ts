@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
@@ -31,6 +31,7 @@ interface SidebarItem {
 export class AdminSideBarComponent implements OnInit {
   isCollapsed = false;
   expandedItems: string[] = ['Vocabulary', 'Listening', 'Grammar'];
+  @Output() collapseChange = new EventEmitter<boolean>();
 
   faChevronDown = faChevronDown;
   faChevronRight = faChevronRight;
@@ -102,6 +103,7 @@ export class AdminSideBarComponent implements OnInit {
 
   toggleCollapse() {
     this.isCollapsed = !this.isCollapsed;
+    this.collapseChange.emit(this.isCollapsed);
   }
 
   toggleExpanded(label: string) {

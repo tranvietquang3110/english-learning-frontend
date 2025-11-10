@@ -50,6 +50,7 @@ export class GrammarManagementComponent implements OnInit {
             name: item.name,
             description: item.description,
             imageUrl: item.imageUrl,
+            level: item.level,
           };
           this.topics.push(grammarTopic);
         });
@@ -73,7 +74,14 @@ export class GrammarManagementComponent implements OnInit {
       .createTopic(topic, topic.imageUrl as any)
       .subscribe((res) => {
         console.log(res);
-        this.topics = this.topics.concat(res);
+        const newTopic: TopicBase = {
+          id: res.id,
+          name: res.name,
+          description: res.description,
+          imageUrl: res.imageUrl,
+          level: res.level,
+        };
+        this.topics = this.topics.concat(newTopic);
         this.changeToView();
       });
   }

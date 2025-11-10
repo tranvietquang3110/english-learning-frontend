@@ -3,6 +3,18 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Ensure full height for app */
+html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+app-root {
+  display: block;
+  height: 100%;
+}
+
 /* Global Form Styles */
 @layer components {
   .form-input {

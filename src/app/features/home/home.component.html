@@ -1,0 +1,260 @@
+<div
+  class="min-h-full bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800"
+>
+  <!-- Hero Section -->
+  <div
+    class="bg-gradient-to-r from-navy-header via-slate-800 to-navy-header text-white py-12 px-6 rounded-b-3xl shadow-xl mb-8"
+  >
+    <div class="max-w-7xl mx-auto">
+      <div class="flex items-center gap-4 mb-4">
+        <div
+          class="h-16 w-16 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center"
+        >
+          <fa-icon [icon]="faGraduationCap" class="text-3xl"></fa-icon>
+        </div>
+        <div>
+          <h1 class="text-4xl font-bold mb-2">
+            {{ getGreeting() }}, {{ userName }}! 👋
+          </h1>
+          <p class="text-slate-200 text-lg">
+            Sẵn sàng cho một ngày học tập hiệu quả?
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="max-w-7xl mx-auto px-6 pb-8">
+    <!-- Stats Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+      <!-- Words Learned Card -->
+      <div
+        class="bg-white dark:bg-slate-800 rounded-2xl shadow-lg p-6 border border-slate-200 dark:border-slate-700 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1"
+      >
+        <div class="flex items-center justify-between mb-4">
+          <div class="p-3 bg-blue-100 dark:bg-blue-900/30 rounded-xl">
+            <fa-icon
+              [icon]="faBookOpen"
+              class="text-blue-600 dark:text-blue-400 text-2xl"
+            ></fa-icon>
+          </div>
+          <span class="text-sm text-slate-500 dark:text-slate-400 font-medium"
+            >Từ vựng</span
+          >
+        </div>
+        <h3 class="text-3xl font-bold text-slate-800 dark:text-white mb-1">
+          {{ stats.wordsLearned }}
+        </h3>
+        <p class="text-slate-600 dark:text-slate-300 text-sm">Từ đã học</p>
+      </div>
+
+      <!-- Tests Completed Card -->
+      <div
+        class="bg-white dark:bg-slate-800 rounded-2xl shadow-lg p-6 border border-slate-200 dark:border-slate-700 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1"
+      >
+        <div class="flex items-center justify-between mb-4">
+          <div class="p-3 bg-green-100 dark:bg-green-900/30 rounded-xl">
+            <fa-icon
+              [icon]="faCheckCircle"
+              class="text-green-600 dark:text-green-400 text-2xl"
+            ></fa-icon>
+          </div>
+          <span class="text-sm text-slate-500 dark:text-slate-400 font-medium"
+            >Bài test</span
+          >
+        </div>
+        <h3 class="text-3xl font-bold text-slate-800 dark:text-white mb-1">
+          {{ stats.testsCompleted }}
+        </h3>
+        <p class="text-slate-600 dark:text-slate-300 text-sm">Đã hoàn thành</p>
+      </div>
+
+      <!-- Study Streak Card -->
+      <div
+        class="bg-white dark:bg-slate-800 rounded-2xl shadow-lg p-6 border border-slate-200 dark:border-slate-700 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1"
+      >
+        <div class="flex items-center justify-between mb-4">
+          <div class="p-3 bg-orange-100 dark:bg-orange-900/30 rounded-xl">
+            <fa-icon
+              [icon]="faFire"
+              class="text-orange-600 dark:text-orange-400 text-2xl"
+            ></fa-icon>
+          </div>
+          <span class="text-sm text-slate-500 dark:text-slate-400 font-medium"
+            >Chuỗi ngày</span
+          >
+        </div>
+        <h3 class="text-3xl font-bold text-slate-800 dark:text-white mb-1">
+          {{ stats.studyStreak }}
+        </h3>
+        <p class="text-slate-600 dark:text-slate-300 text-sm">Ngày liên tiếp</p>
+      </div>
+
+      <!-- Total Time Card -->
+      <div
+        class="bg-white dark:bg-slate-800 rounded-2xl shadow-lg p-6 border border-slate-200 dark:border-slate-700 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1"
+      >
+        <div class="flex items-center justify-between mb-4">
+          <div class="p-3 bg-purple-100 dark:bg-purple-900/30 rounded-xl">
+            <fa-icon
+              [icon]="faClock"
+              class="text-purple-600 dark:text-purple-400 text-2xl"
+            ></fa-icon>
+          </div>
+          <span class="text-sm text-slate-500 dark:text-slate-400 font-medium"
+            >Thời gian</span
+          >
+        </div>
+        <h3 class="text-3xl font-bold text-slate-800 dark:text-white mb-1">
+          {{ stats.totalTime }}
+        </h3>
+        <p class="text-slate-600 dark:text-slate-300 text-sm">Phút đã học</p>
+      </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="mb-8">
+      <h2
+        class="text-2xl font-bold text-slate-800 dark:text-white mb-4 flex items-center gap-2"
+      >
+        <fa-icon [icon]="faTrophy" class="text-yellow-500"></fa-icon>
+        Bắt đầu học ngay
+      </h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <a
+          *ngFor="let action of quickActions"
+          [routerLink]="action.route"
+          class="group bg-white dark:bg-slate-800 rounded-xl shadow-md p-6 border border-slate-200 dark:border-slate-700 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 cursor-pointer"
+        >
+          <div class="flex items-center justify-between mb-4">
+            <div
+              [class]="
+                action.color +
+                ' p-4 rounded-xl text-white group-hover:scale-110 transition-transform duration-300'
+              "
+            >
+              <fa-icon [icon]="action.icon" class="text-2xl"></fa-icon>
+            </div>
+            <fa-icon
+              [icon]="faArrowRight"
+              class="text-slate-400 group-hover:text-slate-600 dark:group-hover:text-slate-300 group-hover:translate-x-1 transition-all"
+            ></fa-icon>
+          </div>
+          <h3 class="text-lg font-semibold text-slate-800 dark:text-white mb-2">
+            {{ action.label }}
+          </h3>
+          <p class="text-sm text-slate-500 dark:text-slate-400">
+            Khám phá ngay
+          </p>
+        </a>
+      </div>
+    </div>
+
+    <!-- Recent Activities & Featured Topics -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <!-- Recent Activities -->
+      <div
+        class="bg-white dark:bg-slate-800 rounded-2xl shadow-lg p-6 border border-slate-200 dark:border-slate-700"
+      >
+        <h2
+          class="text-2xl font-bold text-slate-800 dark:text-white mb-6 flex items-center gap-2"
+        >
+          <fa-icon [icon]="faClock" class="text-blue-500"></fa-icon>
+          Hoạt động gần đây
+        </h2>
+        <div class="space-y-4">
+          <div
+            *ngFor="let activity of recentActivities"
+            class="flex items-start gap-4 p-4 rounded-xl bg-slate-50 dark:bg-slate-700/50 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
+          >
+            <div [class]="activity.color + ' p-2 rounded-lg bg-opacity-10'">
+              <fa-icon [icon]="activity.icon" class="text-lg"></fa-icon>
+            </div>
+            <div class="flex-1">
+              <p class="text-slate-800 dark:text-white font-medium mb-1">
+                {{ activity.title }}
+              </p>
+              <p class="text-sm text-slate-500 dark:text-slate-400">
+                {{ activity.time }}
+              </p>
+            </div>
+          </div>
+        </div>
+        <a
+          routerLink="/history"
+          class="mt-6 inline-flex items-center gap-2 text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 font-medium transition-colors"
+        >
+          Xem tất cả lịch sử
+          <fa-icon [icon]="faArrowRight" class="text-sm"></fa-icon>
+        </a>
+      </div>
+
+      <!-- Featured Topics / Progress -->
+      <div
+        class="bg-white dark:bg-slate-800 rounded-2xl shadow-lg p-6 border border-slate-200 dark:border-slate-700"
+      >
+        <h2
+          class="text-2xl font-bold text-slate-800 dark:text-white mb-6 flex items-center gap-2"
+        >
+          <fa-icon [icon]="faChartLine" class="text-green-500"></fa-icon>
+          Tiến độ học tập
+        </h2>
+        <div class="space-y-6">
+          <!-- Progress Item -->
+          <div>
+            <div class="flex justify-between items-center mb-2">
+              <span
+                class="text-sm font-medium text-slate-700 dark:text-slate-300"
+                >Từ vựng</span
+              >
+              <span
+                class="text-sm font-semibold text-slate-600 dark:text-slate-400"
+                >65%</span
+              >
+            </div>
+            <div class="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-3">
+              <div class="bg-blue-500 h-3 rounded-full w-[65%]"></div>
+            </div>
+          </div>
+          <div>
+            <div class="flex justify-between items-center mb-2">
+              <span
+                class="text-sm font-medium text-slate-700 dark:text-slate-300"
+                >Luyện nghe</span
+              >
+              <span
+                class="text-sm font-semibold text-slate-600 dark:text-slate-400"
+                >42%</span
+              >
+            </div>
+            <div class="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-3">
+              <div class="bg-green-500 h-3 rounded-full w-[42%]"></div>
+            </div>
+          </div>
+          <div>
+            <div class="flex justify-between items-center mb-2">
+              <span
+                class="text-sm font-medium text-slate-700 dark:text-slate-300"
+                >Ngữ pháp</span
+              >
+              <span
+                class="text-sm font-semibold text-slate-600 dark:text-slate-400"
+                >78%</span
+              >
+            </div>
+            <div class="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-3">
+              <div class="bg-purple-500 h-3 rounded-full w-[78%]"></div>
+            </div>
+          </div>
+        </div>
+        <a
+          routerLink="/statistic"
+          class="mt-6 inline-flex items-center gap-2 text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 font-medium transition-colors"
+        >
+          Xem thống kê chi tiết
+          <fa-icon [icon]="faArrowRight" class="text-sm"></fa-icon>
+        </a>
+      </div>
+    </div>
+  </div>
+</div>

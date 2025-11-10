@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
@@ -17,6 +17,7 @@ import {
   faPerson,
   faHistory,
   faCalendarAlt,
+  faChartLine,
 } from '@fortawesome/free-solid-svg-icons';
 
 interface SidebarItem {
@@ -34,14 +35,15 @@ interface SidebarItem {
 })
 export class SideBarComponent {
   isCollapsed = false;
-  expandedItems: string[] = ['Learning', 'Word'];
+  expandedItems: string[] = [];
+  @Output() collapseChange = new EventEmitter<boolean>();
 
   faChevronDown = faChevronDown;
   faChevronRight = faChevronRight;
   faChevronLeft = faChevronLeft;
 
   sidebarItems: SidebarItem[] = [
-    { label: 'Home', href: '/', icon: faHome },
+    { label: 'Home', href: '/home', icon: faHome },
     { label: 'News', href: '/news', icon: faNewspaper },
     {
       label: 'Learning',
@@ -75,7 +77,6 @@ export class SideBarComponent {
       children: [
         { label: 'Profile', href: '/profile', icon: faPerson },
         { label: 'My Favorites', href: '/favorite', icon: faHeart },
-        { label: 'Wordbank', href: '/wordbank', icon: faDatabase },
       ],
     },
     {
@@ -88,10 +89,16 @@ export class SideBarComponent {
       icon: faCalendarAlt,
       href: '/planning',
     },
+    {
+      label: 'Statistics',
+      icon: faChartLine,
+      href: '/statistic',
+    },
   ];
 
   toggleCollapse() {
     this.isCollapsed = !this.isCollapsed;
+    this.collapseChange.emit(this.isCollapsed);
   }
 
   toggleExpanded(label: string) {

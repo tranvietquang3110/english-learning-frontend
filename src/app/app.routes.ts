@@ -8,13 +8,15 @@ import { PlanningComponent } from './features/planning/planning.component';
 import { ViewMyPlanningComponent } from './features/planning/view-my-planning/view-my-planning.component';
 import { CreatePlanningComponent } from './features/planning/create-planning/create-planning.component';
 import { ViewMyPlanningDetailComponent } from './features/planning/view-my-planning/view-my-planning-detail/view-my-planning-detail.component';
+import { HomeComponent } from './features/home/home.component';
 
 export const routes: Routes = [
   {
     path: '',
     component: MainLayoutComponent,
     children: [
-      { path: '', redirectTo: 'vocabulary/topics', pathMatch: 'full' },
+      { path: '', redirectTo: 'home', pathMatch: 'full' },
+      { path: 'home', component: HomeComponent },
       {
         path: 'vocabulary',
         children: [
@@ -186,6 +188,13 @@ export const routes: Routes = [
         loadComponent: () =>
           import('./features/pronunciation/pronunciation.component').then(
             (m) => m.PronunciationComponent
+          ),
+      },
+      {
+        path: 'statistic',
+        loadComponent: () =>
+          import('./features/statistic/statistic.component').then(
+            (m) => m.StatisticComponent
           ),
       },
     ],
@@ -366,6 +375,10 @@ export const routes: Routes = [
           import('./features/admin/statistic/statistic.component').then(
             (m) => m.StatisticComponent
           ),
+      },
+      {
+        path: '**',
+        redirectTo: 'vocabulary/manage',
       },
     ],
   },

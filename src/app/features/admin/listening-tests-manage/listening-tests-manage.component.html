@@ -11,6 +11,13 @@
     <div class="flex gap-3">
       <button
         *ngIf="selectedTopic && currentState === State.View"
+        (click)="changeToUpload()"
+        class="bg-navy-header text-white px-4 py-2 rounded-lg hover:opacity-80"
+      >
+        Tải lên bài test bằng file
+      </button>
+      <button
+        *ngIf="selectedTopic && currentState === State.View"
         (click)="onCreateTest()"
         class="bg-primary text-white px-4 py-2 rounded-lg hover:opacity-80"
       >
@@ -72,6 +79,8 @@
       [selectedTopicName]="selectedTopic.name || ''"
       (createTest)="onCreateTest()"
       (pageChange)="onPageChange($event)"
+      [currentPage]="currentPage"
+      [totalPages]="totalPages"
     ></app-test-list>
   </div>
 
@@ -94,6 +103,18 @@
       (save)="onUpdateTest($event)"
       (cancel)="onCancelEdit()"
     ></app-test-form>
+  </div>
+
+  <!-- Upload Test Form -->
+  <div *ngIf="currentState === State.Upload" class="view-transition">
+    <app-upload-by-file
+      (uploadFile)="onUploadTest($event)"
+      [title]="'Tải lên bài test'"
+      [description]="'Tải lên bài test để tạo mới'"
+      [isContainsImage]="true"
+      [isContainsAudio]="false"
+      [excelTemplate]="excelTemplate"
+    ></app-upload-by-file>
   </div>
 
   <!-- Confirm Delete Dialog -->

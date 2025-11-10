@@ -9,11 +9,13 @@ import { CommonModule } from '@angular/common';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { faSave, faTimes } from '@fortawesome/free-solid-svg-icons';
 import { GrammarTopic } from '../../../models/grammar/grammar-topic.model';
+import { Level } from '../../../models/level.enum';
 
 export interface GrammarTopicFormData {
   name: string;
   description?: string;
   imageFile?: File | null;
+  level?: Level;
 }
 
 @Component({
@@ -32,6 +34,7 @@ export class GrammarTopicFormComponent implements OnInit {
 
   faSave = faSave;
   faTimes = faTimes;
+  Level = Level; // Expose Level enum to template
 
   constructor(private fb: FormBuilder) {}
 
@@ -40,6 +43,7 @@ export class GrammarTopicFormComponent implements OnInit {
       name: [this.initialData?.name || '', Validators.required],
       description: [this.initialData?.description || ''],
       imageUrl: [null],
+      level: [this.initialData?.level || Level.BEGINNER],
     });
 
     if (this.initialData && (this.initialData as any).imageUrl) {

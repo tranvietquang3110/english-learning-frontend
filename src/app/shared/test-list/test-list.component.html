@@ -83,12 +83,10 @@
     </div>
 
     <!-- Pagination -->
-    <div *ngIf="totalPages > 1" class="mt-6">
-      <app-pagination
-        [currentPage]="currentPage"
-        [totalPages]="totalPages"
-        (pageChange)="onPageChangeHandler($event)"
-      ></app-pagination>
-    </div>
+    <app-pagination
+      [currentPage]="currentPage"
+      [totalPages]="totalPages"
+      (pageChange)="onPageChangeHandler($event)"
+    ></app-pagination>
   </div>
 </div>

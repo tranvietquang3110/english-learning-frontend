@@ -200,7 +200,10 @@
       </div>
 
       <!-- Tests Section -->
-      <div *ngIf="topic && !isLoading" class="mt-8">
+      <div
+        *ngIf="topic && !isLoading && topicType !== TopicType.GRAMMAR"
+        class="mt-8"
+      >
         <div class="flex items-center justify-between mb-6">
           <div>
             <h2 class="text-3xl font-bold text-gray-900 mb-2">Bài kiểm tra</h2>

@@ -1,6 +1,12 @@
-<div class="flex w-full">
-  <app-admin-side-bar class="basis-1/6"></app-admin-side-bar>
-  <div class="flex-1">
-    <router-outlet></router-outlet>
+<div class="flex flex-col h-screen">
+  <div class="flex flex-1 min-h-0 w-full">
+    <div class="flex-shrink-0 transition-all duration-300 h-full">
+      <app-admin-side-bar
+        (collapseChange)="onSidebarCollapseChange($event)"
+      ></app-admin-side-bar>
+    </div>
+    <div class="flex-1 min-w-0 transition-all duration-300 overflow-auto">
+      <router-outlet></router-outlet>
+    </div>
   </div>
 </div>

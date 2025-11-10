@@ -8,11 +8,17 @@ import { VocabEditComponent } from '../vocab-edit/vocab-edit.component';
 import { VocabularyRequest } from '../../../models/request/vocabulary-request.model';
 import { RequestType } from '../../../models/request-type.model';
 import { ConfirmDialogComponent } from '../../../shared/confirm-dialog/confirm-dialog.component';
+import { UploadByFileComponent } from '../upload-by-file/upload-by-file.component';
+import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
+import { faUpload } from '@fortawesome/free-solid-svg-icons';
+import { AddVocabulariesByFileRequest } from '../../../models/request/add-vocabularies-by-file-request.model';
+import { environment } from '../../../../environments/environment';
 
 enum State {
   View,
   Edit,
   Create,
+  Upload,
 }
 
 @Component({
@@ -23,11 +29,14 @@ enum State {
     CommonModule,
     VocabEditComponent,
     ConfirmDialogComponent,
+    UploadByFileComponent,
+    FontAwesomeModule,
   ],
   templateUrl: './vocabulary-topic-detail.component.html',
   styleUrl: './vocabulary-topic-detail.component.scss',
 })
 export class VocabularyTopicDetailComponent implements OnInit {
+  faUpload = faUpload;
   vocabList: Vocabulary[] = [];
   name: string = '';
   State = State;
@@ -36,6 +45,7 @@ export class VocabularyTopicDetailComponent implements OnInit {
   topicId: string | null = '';
   vocabId: string | null = '';
   isShowConfirmDialog: boolean = false;
+  excelTemplate = environment.excelVocabularyTemplate;
   constructor(
     private vocabService: VocabularyService,
     private route: ActivatedRoute
@@ -168,5 +178,36 @@ export class VocabularyTopicDetailComponent implements OnInit {
   handleCancelDelete() {
     this.isShowConfirmDialog = false;
     this.vocabId = null;
+  }
+
+  changeToUpload() {
+    this.currentState = State.Upload;
+  }
+
+  handleUpload(files: {
+    excelFile: File;
+    imageFiles: File[];
+    audioFiles: File[];
+  }) {
+    console.log(files);
+    if (this.topicId) {
+      const request: AddVocabulariesByFileRequest = {
+        excelFile: files.excelFile,
+        imageFiles: files.imageFiles,
+        audioFiles: files.audioFiles,
+      };
+      this.vocabService
+        .uploadVocabulariesByFile(this.topicId, request)
+        .subscribe({
+          next: (res) => {
+            console.log(res);
+            this.vocabList = this.vocabList.concat(res);
+            this.currentState = State.View;
+          },
+          error: (err) => {
+            console.log(err);
+          },
+        });
+    }
   }
 }

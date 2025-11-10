@@ -9,6 +9,8 @@ import { VocabularyTest } from '../models/vocabulary/vocabulary-test.model';
 import { VocabularyTestQuestion } from '../models/vocabulary/vocabulary-test-question.model';
 import { VocabularyRequest } from '../models/request/vocabulary-request.model';
 import { VocabularyTestRequest } from '../models/request/vocabulary-test-request.model';
+import { AddVocabulariesByFileRequest } from '../models/request/add-vocabularies-by-file-request.model';
+import { Level } from '../models/level.enum';
 
 @Injectable({
   providedIn: 'root',
@@ -78,7 +80,7 @@ export class VocabularyService {
 
   // 5. Create topic
   createTopic(
-    topic: { name: string; description: string },
+    topic: { name: string; description: string; level?: Level },
     imageFile?: File
   ): Observable<VocabTopic> {
     const formData = new FormData();
@@ -208,6 +210,34 @@ export class VocabularyService {
   ): Observable<Page<Vocabulary>> {
     return this.http.get<Page<Vocabulary>>(
       `${this.apiUrl}/search?q=${query}&page=${page}&limit=${limit}`
+    );
+  }
+
+  uploadVocabulariesByFile(
+    topicId: string,
+    request: AddVocabulariesByFileRequest
+  ): Observable<Vocabulary[]> {
+    const formData = new FormData();
+    formData.append('vocabulary_file', request.excelFile);
+    request.imageFiles.forEach((file) => formData.append('images', file));
+    request.audioFiles.forEach((file) => formData.append('audios', file));
+    return this.http.post<Vocabulary[]>(
+      `${this.apiUrl}/topics/${topicId}/file-vocabularies`,
+      formData
+    );
+  }
+
+  uploadTestsByFile(
+    topicId: string,
+    excelFile: File,
+    images: File[]
+  ): Observable<VocabularyTest[]> {
+    const formData = new FormData();
+    formData.append('test_file', excelFile);
+    images.forEach((file) => formData.append('images', file));
+    return this.http.post<VocabularyTest[]>(
+      `${this.apiUrl}/topics/${topicId}/file-tests`,
+      formData
     );
   }
 }

@@ -11,6 +11,7 @@ import { TopicBase } from '../../models/topic-base';
 import { TopicType } from '../../models/topic-type.enum';
 import { Page } from '../../models/page.model';
 import { catchError, forkJoin, map, of } from 'rxjs';
+import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-search',
@@ -29,7 +30,7 @@ export class SearchComponent implements OnInit {
   searchQuery: string = '';
   selectedFilter: TopicType = TopicType.VOCABULARY;
   currentPage: number = 0; // 0-based for API
-  pageSize: number = 8;
+  pageSize: number = environment.PAGE_SIZE;
 
   // Results
   topics: TopicBase[] = [];
@@ -161,9 +162,15 @@ export class SearchComponent implements OnInit {
     this.listeningService
       .searchListenings(this.searchQuery, this.currentPage, this.pageSize)
       .pipe(
-        map((page: Page<any>) =>
-          this.mapToTopicBase(page.content, 'LISTENING')
-        ),
+        map((page: Page<any>) => {
+          console.log(page);
+          const topics = this.mapToTopicBase(page.content, 'LISTENING');
+          return {
+            topics: topics,
+            totalPages: page.totalPages,
+            totalElements: page.totalElements,
+          };
+        }),
         catchError((error) => {
           console.error('Listening search error:', error);
           this.error = 'Không thể tìm kiếm nghe. Vui lòng thử lại.';
@@ -172,11 +179,9 @@ export class SearchComponent implements OnInit {
       )
       .subscribe({
         next: (result: any) => {
-          if (result.topics) {
-            this.topics = result.topics;
-            this.totalPages = result.totalPages;
-            this.totalResults = result.totalElements;
-          }
+          this.topics = result.topics;
+          this.totalPages = result.totalPages;
+          this.totalResults = result.totalElements;
           this.isLoading = false;
         },
         error: (error) => {

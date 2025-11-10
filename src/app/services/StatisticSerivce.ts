@@ -17,16 +17,30 @@ export enum TimeRange {
   providedIn: 'root',
 })
 export class StatisticService {
-  private apiUrl = environment.apiContentServiceUrl + '/statistic';
+  private apiAdminUrl = environment.apiContentServiceUrl + '/statistic';
+  private apiUserUrl = environment.apiUserServiceUrl + '/statistic';
   constructor(private http: HttpClient) {}
   getTopicViews(timeRange: TimeRange): Observable<StatisticResponse> {
     return this.http.get<StatisticResponse>(
-      `${this.apiUrl}/topic-view?time_range=${timeRange}`
+      `${this.apiAdminUrl}/topic-view?time_range=${timeRange}`
     );
   }
   getTopicViewsSummary(top: number): Observable<TopicViewSummaryResponse[]> {
     return this.http.get<TopicViewSummaryResponse[]>(
-      `${this.apiUrl}/top-topic-view?top=${top}`
+      `${this.apiAdminUrl}/top-topic-view?top=${top}`
+    );
+  }
+  getUserStatistics(): Observable<StatisticResponse> {
+    return this.http.get<StatisticResponse>(
+      `${this.apiAdminUrl}/user-statistics`
+    );
+  }
+  getUserStatisticsSummary(
+    timeRange: TimeRange
+  ): Observable<StatisticResponse> {
+    return this.http.get<StatisticResponse>(
+      `${this.apiUserUrl}/users?timeRange=${timeRange}`
     );
   }
 }
+  

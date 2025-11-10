@@ -60,6 +60,20 @@
         </select>
       </div>
 
+      <div>
+        <label class="text-sm font-medium">Thời gian học (Study Time)</label>
+        <select
+          [(ngModel)]="studyTime"
+          [disabled]="isLoading"
+          class="mt-1 w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary"
+        >
+          <option value="MORNING">Buổi sáng</option>
+          <option value="AFTERNOON">Buổi chiều</option>
+          <option value="EVENING">Buổi tối</option>
+          <option value="NIGHT">Đêm</option>
+        </select>
+      </div>
+
       <button
         (click)="handleGenerateWithInputs()"
         [disabled]="isLoading || target === 0 || !description.trim()"

@@ -28,13 +28,22 @@
         Back to Listening Management
       </button>
     </div>
-    <button
-      *ngIf="currentState === State.View"
-      (click)="changeToAddExercise()"
-      class="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90"
-    >
-      Add New Exercise
-    </button>
+    <div class="flex gap-3">
+      <button
+        *ngIf="currentState === State.View"
+        (click)="changeToUploadExercise()"
+        class="px-4 py-2 bg-navy-header text-white rounded-lg hover:bg-navy-header/90"
+      >
+        Upload Exercise by File
+      </button>
+      <button
+        *ngIf="currentState === State.View"
+        (click)="changeToAddExercise()"
+        class="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90"
+      >
+        Add New Exercise
+      </button>
+    </div>
   </div>
 
   <!-- Loading -->
@@ -79,5 +88,17 @@
       (deleteListening)="onDeleteListening($event)"
       (addFirstExercise)="changeToAddExercise()"
     ></app-listening-exercise-list>
+  </div>
+
+  <!-- Upload Exercise Form -->
+  <div *ngIf="currentState === State.UploadExercise">
+    <app-upload-by-file
+      [title]="'Tải lên bài nghe'"
+      [description]="'Tải lên bài nghe để cập nhật dữ liệu'"
+      [isContainsImage]="true"
+      [isContainsAudio]="true"
+      [excelTemplate]="excelTemplate"
+      (uploadFile)="onUploadExercises($event)"
+    ></app-upload-by-file>
   </div>
 </div>

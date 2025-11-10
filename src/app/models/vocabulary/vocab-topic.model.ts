@@ -1,3 +1,5 @@
+import { Level } from '../level.enum';
+
 export interface VocabTopic {
   id: string;
   name: string;
@@ -7,4 +9,5 @@ export interface VocabTopic {
   status: string;
   progress: number;
   favoriteId?: string;
+  level?: Level;
 }

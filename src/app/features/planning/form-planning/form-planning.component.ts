@@ -2,6 +2,8 @@ import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
+import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
+import { faTrash, faTimes } from '@fortawesome/free-solid-svg-icons';
 import { PlanService } from '../../../services/PlanService';
 import { VocabularyService } from '../../../services/VocabularyService';
 import { GrammarService } from '../../../services/GrammarService';
@@ -19,7 +21,7 @@ import { Observable } from 'rxjs';
 @Component({
   selector: 'app-form-planning',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule],
+  imports: [CommonModule, FormsModule, RouterModule, FontAwesomeModule],
   templateUrl: './form-planning.component.html',
   styleUrl: './form-planning.component.scss',
 })
@@ -69,6 +71,10 @@ export class FormPlanningComponent implements OnInit {
   availableTopics: (VocabTopic | GrammarTopic | ListeningTopic)[] = [];
   isLoadingTopics = false;
   topicsError: string | null = null;
+
+  // FontAwesome icons
+  faTrash = faTrash;
+  faTimes = faTimes;
 
   constructor(
     private planService: PlanService,
@@ -187,7 +193,13 @@ export class FormPlanningComponent implements OnInit {
   }
 
   removePlanGroup(index: number) {
-    this.planRequest.planGroups.splice(index, 1);
+    if (
+      confirm(
+        'Bạn có chắc chắn muốn xóa nhóm kế hoạch này? Tất cả các chi tiết trong nhóm cũng sẽ bị xóa.'
+      )
+    ) {
+      this.planRequest.planGroups.splice(index, 1);
+    }
   }
 
   // Plan Details Management
@@ -228,7 +240,21 @@ export class FormPlanningComponent implements OnInit {
   }
 
   removePlanDetail(groupIndex: number, detailIndex: number) {
-    this.planRequest.planGroups[groupIndex].planDetails.splice(detailIndex, 1);
+    const detail =
+      this.planRequest.planGroups[groupIndex].planDetails[detailIndex];
+    const topicName =
+      detail.topicName ||
+      this.getTopicDisplayName(detail.topicType, detail.topicId);
+    if (
+      confirm(
+        `Bạn có chắc chắn muốn xóa chi tiết "${topicName}" khỏi nhóm này?`
+      )
+    ) {
+      this.planRequest.planGroups[groupIndex].planDetails.splice(
+        detailIndex,
+        1
+      );
+    }
   }
 
   getTopicTypeLabel(topicType: ItemTypeEnum): string {

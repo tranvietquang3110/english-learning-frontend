@@ -6,7 +6,22 @@ import { FavoriteResponse } from '../../models/response/favorite-response.model'
 import { ItemTypeEnum } from '../../models/item-type-enum';
 import { ConfirmDialogComponent } from '../../shared/confirm-dialog/confirm-dialog.component';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
-import { faTrash } from '@fortawesome/free-solid-svg-icons';
+import {
+  faTrash,
+  faHeart,
+  faBook,
+  faHeadphones,
+  faLanguage,
+  faClipboardCheck,
+  faQuestion,
+  faBookOpen,
+  faFileAlt,
+  faCalendarPlus,
+  faSpinner,
+  faExclamationTriangle,
+  faTimes,
+  faHeartBroken,
+} from '@fortawesome/free-solid-svg-icons';
 import { Router } from '@angular/router';
 
 @Component({
@@ -31,7 +46,22 @@ export class FavoriteComponent implements OnInit {
   // Confirm dialog state
   showConfirmDialog = false;
   favoriteToDelete: string | null = null;
-  FaTrash = faTrash;
+
+  // Icons
+  faTrash = faTrash;
+  faHeart = faHeart;
+  faBook = faBook;
+  faHeadphones = faHeadphones;
+  faLanguage = faLanguage;
+  faClipboardCheck = faClipboardCheck;
+  faQuestion = faQuestion;
+  faBookOpen = faBookOpen;
+  faFileAlt = faFileAlt;
+  faCalendarPlus = faCalendarPlus;
+  faSpinner = faSpinner;
+  faExclamationTriangle = faExclamationTriangle;
+  faTimes = faTimes;
+  faHeartBroken = faHeartBroken;
 
   // Filter options
   filterOptions = [
@@ -195,18 +225,18 @@ export class FavoriteComponent implements OnInit {
     return new Date(dateString).toLocaleDateString('vi-VN');
   }
 
-  getTypeIcon(itemType: ItemTypeEnum): string {
+  getTypeIcon(itemType: ItemTypeEnum): any {
     switch (itemType) {
       case ItemTypeEnum.GRAMMAR:
-        return 'fa-book';
+        return faBook;
       case ItemTypeEnum.LISTENING:
-        return 'fa-headphones';
+        return faHeadphones;
       case ItemTypeEnum.VOCABULARY:
-        return 'fa-language';
+        return faLanguage;
       case ItemTypeEnum.FULL_TEST:
-        return 'fa-clipboard-check';
+        return faClipboardCheck;
       default:
-        return 'fa-question';
+        return faQuestion;
     }
   }
 

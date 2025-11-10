@@ -144,6 +144,7 @@ export class ViewMyPlanningComponent implements OnInit {
               target: generateData.target,
               description: generateData.description,
               level: generateData.level,
+              studyTime: generateData.studyTime,
             })
             .subscribe((data) => {
               this.isLoading = false;
@@ -159,12 +160,20 @@ export class ViewMyPlanningComponent implements OnInit {
       });
     } else {
       this.isLoading = true;
+      console.log('Generate Data:', {
+        jwt: this.userService.getJwt() || '',
+        target: generateData.target,
+        description: generateData.description,
+        level: generateData.level,
+        studyTime: generateData.studyTime,
+      });
       this.planService
         .generatePlan({
           jwt: this.userService.getJwt() || '',
           target: generateData.target,
           description: generateData.description,
           level: generateData.level,
+          studyTime: generateData.studyTime,
         })
         .subscribe({
           next: (data) => {

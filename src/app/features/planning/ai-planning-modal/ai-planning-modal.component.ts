@@ -4,11 +4,13 @@ import { FormsModule } from '@angular/forms';
 import { faWandMagicSparkles } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { Level } from '../../../models/request/plan-intent-request.model';
+import { StudyTime } from '../../../models/request/user-profile-update-request.model';
 
 export interface GenerateData {
   target: number;
   description: string;
   level: Level;
+  studyTime: StudyTime;
   useAccountInfo: boolean;
 }
 
@@ -28,6 +30,7 @@ export class AiPlanningModalComponent {
   target = 0;
   description = '';
   level: Level = Level.BEGINNER;
+  studyTime: StudyTime = StudyTime.MORNING;
   faWandMagicSparkles = faWandMagicSparkles;
   closeModal() {
     this.isOpen = false;
@@ -36,12 +39,6 @@ export class AiPlanningModalComponent {
   }
 
   handleGenerateWithInputs() {
-    console.log(
-      'Handle Generate With Inputs:',
-      this.target,
-      this.description,
-      this.level
-    );
     if (this.target === 0 || !this.description.trim()) {
       alert('Vui lòng điền đầy đủ thông tin');
       return;
@@ -50,6 +47,7 @@ export class AiPlanningModalComponent {
       target: Number(this.target),
       description: this.description,
       level: this.level,
+      studyTime: this.studyTime,
       useAccountInfo: false,
     });
   }
@@ -59,6 +57,7 @@ export class AiPlanningModalComponent {
       target: 0,
       description: '',
       level: Level.BEGINNER,
+      studyTime: StudyTime.MORNING,
       useAccountInfo: true,
     });
   }
@@ -67,5 +66,6 @@ export class AiPlanningModalComponent {
     this.target = 0;
     this.description = '';
     this.level = Level.BEGINNER;
+    this.studyTime = StudyTime.MORNING;
   }
 }

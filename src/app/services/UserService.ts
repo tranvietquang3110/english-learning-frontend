@@ -4,6 +4,8 @@ import { BehaviorSubject, Observable, Subject } from 'rxjs';
 import { environment } from '../../environments/environment';
 import { User } from '../models/user/user.model';
 import { UserProfileUpdateRequest } from '../models/request/user-profile-update-request.model';
+import { ApiResponse } from '../models/response/api-response';
+import { VerifyOtpResponse } from '../models/response/verify-otp-response.model';
 
 @Injectable({
   providedIn: 'root',
@@ -42,19 +44,28 @@ export class UserService {
     return this.http.post(`${this.apiUrl}/authenticate/introspect`, data);
   }
 
-  sendOtp(data: any): Observable<any> {
-    return this.http.post(`${this.apiUrl}/authenticate/password/otp`, data);
-  }
-
-  verifyOtp(data: any): Observable<any> {
-    return this.http.post(
-      `${this.apiUrl}/authenticate/password/otp/validation`,
-      data
+  sendOtp(email: string): Observable<ApiResponse<string>> {
+    return this.http.post<ApiResponse<string>>(
+      `${this.apiUrl}/authenticate/password/otp`,
+      { email }
     );
   }
 
-  resetPassword(data: any): Observable<any> {
-    return this.http.post(`${this.apiUrl}/authenticate/password/resets`, data);
+  verifyOtp(email: string, otp: string): Observable<VerifyOtpResponse> {
+    return this.http.post<VerifyOtpResponse>(
+      `${this.apiUrl}/authenticate/password/otp/validation`,
+      { email, otp }
+    );
+  }
+
+  resetPassword(
+    resetToken: string,
+    newPassword: string
+  ): Observable<ApiResponse<string>> {
+    return this.http.post<ApiResponse<string>>(
+      `${this.apiUrl}/authenticate/password/resets`,
+      { resetToken, newPassword }
+    );
   }
 
   // ---------- USER ----------
