@@ -9,6 +9,8 @@ import { ViewMyPlanningComponent } from './features/planning/view-my-planning/vi
 import { CreatePlanningComponent } from './features/planning/create-planning/create-planning.component';
 import { ViewMyPlanningDetailComponent } from './features/planning/view-my-planning/view-my-planning-detail/view-my-planning-detail.component';
 import { HomeComponent } from './features/home/home.component';
+import { FullTestComponent } from './features/admin/full-test/full-test.component';
+import { FullTestGroupComponent } from './features/full-test/full-test-group/full-test-group.component';
 
 export const routes: Routes = [
   {
@@ -16,6 +18,27 @@ export const routes: Routes = [
     component: MainLayoutComponent,
     children: [
       { path: '', redirectTo: 'home', pathMatch: 'full' },
+      {
+        path: 'full-test',
+        component: FullTestComponent,
+        children: [
+          { path: 'groups', component: FullTestGroupComponent },
+          {
+            path: 'groups/:groupId/tests',
+            loadComponent: () =>
+              import(
+                './features/full-test/full-test-list/full-test-list.component'
+              ).then((m) => m.FullTestListComponent),
+          },
+          {
+            path: 'groups/:groupId',
+            loadComponent: () =>
+              import(
+                './features/admin/full-test/full-test-group/full-test-manage/full-test-manage.component'
+              ).then((m) => m.FullTestManageComponent),
+          },
+        ],
+      },
       { path: 'home', component: HomeComponent },
       {
         path: 'vocabulary',
@@ -27,7 +50,6 @@ export const routes: Routes = [
                 './features/vocabulary/vocab-topic/vocab-topic.component'
               ).then((m) => m.VocabTopicComponent),
           },
-          // ❌ Không đặt learn/:topic ở đây
         ],
       },
       {
@@ -214,7 +236,13 @@ export const routes: Routes = [
       },
     ],
   },
-
+  {
+    path: 'full-test/groups/:groupId/:testId',
+    loadComponent: () =>
+      import(
+        './features/full-test/full-test-list/full-test-detail/full-test-detail.component'
+      ).then((m) => m.FullTestDetailComponent),
+  },
   {
     path: 'vocabulary/tests/:topicId/:testId',
     component: EmptyLayoutComponent,
@@ -377,6 +405,33 @@ export const routes: Routes = [
           ),
       },
       {
+        path: 'full-test',
+        component: FullTestComponent,
+        children: [
+          {
+            path: 'groups',
+            loadComponent: () =>
+              import(
+                './features/admin/full-test/full-test-group/full-test-group.component'
+              ).then((m) => m.FullTestGroupComponent),
+          },
+          {
+            path: 'groups/:groupId',
+            loadComponent: () =>
+              import(
+                './features/admin/full-test/full-test-group/full-test-manage/full-test-manage.component'
+              ).then((m) => m.FullTestManageComponent),
+          },
+          {
+            path: 'groups/:groupId/:testId',
+            loadComponent: () =>
+              import(
+                './features/admin/full-test/full-test-group/full-test-manage/full-test-detail/full-test-detail.component'
+              ).then((m) => m.FullTestDetailComponent),
+          },
+        ],
+      },
+      {
         path: '**',
         redirectTo: 'vocabulary/manage',
       },
@@ -395,5 +450,6 @@ export const routes: Routes = [
       },
     ],
   },
+
   { path: '**', redirectTo: '' },
 ];

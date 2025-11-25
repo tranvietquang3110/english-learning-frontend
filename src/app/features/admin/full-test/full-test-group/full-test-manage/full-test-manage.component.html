@@ -1,0 +1,224 @@
+<div class="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 p-6">
+  <div class="w-full mx-auto">
+    <!-- Header -->
+    <div class="mb-8">
+      <div
+        *ngIf="currentStatus === Status.VIEW"
+        class="flex items-center justify-between mb-4"
+      >
+        <div class="flex items-center gap-4">
+          <button
+            (click)="goBack()"
+            class="flex items-center gap-2 px-4 py-2 text-slate-700 hover:bg-slate-100 rounded-lg transition-colors"
+          >
+            <fa-icon [icon]="faArrowLeft" class="text-lg"></fa-icon>
+            <span class="font-medium">Quay lại</span>
+          </button>
+          <div>
+            <h1
+              class="text-3xl font-bold text-slate-800 flex items-center gap-3"
+            >
+              <fa-icon [icon]="faFileAlt" class="text-navy-header"></fa-icon>
+              {{ group?.name || "Danh sách bài test TOEIC" }}
+            </h1>
+            <p class="text-slate-600 mt-2">
+              Quản lý và xem chi tiết các bài test trong nhóm này
+            </p>
+          </div>
+        </div>
+        <button
+          class="flex items-center gap-2 bg-navy-header hover:opacity-80 text-white px-4 py-2 rounded-lg font-medium transition-all duration-200 hover:shadow-lg hover:scale-105 active:scale-95"
+          (click)="addTest()"
+        >
+          <fa-icon [icon]="faPlus" class="text-sm"></fa-icon>
+          Thêm bài test
+        </button>
+      </div>
+      @if (currentStatus === Status.ADD) {
+      <div class="flex items-center justify-between mb-4">
+        <div class="flex items-center gap-4">
+          <button
+            (click)="goBack()"
+            class="flex items-center gap-2 px-4 py-2 text-slate-700 hover:bg-slate-100 rounded-lg transition-colors"
+          >
+            <fa-icon [icon]="faArrowLeft" class="text-lg"></fa-icon>
+            <span class="font-medium">Quay lại</span>
+          </button>
+        </div>
+        <div>
+          <h1 class="text-3xl font-bold text-slate-800 flex items-center gap-3">
+            <fa-icon [icon]="faFileAlt" class="text-navy-header"></fa-icon>
+            {{ group?.name || "Danh sách bài test TOEIC" }}
+          </h1>
+        </div>
+      </div>
+      <p class="text-slate-600 mt-2">
+        Quản lý và xem chi tiết các bài test trong nhóm này
+      </p>
+      }
+    </div>
+
+    @if (currentStatus === Status.ADD) {
+    <app-full-test-add
+      [groupId]="groupId"
+      (save)="onSaveTest($event)"
+      (cancel)="onCancelTest()"
+    ></app-full-test-add>
+    }
+    <!-- Error Message -->
+    <div
+      *ngIf="error && currentStatus === Status.VIEW"
+      class="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg flex items-center gap-3"
+    >
+      <div class="text-red-400 text-xl">⚠️</div>
+      <p class="text-red-700">{{ error }}</p>
+    </div>
+
+    <!-- Loading State -->
+    <div
+      *ngIf="isLoading && currentStatus === Status.VIEW"
+      class="flex justify-center items-center py-20"
+    >
+      <div class="flex flex-col items-center gap-4">
+        <div
+          class="animate-spin rounded-full h-12 w-12 border-b-2 border-navy-header"
+        ></div>
+        <span class="text-lg font-medium text-slate-600"
+          >Đang tải danh sách bài test...</span
+        >
+      </div>
+    </div>
+
+    <!-- Tests List -->
+    <div
+      *ngIf="tests.length > 0 && currentStatus === Status.VIEW"
+      class="bg-white rounded-xl shadow-lg border border-slate-200 overflow-hidden"
+    >
+      <div class="p-6 border-b border-slate-200">
+        <div class="flex items-center justify-between">
+          <div>
+            <h2 class="text-xl font-semibold text-slate-800">
+              Danh sách bài test
+            </h2>
+            <p class="text-slate-600 text-sm mt-1">
+              Tổng cộng: {{ tests.length }} bài test
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div class="overflow-x-auto">
+        <table class="w-full">
+          <thead class="bg-slate-50 border-b border-slate-200">
+            <tr>
+              <th
+                class="text-left py-4 px-6 font-semibold text-slate-700 text-sm uppercase tracking-wide"
+              >
+                Tên bài test
+              </th>
+              <th
+                class="text-left py-4 px-6 font-semibold text-slate-700 text-sm uppercase tracking-wide"
+              >
+                Số câu hỏi
+              </th>
+              <th
+                class="text-left py-4 px-6 font-semibold text-slate-700 text-sm uppercase tracking-wide"
+              >
+                Ngày tạo
+              </th>
+              <th
+                class="text-center py-4 px-6 font-semibold text-slate-700 text-sm uppercase tracking-wide"
+              >
+                Thao tác
+              </th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-200">
+            <tr
+              *ngFor="let test of tests"
+              class="hover:bg-slate-50 transition-colors"
+            >
+              <td class="py-4 px-6">
+                <div class="flex items-center gap-3">
+                  <div
+                    class="w-10 h-10 bg-navy-header/10 rounded-lg flex items-center justify-center shrink-0"
+                  >
+                    <fa-icon
+                      [icon]="faFileAlt"
+                      class="text-navy-header"
+                    ></fa-icon>
+                  </div>
+                  <div>
+                    <div class="font-semibold text-slate-800">
+                      {{ test.name }}
+                    </div>
+                    <div class="text-xs text-slate-500 mt-0.5">
+                      ID: {{ test.id }}
+                    </div>
+                  </div>
+                </div>
+              </td>
+              <td class="py-4 px-6">
+                <div class="flex items-center gap-2">
+                  <fa-icon
+                    [icon]="faClock"
+                    class="text-slate-400 text-sm"
+                  ></fa-icon>
+                  <span class="text-slate-700 font-medium">
+                    {{ getQuestionCount(test) }} câu
+                  </span>
+                </div>
+              </td>
+              <td class="py-4 px-6">
+                <div class="text-slate-600">
+                  {{ test.createdAt | date : "dd/MM/yyyy HH:mm" }}
+                </div>
+              </td>
+              <td class="py-4 px-6">
+                <div class="flex justify-center gap-2">
+                  <button
+                    (click)="viewTestDetail(test.id)"
+                    class="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium text-sm transition-all duration-200 hover:shadow-md hover:scale-105 active:scale-95"
+                  >
+                    <fa-icon [icon]="faEye" class="text-sm"></fa-icon>
+                    <span>Xem chi tiết</span>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Empty State -->
+    <div
+      *ngIf="
+        !isLoading &&
+        !error &&
+        tests.length === 0 &&
+        currentStatus === Status.VIEW
+      "
+      class="text-center py-20 bg-white rounded-xl shadow-lg border border-slate-200"
+    >
+      <div
+        class="w-24 h-24 mx-auto mb-6 bg-slate-100 rounded-full flex items-center justify-center"
+      >
+        <fa-icon [icon]="faFileAlt" class="text-5xl text-slate-400"></fa-icon>
+      </div>
+      <h3 class="text-2xl font-semibold text-slate-700 mb-2">
+        Chưa có bài test nào
+      </h3>
+      <p class="text-slate-500 max-w-md mx-auto mb-6">
+        Nhóm TOEIC test này chưa có bài test nào. Hãy tạo bài test đầu tiên để
+        bắt đầu.
+      </p>
+      <button
+        class="flex items-center gap-2 bg-navy-header hover:opacity-80 text-white px-6 py-3 rounded-lg font-medium transition-all duration-200 hover:shadow-lg hover:scale-105 active:scale-95 mx-auto"
+      >
+        <fa-icon [icon]="faPlus" class="text-sm"></fa-icon>
+        <span>Tạo bài test đầu tiên</span>
+      </button>
+    </div>
+  </div>
+</div>

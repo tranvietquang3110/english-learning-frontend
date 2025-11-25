@@ -74,10 +74,10 @@
     <div class="relative space-y-3 w-4/5 max-w-xs">
       <button
         *ngIf="learn.observers.length > 0"
-        class="w-full inline-flex items-center justify-center gap-2 rounded-md px-4 py-2 bg-primary text-primary-foreground hover:bg-primary/90"
+        class="w-full flex items-center justify-center gap-2 rounded-md px-4 py-2 bg-primary text-primary-foreground hover:bg-primary/90"
         (click)="onLearn($event)"
       >
-        <fa-icon [icon]="faBookOpen" class="w-4 h-4"></fa-icon>
+        <fa-icon [icon]="faBookOpen" class="h-full"></fa-icon>
         Học chủ đề này
       </button>
 
@@ -93,11 +93,21 @@
       <!-- Xem chi tiết -->
       <button
         *ngIf="detail.observers.length > 0"
-        class="w-full inline-flex items-center justify-center gap-2 rounded-md px-4 py-2 border border-primary text-primary hover:bg-primary hover:text-primary-foreground bg-transparent"
+        class="w-full flex items-center justify-center gap-2 rounded-md px-4 py-2 border border-primary text-primary hover:bg-primary hover:text-primary-foreground bg-transparent"
         (click)="onDetail($event)"
       >
-        <fa-icon [icon]="faEye" class="w-4 h-4"></fa-icon>
+        <fa-icon [icon]="faEye" class="h-full"></fa-icon>
         Xem chi tiết
+      </button>
+
+      <!-- Xóa -->
+      <button
+        *ngIf="delete.observers.length > 0"
+        class="text-white w-full flex items-center justify-center gap-2 rounded-md px-4 py-2 border border-primary bg-red-600 hover:opacity-80"
+        (click)="onDelete($event)"
+      >
+        <fa-icon [icon]="faEye" class="h-full"></fa-icon>
+        Xóa
       </button>
     </div>
   </div>

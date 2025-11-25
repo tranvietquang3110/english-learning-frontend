@@ -9,6 +9,7 @@ import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { ListeningTopicFormComponent } from '../listening-topic-form/listening-topic-form.component';
 import { ListeningTopic } from '../../../models/listening/listening-topic.model';
+import { ConfirmDialogComponent } from '../../../shared/confirm-dialog/confirm-dialog.component';
 
 enum State {
   View,
@@ -24,6 +25,7 @@ enum State {
     PaginationComponent,
     CommonModule,
     ListeningTopicFormComponent,
+    ConfirmDialogComponent,
   ],
   templateUrl: './listening-management.component.html',
   styleUrl: './listening-management.component.scss',
@@ -35,7 +37,8 @@ export class ListeningManagementComponent implements OnInit {
   currentPage = 1;
   totalPages = 0;
   readonly PAGE_SIZE = environment.PAGE_SIZE;
-
+  isShowConfirmDialog = false;
+  topicToDelete: TopicBase | null = null;
   constructor(
     private listeningService: ListeningService,
     private router: Router
@@ -103,5 +106,32 @@ export class ListeningManagementComponent implements OnInit {
 
   onCancel() {
     this.changeToView();
+  }
+
+  onDelete(topic: TopicBase) {
+    this.topicToDelete = topic;
+    this.isShowConfirmDialog = true;
+  }
+
+  onCancelDelete() {
+    this.isShowConfirmDialog = false;
+  }
+
+  confirmDelete() {
+    if (this.topicToDelete) {
+      this.listeningService.deleteTopic(this.topicToDelete.id).subscribe({
+        next: (res: any) => {
+          console.log(res);
+          this.topics = this.topics.filter(
+            (t) => t.id !== this.topicToDelete!.id
+          );
+          this.changeToView();
+        },
+        error: (err: any) => {
+          console.error(err);
+          alert('Không thể xóa topic');
+        },
+      });
+    }
   }
 }

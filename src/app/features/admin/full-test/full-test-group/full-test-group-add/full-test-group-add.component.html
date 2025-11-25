@@ -1,0 +1,135 @@
+<div class="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 p-6">
+  <div class="w-full mx-auto">
+    <div
+      class="bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden"
+    >
+      <!-- Header -->
+      <div
+        class="bg-gradient-to-r from-navy-header to-navy-header px-6 py-5 border-b border-blue-600"
+      >
+        <h2 class="text-2xl font-bold text-white flex items-center gap-3">
+          <fa-icon [icon]="faFileAlt" class="text-xl"></fa-icon>
+          {{
+            isEditMode ? "Chỉnh sửa nhóm TOEIC Test" : "Tạo nhóm TOEIC Test mới"
+          }}
+        </h2>
+      </div>
+
+      <!-- Form Content -->
+      <form [formGroup]="form" (ngSubmit)="onSubmit()" class="p-6 space-y-6">
+        <!-- Error Message -->
+        <div
+          *ngIf="error"
+          class="p-4 bg-red-50 border border-red-200 rounded-lg flex items-center gap-3"
+        >
+          <div class="text-red-400 text-xl">⚠️</div>
+          <p class="text-red-700">{{ error }}</p>
+        </div>
+
+        <!-- Name -->
+        <div>
+          <label
+            for="name"
+            class="block text-sm font-semibold text-slate-700 mb-2"
+          >
+            Tên nhóm <span class="text-red-500">*</span>
+          </label>
+          <input
+            type="text"
+            id="name"
+            formControlName="name"
+            class="w-full px-4 py-3 border-2 border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-navy-header focus:border-navy-header transition-all duration-200"
+            placeholder="Nhập tên nhóm TOEIC test (ví dụ: TOEIC Test 2025)"
+            [class.border-red-500]="
+              form.get('name')?.invalid && form.get('name')?.touched
+            "
+          />
+          <p
+            *ngIf="form.get('name')?.invalid && form.get('name')?.touched"
+            class="mt-2 text-sm text-red-600 flex items-center gap-1"
+          >
+            <fa-icon [icon]="faTimes" class="text-xs"></fa-icon>
+            <span *ngIf="form.get('name')?.errors?.['required']">
+              Tên nhóm là bắt buộc
+            </span>
+            <span *ngIf="form.get('name')?.errors?.['minlength']">
+              Tên nhóm phải có ít nhất 3 ký tự
+            </span>
+            <span *ngIf="form.get('name')?.errors?.['maxlength']">
+              Tên nhóm không được vượt quá 200 ký tự
+            </span>
+          </p>
+          <p class="mt-1 text-xs text-slate-500">
+            Tên nhóm sẽ được hiển thị trong danh sách các nhóm TOEIC test
+          </p>
+        </div>
+
+        <!-- Release Date -->
+        <div>
+          <label
+            for="releaseDate"
+            class="block text-sm font-semibold text-slate-700 mb-2"
+          >
+            Ngày phát hành <span class="text-red-500">*</span>
+          </label>
+          <input
+            type="date"
+            id="releaseDate"
+            formControlName="releaseDate"
+            class="w-full px-4 py-3 border-2 border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-navy-header focus:border-navy-header transition-all duration-200"
+            [class.border-red-500]="
+              form.get('releaseDate')?.invalid &&
+              form.get('releaseDate')?.touched
+            "
+          />
+          <p
+            *ngIf="
+              form.get('releaseDate')?.invalid &&
+              form.get('releaseDate')?.touched
+            "
+            class="mt-2 text-sm text-red-600 flex items-center gap-1"
+          >
+            <fa-icon [icon]="faTimes" class="text-xs"></fa-icon>
+            Ngày phát hành là bắt buộc
+          </p>
+          <p class="mt-1 text-xs text-slate-500">
+            Ngày mà nhóm TOEIC test này sẽ được phát hành cho người dùng
+          </p>
+        </div>
+
+        <!-- Form Actions -->
+        <div class="flex justify-end gap-3 pt-4 border-t border-slate-200">
+          <button
+            type="button"
+            (click)="onCancel()"
+            class="px-6 py-3 border-2 border-slate-300 rounded-lg text-slate-700 font-medium hover:bg-slate-50 hover:border-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-500 transition-all duration-200 flex items-center gap-2"
+          >
+            <fa-icon [icon]="faTimes"></fa-icon>
+            Hủy
+          </button>
+          <button
+            type="submit"
+            [disabled]="form.invalid || isSubmitting"
+            class="px-6 py-3 bg-navy-header text-white rounded-lg font-medium hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-navy-header focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 flex items-center gap-2 shadow-md hover:shadow-lg"
+          >
+            <fa-icon
+              [icon]="faSave"
+              [class.animate-spin]="isSubmitting"
+            ></fa-icon>
+            <span>
+              {{
+                isSubmitting
+                  ? isEditMode
+                    ? "Đang cập nhật..."
+                    : "Đang tạo..."
+                  : isEditMode
+                  ? "Cập nhật nhóm"
+                  : "Tạo nhóm"
+              }}
+            </span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

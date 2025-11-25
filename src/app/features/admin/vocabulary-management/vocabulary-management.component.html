@@ -22,6 +22,7 @@
       @for (topic of topics; track $index) {
       <app-topic-card
         (detail)="onViewDetail($event)"
+        (delete)="onDelete($event)"
         [topic]="topic"
       ></app-topic-card>
       }
@@ -42,3 +43,14 @@
     </div>
   </div>
 </div>
+<app-confirm-dialog
+  [isVisible]="isShowConfirmDialog"
+  title="Xóa từ vựng"
+  message="Bạn có chắc chắn muốn xóa từ vựng này? Hành động này không thể hoàn tác."
+  confirmText="Xóa"
+  cancelText="Hủy"
+  confirmButtonClass="form-button-danger"
+  cancelButtonClass="form-button-secondary"
+  (confirm)="confirmDelete()"
+  (cancel)="onCancelDelete()"
+></app-confirm-dialog>

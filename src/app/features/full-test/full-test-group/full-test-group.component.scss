@@ -1,0 +1,14 @@
+.container {
+  min-height: 100vh;
+}
+
+// Smooth transitions for expand/collapse
+button {
+  outline: none;
+}
+
+// Ensure timeline line doesn't extend beyond last item
+.relative:last-child .absolute {
+  height: 0;
+}
+

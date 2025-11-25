@@ -1,0 +1,31 @@
+// Custom styles for full test detail component
+:host {
+  display: block;
+  width: 100%;
+}
+
+// Ensure sidebar and main content fit properly
+.flex {
+  min-height: 0;
+}
+
+// Custom scrollbar for sidebar
+.bg-gray-100 {
+  &::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: #f1f1f1;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 4px;
+
+    &:hover {
+      background: #555;
+    }
+  }
+}
+

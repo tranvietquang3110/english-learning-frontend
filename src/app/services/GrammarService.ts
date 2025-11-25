@@ -142,6 +142,10 @@ export class GrammarService {
     return this.http.delete<any>(`${this.apiUrl}/tests/${testId}`);
   }
 
+  deleteTopic(topicId: string): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/topics/${topicId}`);
+  }
+
   updateTest(
     test: GrammarTestRequest,
     testId: string

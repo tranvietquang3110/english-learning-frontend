@@ -8,6 +8,7 @@ import { GrammarService } from '../../../services/GrammarService';
 import { Router } from '@angular/router';
 import { GrammarTopic } from '../../../models/grammar/grammar-topic.model';
 import { GrammarTopicFormComponent } from '../grammar-topic-form/grammar-topic-form.component';
+import { ConfirmDialogComponent } from '../../../shared/confirm-dialog/confirm-dialog.component';
 
 enum State {
   View,
@@ -23,6 +24,7 @@ enum State {
     TopicCardComponent,
     PaginationComponent,
     GrammarTopicFormComponent,
+    ConfirmDialogComponent,
   ],
   templateUrl: './grammar-management.component.html',
   styleUrl: './grammar-management.component.scss',
@@ -34,6 +36,8 @@ export class GrammarManagementComponent implements OnInit {
   currentPage = 1;
   totalPages = 0;
   readonly PAGE_SIZE = environment.PAGE_SIZE;
+  isShowConfirmDialog = false;
+  topicToDelete: TopicBase | null = null;
   constructor(private grammarService: GrammarService, private router: Router) {}
   ngOnInit(): void {
     this.loadData();
@@ -90,5 +94,28 @@ export class GrammarManagementComponent implements OnInit {
   }
   onCancel() {
     this.changeToView();
+  }
+
+  onDelete(topic: TopicBase) {
+    this.topicToDelete = topic;
+    this.isShowConfirmDialog = true;
+  }
+
+  onCancelDelete() {
+    this.isShowConfirmDialog = false;
+  }
+
+  confirmDelete() {
+    if (this.topicToDelete) {
+      this.grammarService.deleteTopic(this.topicToDelete.id).subscribe({
+        next: (res: any) => {
+          console.log(res);
+          this.topics = this.topics.filter(
+            (t) => t.id !== this.topicToDelete!.id
+          );
+          this.changeToView();
+        },
+      });
+    }
   }
 }

@@ -1,0 +1,201 @@
+<div class="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 p-6">
+  <div class="w-full mx-auto">
+    @if (currentStatus === Status.ADD) {
+    <app-full-test-group-add
+      (save)="onSaveToeicTestGroup($event)"
+      (cancel)="onCancelToeicTestGroup()"
+    ></app-full-test-group-add>
+    } @if (currentStatus === Status.EDIT) {
+    <app-full-test-group-add
+      (save)="onSaveToeicTestGroup($event)"
+      (cancel)="onCancelToeicTestGroup()"
+      [initialData]="selectedGroup"
+      [isEditMode]="true"
+    ></app-full-test-group-add>
+    }
+    <!-- Header -->
+    <div class="mb-8">
+      <div class="flex justify-between items-center mb-4">
+        <div>
+          <h1 class="text-3xl font-bold text-slate-800 flex items-center gap-3">
+            <fa-icon [icon]="faFileAlt" class="text-blue-600"></fa-icon>
+            Quản lý nhóm TOEIC Test
+          </h1>
+          <p class="text-slate-600 mt-2">
+            Quản lý các nhóm bài test TOEIC và xem chi tiết các bài test trong
+            mỗi nhóm
+          </p>
+        </div>
+        <button
+          class="bg-navy-header hover:opacity-80 text-white px-4 py-2 rounded-lg font-medium transition-all duration-200 hover:shadow-lg hover:scale-105 active:scale-95"
+          (click)="addToeicTestGroup()"
+        >
+          <fa-icon [icon]="faPlus" class="text-sm"></fa-icon>
+          Thêm nhóm TOEIC Test
+        </button>
+      </div>
+    </div>
+
+    <!-- Error Message -->
+    <div
+      *ngIf="error"
+      class="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg flex items-center gap-3"
+    >
+      <div class="text-red-400 text-xl">⚠️</div>
+      <p class="text-red-700">{{ error }}</p>
+    </div>
+
+    <!-- Loading State -->
+    <div *ngIf="isLoading" class="flex justify-center items-center py-20">
+      <div class="flex flex-col items-center gap-4">
+        <div
+          class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"
+        ></div>
+        <span class="text-lg font-medium text-slate-600"
+          >Đang tải danh sách nhóm...</span
+        >
+      </div>
+    </div>
+
+    <!-- Groups Grid -->
+    <div
+      *ngIf="
+        !isLoading &&
+        !error &&
+        toeicGroups.length > 0 &&
+        currentStatus === Status.VIEW
+      "
+      class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+    >
+      <div
+        *ngFor="let group of toeicGroups"
+        class="group bg-white rounded-xl shadow-lg border border-slate-200 overflow-hidden transition-all duration-300 hover:shadow-2xl hover:-translate-y-1"
+      >
+        <!-- Card Header -->
+        <div
+          class="bg-gradient-to-r from-navy-header to-navy-header px-6 py-4 border-b border-blue-600"
+        >
+          <div class="flex items-start justify-between gap-3">
+            <div class="flex-1 min-w-0">
+              <h3 class="text-xl font-bold text-white mb-1 line-clamp-2">
+                {{ group.name }}
+              </h3>
+            </div>
+            <div class="shrink-0 flex items-center gap-2">
+              <div
+                (click)="onEditToeicTestGroup(group)"
+                class="hover:opacity-80 w-12 h-12 bg-white/20 rounded-lg flex items-center justify-center"
+              >
+                <fa-icon
+                  [icon]="faFileAlt"
+                  class="text-white text-xl"
+                ></fa-icon>
+              </div>
+              <div
+                (click)="showDeleteConfirmation(group)"
+                class="hover:opacity-80 w-12 h-12 bg-white/20 rounded-lg flex items-center justify-center"
+              >
+                <fa-icon
+                  [icon]="faTrashAlt"
+                  class="text-white text-xl"
+                ></fa-icon>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card Body -->
+        <div class="p-6 space-y-4">
+          <!-- Release Date -->
+          <div class="flex items-start gap-3">
+            <div
+              class="shrink-0 w-10 h-10 bg-blue-50 rounded-lg flex items-center justify-center"
+            >
+              <fa-icon [icon]="faCalendarAlt" class="text-blue-600"></fa-icon>
+            </div>
+            <div class="flex-1 min-w-0">
+              <p
+                class="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1"
+              >
+                Ngày phát hành
+              </p>
+              <p class="text-sm font-medium text-slate-800">
+                {{ formatDate(group.releaseDate) }}
+              </p>
+            </div>
+          </div>
+
+          <!-- Created Date -->
+          <div class="flex items-start gap-3">
+            <div
+              class="shrink-0 w-10 h-10 bg-slate-50 rounded-lg flex items-center justify-center"
+            >
+              <fa-icon [icon]="faClock" class="text-slate-600"></fa-icon>
+            </div>
+            <div class="flex-1 min-w-0">
+              <p
+                class="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1"
+              >
+                Ngày tạo
+              </p>
+              <p class="text-sm font-medium text-slate-800">
+                {{ formatDate(group.createdAt) }}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card Footer -->
+        <div class="px-6 py-4 bg-slate-50 border-t border-slate-200">
+          <a
+            [routerLink]="['/admin/full-test/groups', group.id]"
+            class="flex items-center justify-center gap-2 w-full px-4 py-3 bg-navy-header hover:opacity-80 text-white rounded-lg font-medium transition-all duration-200 hover:shadow-lg hover:scale-105 active:scale-95"
+          >
+            <span>Xem các bài test</span>
+            <fa-icon [icon]="faArrowRight" class="text-sm"></fa-icon>
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Empty State -->
+    <div
+      *ngIf="
+        !isLoading &&
+        !error &&
+        toeicGroups.length === 0 &&
+        currentStatus === Status.VIEW
+      "
+      class="text-center py-20"
+    >
+      <div
+        class="w-24 h-24 mx-auto mb-6 bg-slate-100 rounded-full flex items-center justify-center"
+      >
+        <fa-icon [icon]="faFileAlt" class="text-5xl text-slate-400"></fa-icon>
+      </div>
+      <h3 class="text-2xl font-semibold text-slate-700 mb-2">
+        Chưa có nhóm TOEIC test nào
+      </h3>
+      <p class="text-slate-500 max-w-md mx-auto">
+        Hãy tạo nhóm TOEIC test đầu tiên để bắt đầu quản lý các bài test TOEIC.
+      </p>
+    </div>
+
+    <!-- Pagination -->
+    <app-pagination
+      *ngIf="Status.VIEW"
+      [currentPage]="currentPage"
+      [totalPages]="totalPages"
+      (pageChange)="onPageChange($event)"
+    ></app-pagination>
+  </div>
+</div>
+<app-confirm-dialog
+  [isVisible]="isShowDeleteConfirmation"
+  [title]="'Xóa nhóm TOEIC test'"
+  [message]="'Bạn có chắc chắn muốn xóa nhóm TOEIC test này?'"
+  [confirmText]="'Xóa'"
+  [cancelText]="'Hủy'"
+  (confirm)="onDeleteToeicTestGroup()"
+  (cancel)="isShowDeleteConfirmation = false"
+></app-confirm-dialog>

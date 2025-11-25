@@ -9,6 +9,10 @@ import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { VocabTopicFormComponent } from '../vocab-topic-form/vocab-topic-form.component';
 import { VocabTopic } from '../../../models/vocabulary/vocab-topic.model';
+import Config from 'chart.js/dist/core/core.config';
+import { ConfirmDialogComponent } from '../../../shared/confirm-dialog/confirm-dialog.component';
+import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
+import { faTrash } from '@fortawesome/free-solid-svg-icons';
 
 enum State {
   View,
@@ -24,6 +28,8 @@ enum State {
     PaginationComponent,
     CommonModule,
     VocabTopicFormComponent,
+    ConfirmDialogComponent,
+    FontAwesomeModule,
   ],
   templateUrl: './vocabulary-management.component.html',
   styleUrl: './vocabulary-management.component.scss',
@@ -35,6 +41,9 @@ export class VocabularyManagementComponent implements OnInit {
   currentPage = 1;
   totalPages = 0;
   readonly PAGE_SIZE = environment.PAGE_SIZE;
+  faTrash = faTrash;
+  isShowConfirmDialog = false;
+  topicToDelete: TopicBase | null = null;
   constructor(
     private vocabService: VocabularyService,
     private router: Router
@@ -96,5 +105,28 @@ export class VocabularyManagementComponent implements OnInit {
 
   onCancel() {
     this.changeToView();
+  }
+
+  onDelete(topic: TopicBase) {
+    this.topicToDelete = topic;
+    this.isShowConfirmDialog = true;
+  }
+
+  onCancelDelete() {
+    this.isShowConfirmDialog = false;
+  }
+
+  confirmDelete() {
+    if (this.topicToDelete) {
+      this.vocabService.deleteTopic(this.topicToDelete.id).subscribe({
+        next: (res: any) => {
+          console.log(res);
+          this.topics = this.topics.filter(
+            (t) => t.id !== this.topicToDelete!.id
+          );
+          this.changeToView();
+        },
+      });
+    }
   }
 }

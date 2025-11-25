@@ -87,6 +87,11 @@ export class AdminSideBarComponent implements OnInit {
       ],
     },
     {
+      label: 'Full Test',
+      icon: faListCheck,
+      href: '/admin/full-test/groups',
+    },
+    {
       label: 'Statistic',
       icon: faChartLine,
       href: '/admin/statistic',

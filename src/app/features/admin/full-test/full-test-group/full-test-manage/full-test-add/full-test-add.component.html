@@ -1,0 +1,414 @@
+<div class="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 p-6">
+  <div class="max-w-5xl mx-auto">
+    <div
+      class="bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden"
+    >
+      <!-- Header -->
+      <div
+        class="bg-gradient-to-r from-navy-header to-navy-header px-6 py-5 border-b border-blue-600"
+      >
+        <h2 class="text-2xl font-bold text-white flex items-center gap-3">
+          <fa-icon [icon]="faFileAlt" class="text-xl"></fa-icon>
+          {{
+            isEditMode ? "Chỉnh sửa bài test TOEIC" : "Tạo bài test TOEIC mới"
+          }}
+        </h2>
+      </div>
+
+      <!-- Form Content -->
+      <form [formGroup]="form" (ngSubmit)="onSubmit()" class="p-6 space-y-6">
+        <!-- Error Message -->
+        <div
+          *ngIf="error"
+          class="p-4 bg-red-50 border border-red-200 rounded-lg flex items-center gap-3"
+        >
+          <div class="text-red-400 text-xl">⚠️</div>
+          <p class="text-red-700">{{ error }}</p>
+        </div>
+
+        <!-- Test Name -->
+        <div>
+          <label
+            for="name"
+            class="block text-sm font-semibold text-slate-700 mb-2"
+          >
+            Tên bài test <span class="text-red-500">*</span>
+          </label>
+          <input
+            type="text"
+            id="name"
+            formControlName="name"
+            class="w-full px-4 py-3 border-2 border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-navy-header focus:border-navy-header transition-all duration-200"
+            placeholder="Nhập tên bài test TOEIC"
+            [class.border-red-500]="
+              form.get('name')?.invalid && form.get('name')?.touched
+            "
+          />
+          <p
+            *ngIf="form.get('name')?.invalid && form.get('name')?.touched"
+            class="mt-2 text-sm text-red-600 flex items-center gap-1"
+          >
+            <fa-icon [icon]="faTimes" class="text-xs"></fa-icon>
+            <span *ngIf="form.get('name')?.errors?.['required']">
+              Tên bài test là bắt buộc
+            </span>
+            <span *ngIf="form.get('name')?.errors?.['minlength']">
+              Tên bài test phải có ít nhất 3 ký tự
+            </span>
+            <span *ngIf="form.get('name')?.errors?.['maxlength']">
+              Tên bài test không được vượt quá 200 ký tự
+            </span>
+          </p>
+        </div>
+
+        <!-- Questions Section -->
+        <div>
+          <div class="flex items-center justify-between mb-4">
+            <div>
+              <h3 class="text-lg font-semibold text-slate-800">
+                Danh sách câu hỏi
+              </h3>
+              <p class="text-sm text-slate-500 mt-1">
+                Tổng cộng: {{ questionsFormArray.length }} câu hỏi
+              </p>
+            </div>
+            <button
+              type="button"
+              (click)="addQuestion()"
+              class="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium text-sm transition-all duration-200 hover:shadow-md"
+            >
+              <fa-icon [icon]="faPlus" class="text-sm"></fa-icon>
+              <span>Thêm câu hỏi</span>
+            </button>
+          </div>
+
+          <!-- Questions List -->
+          <div class="space-y-4">
+            <div
+              *ngFor="
+                let question of questionsFormArray.controls;
+                let i = index
+              "
+              class="border-2 border-slate-200 rounded-xl p-6 bg-slate-50/50"
+            >
+              <div class="flex items-start justify-between mb-4">
+                <div class="flex items-center gap-3">
+                  <div
+                    class="w-8 h-8 bg-navy-header text-white rounded-full flex items-center justify-center font-bold shrink-0"
+                  >
+                    {{ i + 1 }}
+                  </div>
+                  <h4 class="text-base font-semibold text-slate-800">
+                    Câu hỏi {{ i + 1 }}
+                  </h4>
+                </div>
+                <button
+                  type="button"
+                  (click)="removeQuestion(i)"
+                  [disabled]="questionsFormArray.length === 1"
+                  class="p-2 text-red-600 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  [title]="
+                    questionsFormArray.length === 1
+                      ? 'Phải có ít nhất 1 câu hỏi'
+                      : 'Xóa câu hỏi'
+                  "
+                  [attr.aria-label]="
+                    questionsFormArray.length === 1
+                      ? 'Phải có ít nhất 1 câu hỏi'
+                      : 'Xóa câu hỏi ' + (i + 1)
+                  "
+                >
+                  <span class="sr-only">Xóa câu hỏi</span>
+                  <fa-icon
+                    [icon]="faTrash"
+                    class="text-sm"
+                    aria-hidden="true"
+                  ></fa-icon>
+                </button>
+              </div>
+
+              <div class="space-y-4">
+                <!-- Part Selection -->
+                <div>
+                  <label
+                    [for]="'part-' + i"
+                    [id]="'label-part-' + i"
+                    class="block text-sm font-medium text-slate-700 mb-2"
+                  >
+                    Part <span class="text-red-500">*</span>
+                  </label>
+                  <select
+                    [id]="'part-' + i"
+                    [formControl]="getQuestionControl(i, 'part')"
+                    [attr.aria-labelledby]="'label-part-' + i"
+                    class="w-full px-4 py-2 border-2 border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-navy-header focus:border-navy-header transition-all duration-200"
+                    [title]="'Chọn Part cho câu hỏi ' + (i + 1)"
+                  >
+                    <option
+                      *ngFor="let part of toeicParts"
+                      [value]="part.value"
+                    >
+                      {{ part.label }}
+                    </option>
+                  </select>
+                </div>
+
+                <!-- Question Text -->
+                <div>
+                  <label
+                    [for]="'question-' + i"
+                    class="block text-sm font-medium text-slate-700 mb-2"
+                  >
+                    Nội dung câu hỏi <span class="text-red-500">*</span>
+                  </label>
+                  <textarea
+                    [id]="'question-' + i"
+                    [formControl]="getQuestionControl(i, 'question')"
+                    rows="3"
+                    class="w-full px-4 py-3 border-2 border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-navy-header focus:border-navy-header transition-all duration-200 resize-none"
+                    placeholder="Nhập nội dung câu hỏi"
+                    [class.border-red-500]="
+                      getQuestionControl(i, 'question').invalid &&
+                      getQuestionControl(i, 'question').touched
+                    "
+                  ></textarea>
+                </div>
+
+                <!-- Options -->
+                <div>
+                  <div class="block text-sm font-medium text-slate-700 mb-3">
+                    Các lựa chọn <span class="text-red-500">*</span>
+                  </div>
+                  <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    <div
+                      *ngFor="let key of optionKeys"
+                      class="flex items-center gap-2"
+                    >
+                      <label
+                        [for]="'option-' + i + '-' + key"
+                        class="w-8 h-8 bg-slate-200 text-slate-700 rounded-lg flex items-center justify-center font-bold shrink-0 cursor-pointer"
+                      >
+                        {{ key }}
+                      </label>
+                      <input
+                        type="text"
+                        [id]="'option-' + i + '-' + key"
+                        [formControl]="getOptionControl(i, key)"
+                        class="flex-1 px-3 py-2 border-2 border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-navy-header focus:border-navy-header transition-all duration-200"
+                        [placeholder]="'Lựa chọn ' + key"
+                        [title]="
+                          'Nhập nội dung cho lựa chọn ' +
+                          key +
+                          ' của câu hỏi ' +
+                          (i + 1)
+                        "
+                        [attr.aria-label]="
+                          'Lựa chọn ' + key + ' cho câu hỏi ' + (i + 1)
+                        "
+                        [class.border-red-500]="
+                          getOptionControl(i, key).invalid &&
+                          getOptionControl(i, key).touched
+                        "
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Correct Answer -->
+                <div>
+                  <label
+                    [for]="'correctAnswer-' + i"
+                    [id]="'label-correctAnswer-' + i"
+                    class="block text-sm font-medium text-slate-700 mb-2"
+                  >
+                    Đáp án đúng <span class="text-red-500">*</span>
+                  </label>
+                  <select
+                    [id]="'correctAnswer-' + i"
+                    [formControl]="getQuestionControl(i, 'correctAnswer')"
+                    [attr.aria-labelledby]="'label-correctAnswer-' + i"
+                    class="w-full px-4 py-2 border-2 border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-navy-header focus:border-navy-header transition-all duration-200"
+                    [title]="'Chọn đáp án đúng cho câu hỏi ' + (i + 1)"
+                    [class.border-red-500]="
+                      getQuestionControl(i, 'correctAnswer').invalid &&
+                      getQuestionControl(i, 'correctAnswer').touched
+                    "
+                  >
+                    <option value="" disabled>Chọn đáp án đúng</option>
+                    <option *ngFor="let key of optionKeys" [value]="key">
+                      {{ key }}
+                    </option>
+                  </select>
+                </div>
+
+                <!-- Explanation -->
+                <div>
+                  <label
+                    [for]="'explanation-' + i"
+                    class="block text-sm font-medium text-slate-700 mb-2"
+                  >
+                    Giải thích (tùy chọn)
+                  </label>
+                  <textarea
+                    [id]="'explanation-' + i"
+                    [formControl]="getQuestionControl(i, 'explanation')"
+                    rows="2"
+                    class="w-full px-4 py-3 border-2 border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-navy-header focus:border-navy-header transition-all duration-200 resize-none"
+                    placeholder="Nhập giải thích cho đáp án (nếu có)"
+                  ></textarea>
+                </div>
+
+                <!-- Image Upload -->
+                <div>
+                  <label
+                    [for]="'image-' + i"
+                    class="block text-sm font-medium text-slate-700 mb-2"
+                  >
+                    Hình ảnh (tùy chọn)
+                  </label>
+                  <input
+                    type="file"
+                    [id]="'image-' + i"
+                    accept="image/*"
+                    (change)="onImageSelected($event, i)"
+                    class="w-full px-4 py-2 border-2 border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-navy-header focus:border-navy-header transition-all duration-200"
+                    [title]="'Chọn hình ảnh cho câu hỏi ' + (i + 1)"
+                  />
+
+                  <!-- Image Preview -->
+                  <div *ngIf="questionFiles[i]?.imagePreviewUrl" class="mt-3">
+                    <div class="relative inline-block">
+                      <img
+                        [src]="questionFiles[i].imagePreviewUrl"
+                        alt="Preview image for question {{ i + 1 }}"
+                        [title]="'Preview image for question ' + (i + 1)"
+                        class="max-w-xs max-h-48 rounded-lg border-2 border-slate-200 shadow-md"
+                      />
+                      <button
+                        type="button"
+                        (click)="removeImageFile(i)"
+                        class="absolute top-2 right-2 bg-red-500 hover:bg-red-600 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm transition-colors"
+                        [title]="'Xóa hình ảnh'"
+                      >
+                        ×
+                      </button>
+                    </div>
+                    <p class="text-xs text-slate-500 mt-1">
+                      {{
+                        questionFiles[i].imageFile?.name ||
+                          questionFiles[i].imageName
+                      }}
+                      <span *ngIf="questionFiles[i].imageFile">
+                        ({{ formatFileSize(questionFiles[i].imageFile!.size) }})
+                      </span>
+                    </p>
+                  </div>
+                </div>
+
+                <!-- Audio Upload -->
+                <div>
+                  <label
+                    [for]="'audio-' + i"
+                    class="block text-sm font-medium text-slate-700 mb-2"
+                  >
+                    Âm thanh (tùy chọn)
+                  </label>
+                  <input
+                    type="file"
+                    [id]="'audio-' + i"
+                    accept="audio/*"
+                    (change)="onAudioSelected($event, i)"
+                    class="w-full px-4 py-2 border-2 border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-navy-header focus:border-navy-header transition-all duration-200"
+                    [title]="'Chọn file âm thanh cho câu hỏi ' + (i + 1)"
+                  />
+
+                  <!-- Audio Preview -->
+                  <div *ngIf="questionFiles[i]?.audioPreviewUrl" class="mt-3">
+                    <div class="border rounded-lg p-3 bg-slate-50">
+                      <div class="flex justify-between items-start mb-2">
+                        <div>
+                          <p class="font-medium text-sm text-slate-700">
+                            {{
+                              questionFiles[i].audioFile?.name ||
+                                questionFiles[i].audioName
+                            }}
+                          </p>
+                          <p
+                            *ngIf="questionFiles[i].audioFile"
+                            class="text-xs text-slate-500"
+                          >
+                            {{
+                              formatFileSize(questionFiles[i].audioFile!.size)
+                            }}
+                          </p>
+                        </div>
+                        <button
+                          type="button"
+                          (click)="removeAudioFile(i)"
+                          class="bg-red-500 hover:bg-red-600 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm transition-colors"
+                          [title]="'Xóa file âm thanh'"
+                        >
+                          ×
+                        </button>
+                      </div>
+                      <app-audio-player
+                        [src]="questionFiles[i].audioPreviewUrl!"
+                        [showTranscript]="false"
+                        class="w-full"
+                      ></app-audio-player>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Empty Questions Warning -->
+          <div
+            *ngIf="questionsFormArray.length === 0"
+            class="p-4 bg-yellow-50 border border-yellow-200 rounded-lg text-center"
+          >
+            <p class="text-yellow-700">
+              Vui lòng thêm ít nhất một câu hỏi cho bài test.
+            </p>
+          </div>
+        </div>
+
+        <!-- Form Actions -->
+        <div class="flex justify-end gap-3 pt-4 border-t border-slate-200">
+          <button
+            type="button"
+            (click)="onCancel()"
+            class="px-6 py-3 border-2 border-slate-300 rounded-lg text-slate-700 font-medium hover:bg-slate-50 hover:border-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-500 transition-all duration-200 flex items-center gap-2"
+          >
+            <fa-icon [icon]="faTimes"></fa-icon>
+            Hủy
+          </button>
+          <button
+            type="submit"
+            [disabled]="
+              form.invalid || isSubmitting || questionsFormArray.length === 0
+            "
+            class="px-6 py-3 bg-navy-header text-white rounded-lg font-medium hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-navy-header focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 flex items-center gap-2 shadow-md hover:shadow-lg"
+          >
+            <fa-icon
+              [icon]="faSave"
+              [class.animate-spin]="isSubmitting"
+            ></fa-icon>
+            <span>
+              {{
+                isSubmitting
+                  ? isEditMode
+                    ? "Đang cập nhật..."
+                    : "Đang tạo..."
+                  : isEditMode
+                  ? "Cập nhật bài test"
+                  : "Tạo bài test"
+              }}
+            </span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

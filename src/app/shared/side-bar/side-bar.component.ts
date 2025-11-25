@@ -18,6 +18,7 @@ import {
   faHistory,
   faCalendarAlt,
   faChartLine,
+  faListCheck,
 } from '@fortawesome/free-solid-svg-icons';
 
 interface SidebarItem {
@@ -68,6 +69,11 @@ export class SideBarComponent {
           label: 'Pronunciation',
           icon: faVolumeUp,
           href: '/pronunciation',
+        },
+        {
+          label: 'Full Test',
+          icon: faListCheck,
+          href: '/full-test/groups',
         },
       ],
     },

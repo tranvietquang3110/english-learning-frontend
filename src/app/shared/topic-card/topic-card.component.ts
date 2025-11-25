@@ -24,6 +24,7 @@ export class TopicCardComponent {
   @Output() learn = new EventEmitter<TopicBase>();
   @Output() test = new EventEmitter<TopicBase>();
   @Output() detail = new EventEmitter<TopicBase>();
+  @Output() delete = new EventEmitter<TopicBase>();
 
   faBookOpen = faBookOpen;
   faFileAlt = faFileAlt;
@@ -50,6 +51,11 @@ export class TopicCardComponent {
   onDetail(e: MouseEvent) {
     e.stopPropagation();
     this.detail.emit(this.topic);
+  }
+
+  onDelete(e: MouseEvent) {
+    e.stopPropagation();
+    this.delete.emit(this.topic);
   }
 
   toggleFavorite(e: MouseEvent) {
