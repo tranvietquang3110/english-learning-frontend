@@ -1,16 +1,37 @@
 <div
-  class="group cursor-pointer hover:shadow-lg transition-all duration-200 hover:-translate-y-1 relative overflow-hidden rounded-xl border bg-card text-card-foreground"
+  class="group cursor-pointer hover:shadow-lg transition-all duration-200 hover:-translate-y-1 relative overflow-hidden rounded-xl border"
+  [class.bg-white]="!isDark"
+  [class.dark:bg-slate-800]="isDark"
+  [class.bg-slate-800]="isDark"
+  [class.border-slate-200]="!isDark"
+  [class.dark:border-slate-700]="isDark"
+  [class.border-slate-700]="isDark"
+  [class.text-slate-800]="!isDark"
+  [class.dark:text-white]="isDark"
+  [class.text-white]="isDark"
 >
   <!-- Favorite Button -->
   <button
     *ngIf="favorite.observers.length > 0"
-    class="absolute top-3 right-3 z-10 p-2 rounded-full bg-white/80 backdrop-blur-sm hover:bg-white transition-all duration-200 shadow-sm"
+    class="absolute top-3 right-3 z-10 p-2 rounded-full backdrop-blur-sm transition-all duration-200 shadow-sm"
+    [ngClass]="
+      !isDark
+        ? 'bg-white/80 hover:bg-white'
+        : 'bg-slate-700/80 hover:bg-slate-700'
+    "
     (click)="toggleFavorite($event)"
     [title]="isFavorite ? 'Bỏ yêu thích' : 'Thêm vào yêu thích'"
+    [attr.aria-label]="isFavorite ? 'Bỏ yêu thích' : 'Thêm vào yêu thích'"
   >
     <fa-icon
       [icon]="isFavorite ? faHeartSolid : faHeartRegular"
-      [class]="isFavorite ? 'text-red-500' : 'text-gray-400 hover:text-red-500'"
+      [class]="
+        isFavorite
+          ? 'text-red-500'
+          : isDark
+          ? 'text-slate-400 hover:text-red-500'
+          : 'text-gray-400 hover:text-red-500'
+      "
       class="w-4 h-4 transition-colors duration-200"
     ></fa-icon>
   </button>
@@ -19,19 +40,32 @@
     <div class="space-y-4">
       <!-- Image -->
       <div
-        class="aspect-square w-24 h-24 mx-auto bg-muted rounded-lg flex items-center justify-center overflow-hidden"
+        class="aspect-square w-24 h-24 mx-auto rounded-lg flex items-center justify-center overflow-hidden"
+        [class.bg-slate-100]="!isDark"
+        [class.bg-slate-700]="isDark"
       >
         <img
           [src]="topic.imageUrl || '/placeholder.svg'"
           [alt]="topic.name"
+          [title]="topic.name"
           class="w-full h-full object-cover"
         />
       </div>
 
       <!-- Title + desc -->
       <div class="text-center space-y-2">
-        <h3 class="font-semibold text-lg">{{ topic.name }}</h3>
-        <p class="text-sm text-muted-foreground">
+        <h3
+          class="font-semibold text-lg"
+          [class.text-slate-800]="!isDark"
+          [class.text-white]="isDark"
+        >
+          {{ topic.name }}
+        </h3>
+        <p
+          class="text-sm"
+          [class.text-slate-600]="!isDark"
+          [class.text-slate-300]="isDark"
+        >
           {{ topic.description }}
         </p>
       </div>
@@ -57,13 +91,17 @@
       'background-position': 'center'
     }"
   >
-    <div class="absolute inset-0 bg-black/60 backdrop-blur-sm"></div>
+    <div
+      class="absolute inset-0 bg-black/60 dark:bg-black/70 backdrop-blur-sm"
+    ></div>
 
     <div class="relative space-y-3 w-4/5 max-w-xs">
       <button
         *ngIf="learn.observers.length > 0"
         class="w-full flex items-center justify-center gap-2 rounded-md px-4 py-2 bg-primary text-primary-foreground hover:bg-primary/90"
         (click)="onLearn($event)"
+        title="Học chủ đề này"
+        aria-label="Học chủ đề này"
       >
         <fa-icon [icon]="faBookOpen" class="h-full"></fa-icon>
         Học chủ đề này
@@ -73,6 +111,8 @@
         *ngIf="test.observers.length > 0"
         class="w-full inline-flex items-center justify-center gap-2 rounded-md px-4 py-2 border border-primary text-primary hover:bg-primary hover:text-primary-foreground bg-transparent"
         (click)="onTest($event)"
+        title="Làm bài test"
+        aria-label="Làm bài test"
       >
         <fa-icon [icon]="faFileAlt" class="w-4 h-4"></fa-icon>
         Làm bài test
@@ -83,6 +123,8 @@
         *ngIf="detail.observers.length > 0"
         class="w-full flex items-center justify-center gap-2 rounded-md px-4 py-2 border border-primary text-primary hover:bg-primary hover:text-primary-foreground bg-transparent"
         (click)="onDetail($event)"
+        title="Xem chi tiết"
+        aria-label="Xem chi tiết"
       >
         <fa-icon [icon]="faEye" class="h-full"></fa-icon>
         Xem chi tiết
@@ -93,6 +135,8 @@
         *ngIf="delete.observers.length > 0"
         class="text-white w-full flex items-center justify-center gap-2 rounded-md px-4 py-2 border border-primary bg-red-600 hover:opacity-80"
         (click)="onDelete($event)"
+        title="Xóa"
+        aria-label="Xóa"
       >
         <fa-icon [icon]="faEye" class="h-full"></fa-icon>
         Xóa

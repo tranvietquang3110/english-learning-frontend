@@ -15,10 +15,12 @@ import { TopicBase } from '../../models/topic-base';
   standalone: true,
   imports: [CommonModule, FontAwesomeModule],
   templateUrl: './topic-card.component.html',
+  styleUrls: [],
 })
 export class TopicCardComponent {
   @Input() topic!: TopicBase;
   @Input() isFavorite = false;
+  @Input() isDark = false;
   @Output() favorite = new EventEmitter<TopicBase>();
   @Output() unfavorite = new EventEmitter<TopicBase>();
   @Output() learn = new EventEmitter<TopicBase>();

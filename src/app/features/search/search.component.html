@@ -1,27 +1,27 @@
-<div class="min-h-screen bg-gray-50 py-8">
+<div class="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 py-8">
   <div class="w-full mx-auto px-4 sm:px-6 lg:px-8">
     <!-- Header Section with Results Count and Filter -->
     <div class="flex justify-between items-center mb-6">
       <!-- Results Count -->
       <div class="flex items-center gap-2">
-        <h2 class="text-xl font-semibold text-gray-800">
+        <h2 class="text-xl font-semibold text-slate-800 dark:text-white">
           {{ totalResults }}
         </h2>
-        <span class="text-gray-600">
+        <span class="text-slate-600 dark:text-slate-300">
           {{ getResultLabel() }}
         </span>
       </div>
 
       <!-- Filter Dropdown -->
       <div class="flex items-center gap-2">
-        <label class="text-sm text-gray-600">Filter by:</label>
+        <label class="text-sm text-slate-600 dark:text-slate-300">Filter by:</label>
         <select
           [(ngModel)]="selectedFilter"
           (ngModelChange)="onFilterChange()"
           name="filter"
           title="Chọn bộ lọc"
           aria-label="Chọn bộ lọc"
-          class="px-4 py-2 border border-gray-300 rounded-lg bg-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer"
+          class="px-4 py-2 border border-gray-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer"
         >
           <option *ngFor="let filter of filters" [value]="filter.value">
             {{ filter.label }}
@@ -29,20 +29,20 @@
         </select>
       </div>
     </div>
-    <div class="h-[1px] bg-gray-300 my-4"></div>
+    <div class="h-[1px] bg-gray-300 dark:bg-slate-700 my-4"></div>
     <!-- Loading State -->
     <div *ngIf="isLoading" class="flex justify-center items-center py-20">
       <div
-        class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"
+        class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 dark:border-blue-400"
       ></div>
     </div>
 
     <!-- Error State -->
     <div *ngIf="error && !isLoading" class="text-center py-20">
-      <p class="text-red-600 mb-4">{{ error }}</p>
+      <p class="text-red-600 dark:text-red-400 mb-4">{{ error }}</p>
       <button
         (click)="performSearch()"
-        class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+        class="px-4 py-2 bg-blue-600 dark:bg-blue-500 text-white rounded-lg hover:bg-blue-700 dark:hover:bg-blue-600"
       >
         Thử lại
       </button>
@@ -53,8 +53,8 @@
       *ngIf="!isLoading && !error && topics.length === 0"
       class="text-center py-20"
     >
-      <p class="text-gray-500 text-lg mb-2">Không tìm thấy kết quả nào</p>
-      <p class="text-gray-400 text-sm">Thử với từ khóa khác hoặc bộ lọc khác</p>
+      <p class="text-slate-500 dark:text-slate-400 text-lg mb-2">Không tìm thấy kết quả nào</p>
+      <p class="text-slate-400 dark:text-slate-500 text-sm">Thử với từ khóa khác hoặc bộ lọc khác</p>
     </div>
 
     <!-- Search Results Grid -->

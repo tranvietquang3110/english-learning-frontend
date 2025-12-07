@@ -1,18 +1,22 @@
-<div class="container mx-auto px-4 py-8 w-full">
+<div
+  class="min-h-full bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 container mx-auto px-4 py-8 w-full"
+>
   <!-- Header -->
   <div class="mb-8">
     <button
-      class="mb-4 flex items-center gap-2 text-sm text-gray-600 hover:text-blue-600 transition-colors"
+      class="mb-4 flex items-center gap-2 text-sm text-slate-600 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
       (click)="goBack()"
     >
       <fa-icon [icon]="faArrowLeft" class="w-4 h-4"></fa-icon>
       Quay lại danh sách nhóm
     </button>
     <div>
-      <h1 class="text-3xl font-bold text-gray-900 mb-2">
+      <h1 class="text-3xl font-bold text-slate-900 dark:text-white mb-2">
         {{ group?.name || "Danh sách bài test" }}
       </h1>
-      <p class="text-gray-600">Tổng cộng {{ totalElements }} bài test</p>
+      <p class="text-slate-600 dark:text-slate-300">
+        Tổng cộng {{ totalElements }} bài test
+      </p>
     </div>
   </div>
 
@@ -20,18 +24,20 @@
   <div *ngIf="isLoading" class="flex justify-center items-center py-12">
     <div class="text-center">
       <div
-        class="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mb-4"
+        class="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 dark:border-blue-400 mb-4"
       ></div>
-      <p class="text-gray-600">Đang tải danh sách bài test...</p>
+      <p class="text-slate-600 dark:text-slate-300">
+        Đang tải danh sách bài test...
+      </p>
     </div>
   </div>
 
   <!-- Error State -->
   <div
     *ngIf="error && !isLoading"
-    class="bg-red-50 border border-red-200 rounded-lg p-4 mb-6"
+    class="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4 mb-6"
   >
-    <p class="text-red-800">{{ error }}</p>
+    <p class="text-red-800 dark:text-red-300">{{ error }}</p>
   </div>
 
   <!-- Tests Grid -->
@@ -41,7 +47,7 @@
   >
     <div
       *ngFor="let test of tests; let i = index"
-      class="bg-white rounded-lg border border-gray-200 shadow-sm hover:shadow-lg transition-all duration-300 cursor-pointer group overflow-hidden"
+      class="bg-white dark:bg-slate-800 rounded-lg border border-gray-200 dark:border-slate-700 shadow-sm hover:shadow-lg transition-all duration-300 cursor-pointer group overflow-hidden"
       (click)="handleTestClick(test.id)"
     >
       <!-- Card Header -->
@@ -72,15 +78,25 @@
       <div class="p-6">
         <!-- Test Info -->
         <div class="space-y-3 mb-4">
-          <div class="flex items-center gap-2 text-sm text-gray-600">
-            <fa-icon [icon]="faUsers" class="text-blue-500"></fa-icon>
+          <div
+            class="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-300"
+          >
+            <fa-icon
+              [icon]="faUsers"
+              class="text-blue-500 dark:text-blue-400"
+            ></fa-icon>
             <span
               >{{ commonUtils.formatNumber(test.totalCompletion) }}+ lượt hoàn
               thành</span
             >
           </div>
-          <div class="flex items-center gap-2 text-sm text-gray-600">
-            <fa-icon [icon]="faCalendarAlt" class="text-blue-500"></fa-icon>
+          <div
+            class="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-300"
+          >
+            <fa-icon
+              [icon]="faCalendarAlt"
+              class="text-blue-500 dark:text-blue-400"
+            ></fa-icon>
             <span>{{ test.createdAt | date : "dd/MM/yyyy HH:mm" }}</span>
           </div>
         </div>
@@ -105,14 +121,17 @@
   >
     <div class="max-w-md mx-auto">
       <div
-        class="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4"
+        class="w-20 h-20 bg-gray-100 dark:bg-slate-700 rounded-full flex items-center justify-center mx-auto mb-4"
       >
-        <fa-icon [icon]="faFileAlt" class="text-gray-400 text-3xl"></fa-icon>
+        <fa-icon
+          [icon]="faFileAlt"
+          class="text-gray-400 dark:text-slate-500 text-3xl"
+        ></fa-icon>
       </div>
-      <h2 class="text-2xl font-bold text-gray-900 mb-2">
+      <h2 class="text-2xl font-bold text-slate-900 dark:text-white mb-2">
         Chưa có bài test nào
       </h2>
-      <p class="text-gray-600 mb-6">
+      <p class="text-slate-600 dark:text-slate-300 mb-6">
         Nhóm test này hiện chưa có bài test nào. Vui lòng quay lại sau.
       </p>
       <button

@@ -1,12 +1,14 @@
-<div class="p-6 form-planning-container">
+<div
+  class="min-h-full bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 p-6 form-planning-container"
+>
   <!-- Header -->
   <div class="flex justify-between items-center mb-6">
-    <h1 class="text-2xl font-bold text-gray-800">
+    <h1 class="text-2xl font-bold text-slate-800 dark:text-white">
       {{ isEditMode ? "Chỉnh sửa kế hoạch" : "Tạo kế hoạch mới" }}
     </h1>
     <button
       (click)="onCancel()"
-      class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-lg transition-colors"
+      class="bg-gray-100 dark:bg-slate-700 hover:bg-gray-200 dark:hover:bg-slate-600 text-gray-700 dark:text-slate-300 px-4 py-2 rounded-lg transition-colors"
     >
       ← Quay lại
     </button>
@@ -15,55 +17,66 @@
   <!-- Error Message -->
   <div
     *ngIf="error"
-    class="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg"
+    class="mb-6 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg"
   >
     <div class="flex items-center">
-      <div class="text-red-400 mr-3">⚠️</div>
-      <p class="text-red-700">{{ error }}</p>
+      <div class="text-red-400 dark:text-red-500 mr-3">⚠️</div>
+      <p class="text-red-700 dark:text-red-300">{{ error }}</p>
     </div>
   </div>
 
   <!-- Form -->
   <form (ngSubmit)="onSubmit()" class="space-y-6">
     <!-- Basic Information -->
-    <div class="bg-white rounded-lg shadow-md p-6">
-      <h2 class="text-lg font-semibold text-gray-800 mb-4">Thông tin cơ bản</h2>
+    <div
+      class="bg-white dark:bg-slate-800 rounded-lg shadow-md p-6 border border-slate-200 dark:border-slate-700"
+    >
+      <h2 class="text-lg font-semibold text-slate-800 dark:text-white mb-4">
+        Thông tin cơ bản
+      </h2>
 
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
         <!-- Title -->
         <div class="md:col-span-2">
-          <label class="block text-sm font-medium text-gray-700 mb-2">
+          <label
+            class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2"
+          >
             Tên kế hoạch <span class="text-red-500">*</span>
           </label>
           <input
             type="text"
             [(ngModel)]="planRequest.title"
             name="title"
-            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            class="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-slate-700 text-slate-800 dark:text-white placeholder-slate-400 dark:placeholder-slate-500"
             placeholder="Nhập tên kế hoạch"
             [class.border-red-500]="formErrors['title']"
           />
-          <p *ngIf="formErrors['title']" class="text-red-500 text-sm mt-1">
+          <p
+            *ngIf="formErrors['title']"
+            class="text-red-500 dark:text-red-400 text-sm mt-1"
+          >
             {{ formErrors["title"] }}
           </p>
         </div>
 
         <!-- Description -->
         <div class="md:col-span-2">
-          <label class="block text-sm font-medium text-gray-700 mb-2">
+          <label
+            class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2"
+          >
             Mô tả <span class="text-red-500">*</span>
           </label>
           <textarea
             [(ngModel)]="planRequest.description"
             name="description"
             rows="3"
-            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            class="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-slate-700 text-slate-800 dark:text-white placeholder-slate-400 dark:placeholder-slate-500"
             placeholder="Nhập mô tả kế hoạch"
             [class.border-red-500]="formErrors['description']"
           ></textarea>
           <p
             *ngIf="formErrors['description']"
-            class="text-red-500 text-sm mt-1"
+            class="text-red-500 dark:text-red-400 text-sm mt-1"
           >
             {{ formErrors["description"] }}
           </p>
@@ -71,43 +84,55 @@
 
         <!-- Start Date -->
         <div>
-          <label class="block text-sm font-medium text-gray-700 mb-2">
+          <label
+            class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2"
+          >
             Ngày bắt đầu <span class="text-red-500">*</span>
           </label>
           <input
             type="datetime-local"
             [(ngModel)]="planRequest.startDate"
             name="startDate"
-            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            class="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-slate-700 text-slate-800 dark:text-white"
             [class.border-red-500]="formErrors['startDate']"
             aria-label="Ngày bắt đầu kế hoạch"
           />
-          <p *ngIf="formErrors['startDate']" class="text-red-500 text-sm mt-1">
+          <p
+            *ngIf="formErrors['startDate']"
+            class="text-red-500 dark:text-red-400 text-sm mt-1"
+          >
             {{ formErrors["startDate"] }}
           </p>
         </div>
 
         <!-- End Date -->
         <div>
-          <label class="block text-sm font-medium text-gray-700 mb-2">
+          <label
+            class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2"
+          >
             Ngày kết thúc <span class="text-red-500">*</span>
           </label>
           <input
             type="datetime-local"
             [(ngModel)]="planRequest.endDate"
             name="endDate"
-            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            class="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-slate-700 text-slate-800 dark:text-white"
             [class.border-red-500]="formErrors['endDate']"
             aria-label="Ngày kết thúc kế hoạch"
           />
-          <p *ngIf="formErrors['endDate']" class="text-red-500 text-sm mt-1">
+          <p
+            *ngIf="formErrors['endDate']"
+            class="text-red-500 dark:text-red-400 text-sm mt-1"
+          >
             {{ formErrors["endDate"] }}
           </p>
         </div>
 
         <!-- Target -->
         <div>
-          <label class="block text-sm font-medium text-gray-700 mb-2">
+          <label
+            class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2"
+          >
             Mục tiêu điểm số <span class="text-red-500">*</span>
           </label>
           <input
@@ -116,12 +141,15 @@
             name="target"
             min="10"
             max="990"
-            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            class="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-slate-700 text-slate-800 dark:text-white placeholder-slate-400 dark:placeholder-slate-500"
             [class.border-red-500]="formErrors['target']"
             aria-label="Mục tiêu điểm số"
             placeholder="Nhập mục tiêu điểm số (10-990)"
           />
-          <p *ngIf="formErrors['target']" class="text-red-500 text-sm mt-1">
+          <p
+            *ngIf="formErrors['target']"
+            class="text-red-500 dark:text-red-400 text-sm mt-1"
+          >
             {{ formErrors["target"] }}
           </p>
         </div>
@@ -129,67 +157,79 @@
     </div>
 
     <!-- Plan Groups -->
-    <div class="bg-white rounded-lg shadow-md p-6">
+    <div
+      class="bg-white dark:bg-slate-800 rounded-lg shadow-md p-6 border border-slate-200 dark:border-slate-700"
+    >
       <div class="flex justify-between items-center mb-4">
-        <h2 class="text-lg font-semibold text-gray-800">Nhóm kế hoạch</h2>
+        <h2 class="text-lg font-semibold text-slate-800 dark:text-white">
+          Nhóm kế hoạch
+        </h2>
         <button
           type="button"
           (click)="addPlanGroup()"
-          class="bg-blue-100 hover:bg-blue-200 text-blue-700 px-4 py-2 rounded-lg transition-colors"
+          class="bg-blue-100 dark:bg-blue-900/30 hover:bg-blue-200 dark:hover:bg-blue-900/50 text-blue-700 dark:text-blue-300 px-4 py-2 rounded-lg transition-colors"
         >
           + Thêm nhóm
         </button>
       </div>
 
       <!-- Add New Group Form -->
-      <div class="mb-6 p-4 bg-gray-50 rounded-lg">
-        <h3 class="text-md font-medium text-gray-700 mb-3">Thêm nhóm mới</h3>
+      <div
+        class="mb-6 p-4 bg-gray-50 dark:bg-slate-700/50 rounded-lg border border-slate-200 dark:border-slate-600"
+      >
+        <h3 class="text-md font-medium text-slate-700 dark:text-slate-300 mb-3">
+          Thêm nhóm mới
+        </h3>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1"
+            <label
+              class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1"
               >Tên nhóm</label
             >
             <input
               type="text"
               [(ngModel)]="newPlanGroup.name"
               name="newGroupName"
-              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              class="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-slate-700 text-slate-800 dark:text-white placeholder-slate-400 dark:placeholder-slate-500"
               placeholder="Nhập tên nhóm"
             />
           </div>
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1"
+            <label
+              class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1"
               >Mô tả</label
             >
             <input
               type="text"
               [(ngModel)]="newPlanGroup.description"
               name="newGroupDescription"
-              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              class="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-slate-700 text-slate-800 dark:text-white placeholder-slate-400 dark:placeholder-slate-500"
               placeholder="Nhập mô tả nhóm"
             />
           </div>
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1"
+            <label
+              class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1"
               >Ngày bắt đầu</label
             >
             <input
               type="datetime-local"
               [(ngModel)]="newPlanGroup.startDate"
               name="newGroupStartDate"
-              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              class="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-slate-700 text-slate-800 dark:text-white"
               placeholder="Nhập ngày bắt đầu nhóm"
             />
           </div>
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1"
+            <label
+              class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1"
               >Ngày kết thúc</label
             >
             <input
               type="datetime-local"
               [(ngModel)]="newPlanGroup.endDate"
               name="newGroupEndDate"
-              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              class="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-slate-700 text-slate-800 dark:text-white"
               placeholder="Nhập ngày kết thúc nhóm"
             />
           </div>
@@ -200,18 +240,18 @@
       <div *ngIf="planRequest.planGroups.length > 0" class="space-y-4">
         <div
           *ngFor="let group of planRequest.planGroups; let groupIndex = index"
-          class="border border-gray-200 rounded-lg p-4"
+          class="border border-gray-200 dark:border-slate-700 rounded-lg p-4 bg-slate-50/50 dark:bg-slate-700/30"
         >
           <div class="flex justify-between items-start mb-3 gap-4">
             <div class="flex-1 min-w-0">
               <div class="flex items-start justify-between gap-4 mb-2">
-                <h4 class="font-medium text-gray-800 text-lg">
+                <h4 class="font-medium text-slate-800 dark:text-white text-lg">
                   {{ group.name }}
                 </h4>
                 <button
                   type="button"
                   (click)="removePlanGroup(groupIndex)"
-                  class="flex items-center gap-2 px-3 py-1.5 text-red-600 hover:text-red-700 hover:bg-red-50 rounded-lg transition-all duration-200 border border-red-200 hover:border-red-300 shrink-0"
+                  class="flex items-center gap-2 px-3 py-1.5 text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-lg transition-all duration-200 border border-red-200 dark:border-red-800 hover:border-red-300 dark:hover:border-red-700 shrink-0"
                   title="Xóa nhóm kế hoạch"
                   aria-label="Xóa nhóm kế hoạch"
                 >
@@ -219,8 +259,12 @@
                   <span class="text-sm font-medium">Xóa nhóm</span>
                 </button>
               </div>
-              <p class="text-sm text-gray-600 mb-2">{{ group.description }}</p>
-              <div class="flex flex-wrap gap-4 text-xs text-gray-500">
+              <p class="text-sm text-slate-600 dark:text-slate-300 mb-2">
+                {{ group.description }}
+              </p>
+              <div
+                class="flex flex-wrap gap-4 text-xs text-slate-500 dark:text-slate-400"
+              >
                 <span>
                   <span class="font-medium">Bắt đầu:</span>
                   {{ group.startDate | date : "dd/MM/yyyy HH:mm" }}
@@ -236,23 +280,28 @@
           <!-- Plan Details for this group -->
           <div class="space-y-3">
             <div class="flex justify-between items-center">
-              <h5 class="text-sm font-medium text-gray-700">
+              <h5
+                class="text-sm font-medium text-slate-700 dark:text-slate-300"
+              >
                 Chi tiết kế hoạch
               </h5>
               <button
                 type="button"
                 (click)="addPlanDetail(groupIndex)"
-                class="text-blue-600 hover:text-blue-800 text-sm"
+                class="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 text-sm"
               >
                 + Thêm chi tiết
               </button>
             </div>
 
             <!-- Add New Detail Form -->
-            <div class="p-4 bg-blue-50/60 border border-blue-100 rounded-lg">
+            <div
+              class="p-4 bg-blue-50/60 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-800 rounded-lg"
+            >
               <div class="grid grid-cols-1 md:grid-cols-5 gap-3 items-end">
                 <div class="md:col-span-2">
-                  <label class="block text-xs font-medium text-gray-700 mb-1"
+                  <label
+                    class="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1"
                     >Loại chủ đề</label
                   >
                   <select
@@ -260,7 +309,7 @@
                     name="newDetailTopicType"
                     [ngModelOptions]="{ standalone: true }"
                     (ngModelChange)="onTopicTypeChange(groupIndex)"
-                    class="w-full px-2 py-2 border border-gray-300 rounded-md text-sm focus:ring-1 focus:ring-blue-500 focus:border-blue-500 bg-white"
+                    class="w-full px-2 py-2 border border-gray-300 dark:border-slate-600 rounded-md text-sm focus:ring-1 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-slate-700 text-slate-800 dark:text-white"
                     aria-label="Loại chủ đề"
                   >
                     <option
@@ -272,14 +321,15 @@
                   </select>
                 </div>
                 <div class="md:col-span-3">
-                  <label class="block text-xs font-medium text-gray-700 mb-1"
+                  <label
+                    class="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1"
                     >Chủ đề</label
                   >
                   <div class="relative">
                     <select
                       [(ngModel)]="getNewPlanDetailForGroup(groupIndex).topicId"
                       name="newDetailTopicId"
-                      class="w-full px-2 py-2 border border-gray-300 rounded-md text-sm focus:ring-1 focus:ring-blue-500 focus:border-blue-500 bg-white disabled:bg-gray-100 disabled:text-gray-400"
+                      class="w-full px-2 py-2 border border-gray-300 dark:border-slate-600 rounded-md text-sm focus:ring-1 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-slate-700 text-slate-800 dark:text-white disabled:bg-gray-100 dark:disabled:bg-slate-800 disabled:text-gray-400 dark:disabled:text-slate-500"
                       aria-label="Chọn chủ đề"
                       [disabled]="
                         isLoadingTopics || availableTopics.length === 0
@@ -310,13 +360,16 @@
                       class="absolute right-2 top-1/2 transform -translate-y-1/2"
                     >
                       <div
-                        class="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-500"
+                        class="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-500 dark:border-blue-400"
                       ></div>
                     </div>
                   </div>
 
                   <!-- Error message -->
-                  <p *ngIf="topicsError" class="text-red-500 text-xs mt-1">
+                  <p
+                    *ngIf="topicsError"
+                    class="text-red-500 dark:text-red-400 text-xs mt-1"
+                  >
                     {{ topicsError }}
                   </p>
 
@@ -341,28 +394,30 @@
                   let detail of group.planDetails;
                   let detailIndex = index
                 "
-                class="group flex items-center justify-between p-3 bg-white border border-gray-200 rounded-lg hover:shadow-sm transition-all"
+                class="group flex items-center justify-between p-3 bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-lg hover:shadow-sm transition-all"
               >
                 <div class="flex items-center gap-3 min-w-0">
                   <span
-                    class="shrink-0 inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-700"
+                    class="shrink-0 inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 dark:bg-slate-700 text-gray-700 dark:text-slate-300"
                   >
                     {{ getTopicTypeLabel(detail.topicType) }}
                   </span>
                   <div class="min-w-0">
-                    <p class="text-sm text-gray-800 truncate">
+                    <p class="text-sm text-slate-800 dark:text-white truncate">
                       {{
                         detail.topicName ||
                           getTopicDisplayName(detail.topicType, detail.topicId)
                       }}
                     </p>
-                    <p class="text-xs text-gray-400">#{{ detailIndex + 1 }}</p>
+                    <p class="text-xs text-slate-500 dark:text-slate-400">
+                      #{{ detailIndex + 1 }}
+                    </p>
                   </div>
                 </div>
                 <button
                   type="button"
                   (click)="removePlanDetail(groupIndex, detailIndex)"
-                  class="flex items-center gap-1.5 px-2.5 py-1.5 text-red-600 hover:text-red-700 hover:bg-red-50 rounded-md transition-all duration-200 border border-red-200 hover:border-red-300 shrink-0"
+                  class="flex items-center gap-1.5 px-2.5 py-1.5 text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-md transition-all duration-200 border border-red-200 dark:border-red-800 hover:border-red-300 dark:hover:border-red-700 shrink-0"
                   title="Xóa chi tiết kế hoạch"
                   aria-label="Xóa chi tiết kế hoạch"
                 >
@@ -373,7 +428,7 @@
             </div>
             <div
               *ngIf="group.planDetails.length === 0"
-              class="text-sm text-gray-400 italic"
+              class="text-sm text-slate-500 dark:text-slate-400 italic"
             >
               Chưa có chi tiết nào. Thêm mới bằng nút "+ Thêm chi tiết".
             </div>
@@ -383,20 +438,24 @@
 
       <!-- Empty State for Groups -->
       <div *ngIf="planRequest.planGroups.length === 0" class="text-center py-8">
-        <div class="text-gray-400 text-4xl mb-2">📋</div>
-        <p class="text-gray-500">Chưa có nhóm kế hoạch nào</p>
-        <p class="text-sm text-gray-400">
+        <div class="text-slate-400 dark:text-slate-500 text-4xl mb-2">📋</div>
+        <p class="text-slate-500 dark:text-slate-400">
+          Chưa có nhóm kế hoạch nào
+        </p>
+        <p class="text-sm text-slate-400 dark:text-slate-500">
           Thêm nhóm để tổ chức các hoạt động học tập
         </p>
       </div>
     </div>
 
     <!-- Action Buttons -->
-    <div class="flex justify-end gap-4 pt-6 border-t">
+    <div
+      class="flex justify-end gap-4 pt-6 border-t border-slate-200 dark:border-slate-700"
+    >
       <button
         type="button"
         (click)="onCancel()"
-        class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-6 py-2 rounded-lg transition-colors"
+        class="bg-gray-100 dark:bg-slate-700 hover:bg-gray-200 dark:hover:bg-slate-600 text-gray-700 dark:text-slate-300 px-6 py-2 rounded-lg transition-colors"
       >
         Hủy
       </button>

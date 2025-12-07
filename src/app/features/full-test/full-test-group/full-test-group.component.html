@@ -1,18 +1,22 @@
-<div class="container mx-auto px-4 py-8 w-full">
+<div class="min-h-full container mx-auto px-4 py-8 w-full">
   <!-- Timeline Container -->
   <div class="relative">
     <!-- Vertical Timeline Line -->
-    <div class="absolute left-8 top-0 bottom-0 w-0.5 bg-blue-500"></div>
+    <div
+      class="absolute left-8 top-0 bottom-0 w-0.5 bg-blue-500 dark:bg-blue-400"
+    ></div>
 
     <!-- Section 1: Introduction -->
     <div class="relative pl-20 mb-6">
       <!-- Timeline Circle -->
       <div
-        class="absolute left-6 top-0 w-4 h-4 bg-blue-500 rounded-full border-4 border-white shadow-lg z-10"
+        class="absolute left-6 top-0 w-4 h-4 bg-blue-500 dark:bg-blue-400 rounded-full border-4 border-white dark:border-slate-800 shadow-lg z-10"
       ></div>
 
       <!-- Introduction Card -->
-      <div class="bg-white rounded-lg">
+      <div
+        class="bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700"
+      >
         <div class="px-6 py-6">
           <div class="flex items-center gap-4 mb-2">
             <span
@@ -20,11 +24,11 @@
             >
               1
             </span>
-            <h1 class="text-3xl font-bold text-gray-900">
+            <h1 class="text-3xl font-bold text-slate-900 dark:text-white">
               TOEIC Roadmap At Zenlish
             </h1>
           </div>
-          <p class="text-gray-600 text-base ml-12">
+          <p class="text-slate-600 dark:text-slate-300 text-base ml-12">
             Hãy xem lộ trình học TOEIC bên dưới, từ những lớp MẤT GỐC đến các
             lớp TOEIC 4 kỹ năng chuyên nghiệp.
           </p>
@@ -36,18 +40,20 @@
     <div *ngIf="isLoading" class="flex justify-center items-center py-12">
       <div class="text-center">
         <div
-          class="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mb-4"
+          class="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 dark:border-blue-400 mb-4"
         ></div>
-        <p class="text-gray-600">Đang tải danh sách nhóm test...</p>
+        <p class="text-slate-600 dark:text-slate-300">
+          Đang tải danh sách nhóm test...
+        </p>
       </div>
     </div>
 
     <!-- Error State -->
     <div
       *ngIf="error && !isLoading"
-      class="bg-red-50 border border-red-200 rounded-lg p-4 mb-6"
+      class="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4 mb-6"
     >
-      <p class="text-red-800">{{ error }}</p>
+      <p class="text-red-800 dark:text-red-300">{{ error }}</p>
     </div>
 
     <!-- Groups List -->
@@ -58,29 +64,31 @@
       >
         <!-- Timeline Circle -->
         <div
-          class="absolute left-6 top-0 w-4 h-4 bg-blue-500 rounded-full border-4 border-white shadow-lg z-10"
+          class="absolute left-6 top-0 w-4 h-4 bg-blue-500 dark:bg-blue-400 rounded-full border-4 border-white dark:border-slate-800 shadow-lg z-10"
         ></div>
 
         <!-- Group Card -->
         <div
-          class="bg-gray-50 rounded-lg border border-gray-200 shadow-sm hover:shadow-md transition-shadow duration-300"
+          class="bg-gray-50 dark:bg-slate-800 rounded-lg border border-gray-200 dark:border-slate-700 shadow-sm hover:shadow-md transition-shadow duration-300"
         >
           <!-- Group Header -->
           <button
             (click)="toggleGroup(group.id)"
-            class="w-full px-6 py-4 flex items-center justify-between text-left hover:bg-gray-100 transition-colors duration-200 rounded-t-lg"
+            class="w-full px-6 py-4 flex items-center justify-between text-left hover:bg-gray-100 dark:hover:bg-slate-700 transition-colors duration-200 rounded-t-lg"
           >
             <div class="flex items-center gap-4">
               <span
-                class="flex items-center justify-center w-8 h-8 bg-blue-500 text-white rounded-full font-bold text-sm"
+                class="flex items-center justify-center w-8 h-8 bg-blue-500 dark:bg-blue-400 text-white rounded-full font-bold text-sm"
               >
                 {{ index + 2 }}
               </span>
-              <h2 class="text-xl font-bold text-gray-900">{{ group.name }}</h2>
+              <h2 class="text-xl font-bold text-slate-900 dark:text-white">
+                {{ group.name }}
+              </h2>
             </div>
             <fa-icon
               [icon]="isGroupExpanded(group.id) ? faChevronUp : faChevronDown"
-              class="text-blue-500 text-lg"
+              class="text-blue-500 dark:text-blue-400 text-lg"
             ></fa-icon>
           </button>
 
@@ -89,10 +97,13 @@
             <div class="flex justify-end w-full mb-4">
               <button
                 [routerLink]="['/full-test/groups', group.id, 'tests']"
-                class="flex items-center gap-2 px-4 py-2 text-gray-700 hover:text-blue-600 hover:bg-gray-100 transition-colors duration-200 rounded-lg font-medium"
+                class="flex items-center gap-2 px-4 py-2 text-slate-700 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-gray-100 dark:hover:bg-slate-700 transition-colors duration-200 rounded-lg font-medium"
               >
                 <span>Xem tất cả</span>
-                <fa-icon [icon]="faArrowRight" class="text-blue-500"></fa-icon>
+                <fa-icon
+                  [icon]="faArrowRight"
+                  class="text-blue-500 dark:text-blue-400"
+                ></fa-icon>
               </button>
             </div>
             <div
@@ -101,17 +112,19 @@
             >
               <div
                 *ngFor="let test of group.tests"
-                class="bg-white rounded-lg border border-gray-200 p-4 hover:border-blue-300 hover:shadow-md transition-all duration-200 cursor-pointer group"
+                class="bg-white dark:bg-slate-700 rounded-lg border border-gray-200 dark:border-slate-600 p-4 hover:border-blue-300 dark:hover:border-blue-500 hover:shadow-md transition-all duration-200 cursor-pointer group"
                 [routerLink]="['/full-test/groups', group.id, test.id]"
               >
                 <div class="flex items-center justify-between">
                   <div class="flex-1">
                     <h3
-                      class="text-lg font-semibold text-gray-900 mb-2 group-hover:text-blue-600 transition-colors"
+                      class="text-lg font-semibold text-slate-900 dark:text-white mb-2 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors"
                     >
                       {{ test.name }}
                     </h3>
-                    <div class="flex items-center gap-4 text-sm text-gray-600">
+                    <div
+                      class="flex items-center gap-4 text-sm text-slate-600 dark:text-slate-300"
+                    >
                       <span class="flex items-center gap-1">
                         <svg
                           class="w-4 h-4"
@@ -149,7 +162,7 @@
             </div>
             <div
               *ngIf="!group.tests || group.tests.length === 0"
-              class="mt-4 text-gray-500 text-center py-4"
+              class="mt-4 text-slate-500 dark:text-slate-400 text-center py-4"
             >
               Chưa có bài test nào trong nhóm này.
             </div>
@@ -163,7 +176,9 @@
       *ngIf="!isLoading && !error && toeicGroups.length === 0"
       class="text-center py-12"
     >
-      <p class="text-gray-500 text-lg">Chưa có nhóm test nào.</p>
+      <p class="text-slate-500 dark:text-slate-400 text-lg">
+        Chưa có nhóm test nào.
+      </p>
     </div>
   </div>
 </div>

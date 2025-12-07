@@ -1,18 +1,22 @@
-<div class="">
+<div
+  class="min-h-full bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800"
+>
   <div class="px-4 py-8">
     <div class="w-full">
       <!-- Header -->
       <div class="gap-4 mb-8">
         <button
-          class="mb-4 flex items-center gap-2 text-sm text-muted-foreground hover:text-primary"
+          class="mb-4 flex items-center gap-2 text-sm text-slate-600 dark:text-slate-300 hover:text-primary dark:hover:text-blue-400"
           (click)="goBack()"
         >
           <fa-icon [icon]="faArrowLeft" class="w-4 h-4"></fa-icon>
           Back to Grammar Topics
         </button>
         <div>
-          <h1 class="text-3xl font-bold mb-2">Grammar Tests</h1>
-          <p class="text-muted-foreground">
+          <h1 class="text-3xl font-bold mb-2 text-slate-800 dark:text-white">
+            Grammar Tests
+          </h1>
+          <p class="text-slate-600 dark:text-slate-300">
             Choose a grammar test to practice grammar structures from this topic
           </p>
         </div>
@@ -20,8 +24,10 @@
 
       <!-- No tests -->
       <div *ngIf="tests.length === 0" class="text-center space-y-4">
-        <h1 class="text-2xl font-bold">No tests available</h1>
-        <p class="text-muted-foreground">
+        <h1 class="text-2xl font-bold text-slate-800 dark:text-white">
+          No tests available
+        </h1>
+        <p class="text-slate-600 dark:text-slate-300">
           Grammar tests for this topic are coming soon!
         </p>
       </div>
@@ -33,24 +39,30 @@
       >
         <div
           *ngFor="let test of tests"
-          class="p-4 rounded-lg border shadow hover:shadow-lg cursor-pointer transition hover:-translate-y-1"
+          class="p-4 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 shadow hover:shadow-lg cursor-pointer transition hover:-translate-y-1"
           (click)="handleTestClick(test.id)"
         >
           <div class="flex items-start justify-between mb-2">
-            <h3 class="font-semibold">{{ test.name }}</h3>
-            <span class="px-2 py-1 text-xs rounded bg-primary/10 text-primary">
+            <h3 class="font-semibold text-slate-800 dark:text-white">
+              {{ test.name }}
+            </h3>
+            <span
+              class="px-2 py-1 text-xs rounded bg-primary/10 dark:bg-primary/20 text-primary dark:text-blue-400"
+            >
               {{ test.duration }} min
             </span>
           </div>
-          <p class="text-sm text-muted-foreground mb-4">
+          <p class="text-sm text-slate-600 dark:text-slate-300 mb-4">
             Grammar test for grammar {{ grammarName }}
           </p>
-          <div class="flex items-center gap-1 text-sm text-muted-foreground">
+          <div
+            class="flex items-center gap-1 text-sm text-slate-600 dark:text-slate-300"
+          >
             <fa-icon [icon]="faFileAlt" class="w-4 h-4"></fa-icon>
             <span>Test ID: {{ test.id }}</span>
           </div>
           <button
-            class="w-full mt-3 py-1.5 rounded bg-primary text-white text-sm"
+            class="w-full mt-3 py-1.5 rounded bg-primary text-white text-sm hover:opacity-90"
           >
             Start Test
           </button>

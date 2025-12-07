@@ -320,7 +320,7 @@ export const routes: Routes = [
       },
     ],
     canActivate: [ScopeGuard],
-    data: { scope: 'ROLE_USER | ROLE_ADMIN' },
+    data: { scope: 'ROLE_USER' },
   },
   {
     path: 'admin',
@@ -465,7 +465,7 @@ export const routes: Routes = [
       },
     ],
     canActivate: [ScopeGuard],
-    data: { scope: 'ROLE_USER | ROLE_ADMIN' },
+    data: { scope: 'ROLE_USER' },
   },
 
   { path: '**', redirectTo: '' },

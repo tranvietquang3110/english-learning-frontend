@@ -1,10 +1,10 @@
 import { Level } from '../../models/level.enum';
 
 export enum StudyTime {
-  MORNING,
-  AFTERNOON,
-  EVENING,
-  NIGHT,
+  MORNING = 'MORNING',
+  AFTERNOON = 'AFTERNOON',
+  EVENING = 'EVENING',
+  NIGHT = 'NIGHT',
 }
 
 export interface UserProfileUpdateRequest {
