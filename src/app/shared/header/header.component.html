@@ -53,9 +53,9 @@
       <!-- User actions -->
       <div class="flex items-center space-x-4 relative">
         <!-- Dropdown trigger -->
-        <div class="relative">
+        <div class="relative" #dropdownContainer>
           <button
-            (click)="toggleDropdown()"
+            (click)="toggleDropdown($event)"
             class="h-8 w-8 rounded-full overflow-hidden ring-2 ring-transparent hover:ring-blue-400 focus:outline-none"
           >
             <img
@@ -72,6 +72,7 @@
           >
             <a
               [routerLink]="['/profile']"
+              (click)="isDropdownOpen = false"
               class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer"
             >
               <fa-icon [icon]="faUser" class="mr-2"></fa-icon>
@@ -79,8 +80,8 @@
             </a>
             <div class="border-t border-gray-200 dark:border-gray-700"></div>
             <button
-              (click)="handleLogout()"
-              class="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 dark:hover:bg-gray-700"
+              (click)="handleLogout(); isDropdownOpen = false"
+              class="w-full text-left px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30"
             >
               <fa-icon [icon]="faSignOutAlt" class="mr-2"></fa-icon>
               Đăng xuất

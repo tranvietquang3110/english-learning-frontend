@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, HostListener, ElementRef, ViewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { IconProp } from '@fortawesome/fontawesome-svg-core';
@@ -21,6 +21,8 @@ import { TopicType } from '../../models/topic-type.enum';
   styleUrl: './header.component.scss',
 })
 export class HeaderComponent implements OnInit {
+  @ViewChild('dropdownContainer', { static: false }) dropdownContainer!: ElementRef;
+
   faBell: IconProp = faBell;
   faUser: IconProp = faUser;
   faSearch: IconProp = faSearch;
@@ -38,8 +40,22 @@ export class HeaderComponent implements OnInit {
   ];
 
   constructor(private userService: UserService, private router: Router) {}
-  toggleDropdown() {
+  
+  toggleDropdown(event?: Event) {
+    if (event) {
+      event.stopPropagation();
+    }
     this.isDropdownOpen = !this.isDropdownOpen;
+  }
+
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: MouseEvent): void {
+    if (this.isDropdownOpen && this.dropdownContainer) {
+      const clickedInside = this.dropdownContainer.nativeElement.contains(event.target as Node);
+      if (!clickedInside) {
+        this.isDropdownOpen = false;
+      }
+    }
   }
 
   ngOnInit(): void {
