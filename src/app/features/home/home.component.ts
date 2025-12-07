@@ -13,6 +13,8 @@ import {
   faArrowRight,
   faGraduationCap,
   faCheckCircle,
+  faListCheck,
+  faHistory,
 } from '@fortawesome/free-solid-svg-icons';
 import { UserService } from '../../services/UserService';
 import { StatisticService } from '../../services/StatisticSerivce';
@@ -73,11 +75,28 @@ export class HomeComponent implements OnInit {
       hoverColor: 'hover:bg-purple-600',
     },
     {
+      label: 'Full Test',
+      icon: faListCheck,
+      route: '/full-test/groups',
+      color: 'bg-orange-500',
+      hoverColor: 'hover:bg-orange-600',
+    },
+  ];
+
+  quickManageActions = [
+    {
+      label: 'Lịch sử',
+      icon: faHistory,
+      route: '/history',
+      color: 'bg-blue-500',
+      hoverColor: 'hover:bg-blue-600',
+    },
+    {
       label: 'Thống kê',
       icon: faChartLine,
       route: '/statistic',
-      color: 'bg-orange-500',
-      hoverColor: 'hover:bg-orange-600',
+      color: 'bg-red-500',
+      hoverColor: 'hover:bg-red-600',
     },
   ];
 

@@ -3,4 +3,5 @@ export enum FilterType {
   VOCABULARY = 'VOCABULARY',
   GRAMMAR = 'GRAMMAR',
   ALL = 'ALL',
+  FULL_TEST = 'FULL_TEST',
 }

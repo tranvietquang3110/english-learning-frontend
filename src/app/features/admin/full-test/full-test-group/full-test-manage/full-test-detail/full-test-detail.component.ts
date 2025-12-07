@@ -11,6 +11,8 @@ import {
   faVolumeUp,
 } from '@fortawesome/free-solid-svg-icons';
 import { ToeicTestResponse } from '../../../../../../models/response/toeict-test-response.model';
+import { ToeicTestQuestionResponse } from '../../../../../../models/response/toeic-test-question-response.model';
+import { ToeicPart } from '../../../../../../models/toeic-part.enum';
 import { ToeicTestService } from '../../../../../../services/ToeicTestService';
 
 @Component({
@@ -94,5 +96,59 @@ export class FullTestDetailComponent implements OnInit {
 
   isCorrectAnswer(optionKey: string, correctAnswer: string): boolean {
     return optionKey === correctAnswer;
+  }
+
+  // Group questions by part
+  getQuestionsByPart(): {
+    part: ToeicPart;
+    questions: ToeicTestQuestionResponse[];
+    startIndex: number;
+  }[] {
+    if (!this.test?.questions) return [];
+
+    const partMap = new Map<ToeicPart, ToeicTestQuestionResponse[]>();
+
+    // Group questions by part
+    this.test.questions.forEach((question) => {
+      const part = question.part;
+      if (!partMap.has(part)) {
+        partMap.set(part, []);
+      }
+      partMap.get(part)!.push(question);
+    });
+
+    // Convert to array and sort by part number
+    const result: {
+      part: ToeicPart;
+      questions: ToeicTestQuestionResponse[];
+      startIndex: number;
+    }[] = [];
+    let currentIndex = 0;
+
+    // Sort parts from 1 to 6
+    const sortedParts = Array.from(partMap.keys()).sort((a, b) => a - b);
+
+    sortedParts.forEach((part) => {
+      const questions = partMap.get(part)!;
+      result.push({
+        part: part,
+        questions: questions,
+        startIndex: currentIndex,
+      });
+      currentIndex += questions.length;
+    });
+
+    return result;
+  }
+
+  getPartOrder(): ToeicPart[] {
+    return [
+      ToeicPart.PART_1,
+      ToeicPart.PART_2,
+      ToeicPart.PART_3,
+      ToeicPart.PART_4,
+      ToeicPart.PART_5,
+      ToeicPart.PART_6,
+    ];
   }
 }

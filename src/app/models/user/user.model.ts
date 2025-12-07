@@ -1,3 +1,6 @@
+import { Level } from '../level.enum';
+import { StudyTime } from '../request/user-profile-update-request.model';
+
 export interface User {
   id: string;
   username: string;
@@ -6,7 +9,7 @@ export interface User {
   fullname: string;
   avartarUrl: string;
   target: number; // phút mỗi ngày
-  studyTime: string; // morning | afternoon | evening | night
-  level: string; // beginner | intermediate | advanced
+  studyTime: StudyTime;
+  level: Level;
   createdAt: string;
 }

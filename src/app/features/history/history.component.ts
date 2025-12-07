@@ -6,6 +6,8 @@ import { FilterType } from '../../models/request/filter-type';
 import { ExamHistoryResponse } from '../../models/response/exam-history-response.model';
 import { environment } from '../../../environments/environment';
 import { PaginationComponent } from '../../shared/pagination/pagination.component';
+import { ItemTypeEnum } from '../../models/item-type-enum';
+import { CommonUtils } from '../../shared/utils/common';
 
 @Component({
   selector: 'app-history',
@@ -23,13 +25,15 @@ export class HistoryComponent implements OnInit {
   totalPages = 1;
   selectedFilter: FilterType = FilterType.ALL;
   isLoading = false;
-
+  itemType = ItemTypeEnum;
+  common = CommonUtils;
   // Filter options
   filterOptions = [
     { value: FilterType.ALL, label: 'Tất cả' },
     { value: FilterType.GRAMMAR, label: 'Ngữ pháp' },
     { value: FilterType.LISTENING, label: 'Nghe' },
     { value: FilterType.VOCABULARY, label: 'Từ vựng' },
+    { value: FilterType.FULL_TEST, label: 'Full Test' },
   ];
 
   ngOnInit(): void {
@@ -90,11 +94,5 @@ export class HistoryComponent implements OnInit {
     if (score >= 80) return 'text-green-600';
     if (score >= 60) return 'text-yellow-600';
     return 'text-red-600';
-  }
-
-  formatDuration(duration: number): string {
-    const minutes = Math.floor(duration / 60);
-    const seconds = duration % 60;
-    return `${minutes}:${seconds.toString().padStart(2, '0')}`;
   }
 }

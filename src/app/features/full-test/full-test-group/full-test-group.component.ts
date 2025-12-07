@@ -8,6 +8,8 @@ import {
   faArrowRight,
 } from '@fortawesome/free-solid-svg-icons';
 import { ToeicTestGroupResponse } from '../../../models/response/toeic-test-group-response.model';
+import { ToeicTestService } from '../../../services/ToeicTestService';
+import { environment } from '../../../../environments/environment';
 
 @Component({
   selector: 'app-full-test-group',
@@ -17,6 +19,14 @@ import { ToeicTestGroupResponse } from '../../../models/response/toeic-test-grou
   styleUrl: './full-test-group.component.scss',
 })
 export class FullTestGroupComponent implements OnInit {
+  readonly COLOR_LIST = [
+    '#FF5733',
+    '#33FF57',
+    '#3357FF',
+    '#FF33A1',
+    '#A133FF',
+    '#FFA133',
+  ];
   toeicGroups: ToeicTestGroupResponse[] = [];
   isLoading = false;
   error: string | null = null;
@@ -27,6 +37,12 @@ export class FullTestGroupComponent implements OnInit {
   faChevronUp = faChevronUp;
   faArrowRight = faArrowRight;
 
+  currentPage = 1;
+  readonly GROUPS_PER_PAGE = environment.PAGE_SIZE;
+  totalPages = 1;
+  totalElements = 0;
+
+  constructor(private toeicTestService: ToeicTestService) {}
   ngOnInit(): void {
     this.fetchToeicTestGroups();
   }
@@ -35,65 +51,22 @@ export class FullTestGroupComponent implements OnInit {
     this.isLoading = true;
     this.error = null;
 
-    // TODO: Implement service method to fetch groups
-    // For now, using mock data
-    setTimeout(() => {
-      this.toeicGroups = [
-        {
-          id: '1',
-          name: 'TEST ĐẦU VÀO (1)',
-          releaseDate: '2025-01-01',
-          createdAt: '2025-01-01',
-          tests: [
-            {
-              id: '1',
-              name: 'Bài test 1',
-              questions: [],
-              totalCompletion: 30719,
-              createdAt: '2025-01-01',
-            },
-            {
-              id: '2',
-              name: 'Bài test 2',
-              questions: [],
-              totalCompletion: 25000,
-              createdAt: '2025-01-01',
-            },
-          ],
+    this.toeicTestService
+      .getGroup(this.currentPage - 1, this.GROUPS_PER_PAGE)
+      .subscribe({
+        next: (groups) => {
+          this.toeicGroups = groups.content;
+          this.totalPages = groups.totalPages;
+          this.totalElements = groups.totalElements;
+          this.currentPage = groups.number + 1;
+          this.isLoading = false;
         },
-        {
-          id: '2',
-          name: 'TEST ĐẦU VÀO (2)',
-          releaseDate: '2025-01-01',
-          createdAt: '2025-01-01',
-          tests: [
-            {
-              id: '3',
-              name: 'Bài test 3',
-              questions: [],
-              totalCompletion: 20000,
-              createdAt: '2025-01-01',
-            },
-          ],
+        error: (error) => {
+          this.error =
+            'Không thể tải danh sách nhóm bài test. Vui lòng thử lại.';
+          this.isLoading = false;
         },
-        {
-          id: '3',
-          name: 'TEST BEGINNER',
-          releaseDate: '2025-01-01',
-          createdAt: '2025-01-01',
-          tests: [
-            {
-              id: '4',
-              name: 'Bài test 4',
-              questions: [],
-              totalCompletion: 20568,
-              createdAt: '2025-01-01',
-            },
-          ],
-        },
-      ];
-      this.isLoading = false;
-    }, 500);
+      });
   }
 
   toggleGroup(groupId: string): void {
@@ -110,5 +83,10 @@ export class FullTestGroupComponent implements OnInit {
 
   formatNumber(num: number): string {
     return num.toLocaleString('vi-VN');
+  }
+
+  loadMoreGroups(): void {
+    this.currentPage++;
+    this.fetchToeicTestGroups();
   }
 }

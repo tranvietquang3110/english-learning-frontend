@@ -3,8 +3,9 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { faWandMagicSparkles } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
-import { Level } from '../../../models/request/plan-intent-request.model';
+import { Level } from '../../../models/level.enum';
 import { StudyTime } from '../../../models/request/user-profile-update-request.model';
+import { UserService } from '../../../services/UserService';
 
 export interface GenerateData {
   target: number;
@@ -27,6 +28,7 @@ export class AiPlanningModalComponent {
   @Output() onClose = new EventEmitter<void>();
   @Output() onGenerate = new EventEmitter<GenerateData>();
 
+  constructor(private userService: UserService) {}
   target = 0;
   description = '';
   level: Level = Level.BEGINNER;
@@ -53,12 +55,17 @@ export class AiPlanningModalComponent {
   }
 
   handleGenerateWithAccountInfo() {
-    this.onGenerate.emit({
-      target: 0,
-      description: '',
-      level: Level.BEGINNER,
-      studyTime: StudyTime.MORNING,
-      useAccountInfo: true,
+    this.userService.loadUserProfile();
+    this.userService.user$.subscribe((user) => {
+      if (user) {
+        this.onGenerate.emit({
+          target: user.target,
+          description: '',
+          level: user.level,
+          studyTime: user.studyTime,
+          useAccountInfo: true,
+        });
+      }
     });
   }
 

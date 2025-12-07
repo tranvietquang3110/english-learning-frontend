@@ -45,7 +45,6 @@ export class SideBarComponent {
 
   sidebarItems: SidebarItem[] = [
     { label: 'Home', href: '/home', icon: faHome },
-    { label: 'News', href: '/news', icon: faNewspaper },
     {
       label: 'Learning',
       icon: faBookOpen,

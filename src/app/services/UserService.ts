@@ -115,4 +115,41 @@ export class UserService {
   getJwt() {
     return localStorage.getItem('token');
   }
+
+  getScope() {
+    const jwt = this.getJwt();
+    if (jwt) {
+      const decoded = this.decodeJwtPayload(jwt);
+      return decoded.scope;
+    }
+    return '';
+  }
+  decodeJwtPayload(token: string): any {
+    // JWT format: header.payload.signature
+    const parts = token.split('.');
+    if (parts.length !== 3) {
+      throw new Error('Invalid JWT token');
+    }
+
+    const payload = parts[1];
+
+    // Base64URL -> Base64
+    const base64 = payload.replace(/-/g, '+').replace(/_/g, '/');
+    const padded = base64.padEnd(
+      base64.length + ((4 - (base64.length % 4)) % 4),
+      '='
+    );
+
+    // Browser (Angular) dùng atob
+    const json = atob(padded);
+    return JSON.parse(json);
+    
+  }
+
+  hasScope(requiredScope: string): boolean {
+    const scope = this.getScope();
+    console.log(scope);
+    console.log(requiredScope);
+    return scope.includes(requiredScope);
+  }
 }

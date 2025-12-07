@@ -11,6 +11,7 @@ import { ViewMyPlanningDetailComponent } from './features/planning/view-my-plann
 import { HomeComponent } from './features/home/home.component';
 import { FullTestComponent } from './features/admin/full-test/full-test.component';
 import { FullTestGroupComponent } from './features/full-test/full-test-group/full-test-group.component';
+import { ScopeGuard } from './config/ScopeGuard';
 
 export const routes: Routes = [
   {
@@ -220,6 +221,8 @@ export const routes: Routes = [
           ),
       },
     ],
+    canActivate: [ScopeGuard],
+    data: { scope: 'ROLE_USER' },
   },
 
   // ✅ Layout trống cho Learn New Word
@@ -235,6 +238,8 @@ export const routes: Routes = [
           ).then((m) => m.LearnNewWordComponent),
       },
     ],
+    canActivate: [ScopeGuard],
+    data: { scope: 'ROLE_USER' },
   },
   {
     path: 'full-test/groups/:groupId/:testId',
@@ -242,6 +247,8 @@ export const routes: Routes = [
       import(
         './features/full-test/full-test-list/full-test-detail/full-test-detail.component'
       ).then((m) => m.FullTestDetailComponent),
+    canActivate: [ScopeGuard],
+    data: { scope: 'ROLE_USER' },
   },
   {
     path: 'vocabulary/tests/:topicId/:testId',
@@ -256,6 +263,8 @@ export const routes: Routes = [
         canDeactivate: [PendingChangesGuard],
       },
     ],
+    canActivate: [ScopeGuard],
+    data: { scope: 'ROLE_USER' },
   },
   {
     path: 'login',
@@ -295,6 +304,8 @@ export const routes: Routes = [
           ).then((m) => m.ListeningPracticeComponent),
       },
     ],
+    canActivate: [ScopeGuard],
+    data: { scope: 'ROLE_USER' },
   },
   {
     path: 'listening/tests/:testId',
@@ -308,6 +319,8 @@ export const routes: Routes = [
           ).then((m) => m.ListeningTestComponent),
       },
     ],
+    canActivate: [ScopeGuard],
+    data: { scope: 'ROLE_USER | ROLE_ADMIN' },
   },
   {
     path: 'admin',
@@ -436,6 +449,8 @@ export const routes: Routes = [
         redirectTo: 'vocabulary/manage',
       },
     ],
+    canActivate: [ScopeGuard],
+    data: { scope: 'ROLE_ADMIN' },
   },
   {
     path: 'grammar/tests/:testId',
@@ -449,6 +464,8 @@ export const routes: Routes = [
           ).then((m) => m.AssessmentGrammarComponent),
       },
     ],
+    canActivate: [ScopeGuard],
+    data: { scope: 'ROLE_USER | ROLE_ADMIN' },
   },
 
   { path: '**', redirectTo: '' },

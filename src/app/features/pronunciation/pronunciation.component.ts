@@ -8,6 +8,7 @@ import {
 import { PronunciationRequest } from '../../models/request/pronunciation-request.model';
 import { GetPronunciationResponse } from '../../models/response/get-pronunciation-response.model';
 import { AgentService } from '../../services/AgentService';
+import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-pronunciation',
@@ -27,7 +28,9 @@ export class PronunciationComponent implements OnInit {
   referenceAudio: GetPronunciationResponse | null = null;
   referenceAudioUrl: string | null = null;
   isPlayingReference = false;
-
+  maxDurationAudio = 0;
+  minDurationAudio = environment.PADDING_MIN_TIME;
+  isValidAudio = true;
   private mediaRecorder: MediaRecorder | null = null;
   private audioChunks: Blob[] = [];
   private referenceAudioElement: HTMLAudioElement | null = null;
@@ -84,6 +87,16 @@ export class PronunciationComponent implements OnInit {
 
       // Create audio element
       this.referenceAudioElement = new Audio(this.referenceAudioUrl);
+      this.referenceAudioElement.onloadedmetadata = () => {
+        console.log(
+          'Reference audio duration:',
+          this.referenceAudioElement?.duration
+        );
+        this.maxDurationAudio =
+          (this.referenceAudioElement?.duration || 0) +
+          environment.PADDING_MAX_TIME;
+        console.log('Audio duration:', this.maxDurationAudio);
+      };
       this.referenceAudioElement.onended = () => {
         this.isPlayingReference = false;
       };
@@ -133,6 +146,58 @@ export class PronunciationComponent implements OnInit {
         stream.getTracks().forEach((track) => track.stop());
       };
 
+      this.mediaRecorder.onstop = () => {
+        this.audioBlob = new Blob(this.audioChunks, { type: 'audio/webm' });
+        this.audioUrl = URL.createObjectURL(this.audioBlob);
+
+        const audio = new Audio(this.audioUrl);
+        audio.onloadedmetadata = () => {
+          const recordedDuration = audio.duration;
+          console.log('Recorded duration:', recordedDuration);
+
+          if (recordedDuration < this.minDurationAudio) {
+            // Xoá data
+            this.audioBlob = null!;
+            this.audioChunks = [];
+            URL.revokeObjectURL(this.audioUrl!);
+            this.audioUrl = null;
+
+            // Thông báo cho user
+            alert(
+              'Âm thanh quá ngắn (< ' +
+                this.minDurationAudio +
+                ' giây). Vui lòng ghi âm lại.'
+            );
+
+            this.isRecording = false;
+            this.isProcessing = false;
+            this.isValidAudio = false;
+            return;
+          }
+
+          if (recordedDuration > this.maxDurationAudio) {
+            this.audioBlob = null!;
+            this.audioChunks = [];
+            URL.revokeObjectURL(this.audioUrl!);
+            this.audioUrl = null;
+            alert(
+              'Âm thanh quá dài (> ' +
+                this.maxDurationAudio +
+                ' giây). Vui lòng ghi âm lại.'
+            );
+            this.isRecording = false;
+            this.isProcessing = false;
+            this.isValidAudio = false;
+            return;
+          }
+          this.isValidAudio = true;
+          console.log('Audio hợp lệ, tiếp tục xử lý...');
+        };
+
+        // Dừng stream
+        stream.getTracks().forEach((track) => track.stop());
+      };
+
       this.mediaRecorder.start();
       this.isRecording = true;
       this.pronunciationResult = null;
@@ -163,6 +228,9 @@ export class PronunciationComponent implements OnInit {
   }
 
   processPronunciation() {
+    if (!this.isValidAudio) {
+      return;
+    }
     if (!this.textToPronounce.trim()) {
       this.isProcessing = false;
       alert('Please enter text to pronounce');

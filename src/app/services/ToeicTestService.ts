@@ -97,4 +97,30 @@ export class ToeicTestService {
   getTestById(testId: string): Observable<ToeicTestResponse> {
     return this.http.get<ToeicTestResponse>(`${this.apiUrl}/tests/${testId}`);
   }
+
+  updateTotalCompletion(testId: string): Observable<void> {
+    return this.http.patch<void>(
+      `${this.apiUrl}/tests/${testId}`,
+      {},
+      {
+        responseType: 'text' as 'json',
+      }
+    );
+  }
+
+  addTestByFile(
+    groupId: string,
+    excelFile: File,
+    images: File[],
+    audios: File[]
+  ): Observable<ToeicTestResponse> {
+    const formData = new FormData();
+    formData.append('full_test_file', excelFile);
+    images.forEach((image) => formData.append('images', image));
+    audios.forEach((audio) => formData.append('audios', audio));
+    return this.http.post<ToeicTestResponse>(
+      `${this.apiUrl}/groups/${groupId}/file-tests`,
+      formData
+    );
+  }
 }

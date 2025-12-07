@@ -70,18 +70,27 @@ export class FullTestAddComponent implements OnInit {
   // Track original question IDs for edit mode
   originalQuestionIds: Set<string> = new Set();
 
+  // Shared images pool - one image can be used by multiple questions
+  sharedImages: {
+    id: string;
+    file: File | null;
+    previewUrl: string | null;
+    name: string;
+    usedByQuestions: number[]; // Array of question indices using this image
+  }[] = [];
+
   // File uploads for each question
   questionFiles: {
-    imageFile: File | null;
+    imageId: string | null; // Reference to shared image ID
     audioFile: File | null;
-    imagePreviewUrl: string | null;
     audioPreviewUrl: string | null;
-    imageName: string | null;
     audioName: string | null;
   }[] = [];
 
   // Track deleted question IDs
   deletedQuestionIds: string[] = [];
+
+  private imageIdCounter = 0;
 
   constructor(
     private fb: FormBuilder,
@@ -142,14 +151,36 @@ export class FullTestAddComponent implements OnInit {
     this.questionsFormArray.push(questionGroup);
 
     // Initialize file uploads for this question
+    const questionIndex = this.questionsFormArray.length - 1;
+    let imageId: string | null = null;
+
+    // If editing and has image, try to find or create shared image
+    if (questionData?.imageUrl) {
+      const imageName = this.extractFileName(questionData.imageUrl);
+      // Try to find existing shared image with same name
+      const existingImage = this.sharedImages.find(
+        (img) => img.name === imageName
+      );
+      if (existingImage) {
+        imageId = existingImage.id;
+        existingImage.usedByQuestions.push(questionIndex);
+      } else {
+        // Create new shared image entry
+        imageId = `img_${this.imageIdCounter++}`;
+        this.sharedImages.push({
+          id: imageId,
+          file: null,
+          previewUrl: questionData.imageUrl,
+          name: imageName,
+          usedByQuestions: [questionIndex],
+        });
+      }
+    }
+
     this.questionFiles.push({
-      imageFile: null,
+      imageId: imageId,
       audioFile: null,
-      imagePreviewUrl: questionData?.imageUrl || null,
       audioPreviewUrl: questionData?.audioUrl || null,
-      imageName: questionData?.imageUrl
-        ? this.extractFileName(questionData.imageUrl)
-        : null,
       audioName: questionData?.audioUrl
         ? this.extractFileName(questionData.audioUrl)
         : null,
@@ -171,13 +202,40 @@ export class FullTestAddComponent implements OnInit {
         this.originalQuestionIds.delete(questionId);
       }
 
-      // Clean up file preview URLs
-      if (this.questionFiles[index]?.imagePreviewUrl) {
-        URL.revokeObjectURL(this.questionFiles[index].imagePreviewUrl!);
+      // Remove image reference
+      const imageId = this.questionFiles[index]?.imageId;
+      if (imageId) {
+        const sharedImage = this.sharedImages.find((img) => img.id === imageId);
+        if (sharedImage) {
+          sharedImage.usedByQuestions = sharedImage.usedByQuestions.filter(
+            (qIdx) => qIdx !== index
+          );
+          // If no questions use this image, remove it
+          if (sharedImage.usedByQuestions.length === 0) {
+            if (
+              sharedImage.previewUrl &&
+              sharedImage.previewUrl.startsWith('blob:')
+            ) {
+              URL.revokeObjectURL(sharedImage.previewUrl);
+            }
+            this.sharedImages = this.sharedImages.filter(
+              (img) => img.id !== imageId
+            );
+          }
+        }
       }
+
+      // Clean up audio preview URL
       if (this.questionFiles[index]?.audioPreviewUrl) {
         URL.revokeObjectURL(this.questionFiles[index].audioPreviewUrl!);
       }
+
+      // Update indices for remaining questions
+      this.sharedImages.forEach((img) => {
+        img.usedByQuestions = img.usedByQuestions
+          .map((qIdx) => (qIdx > index ? qIdx - 1 : qIdx))
+          .filter((qIdx) => qIdx !== index);
+      });
 
       this.questionsFormArray.removeAt(index);
       this.questionFiles.splice(index, 1);
@@ -236,12 +294,27 @@ export class FullTestAddComponent implements OnInit {
         action = RequestType.ADD;
       }
 
-      // Collect files for upload
-      if (fileInfo.imageFile) {
-        imageFiles.push(fileInfo.imageFile);
-      }
+      // Collect audio file for upload
       if (fileInfo.audioFile) {
         audioFiles.push(fileInfo.audioFile);
+      }
+
+      // Get image info from shared images
+      let imageName: string | undefined = undefined;
+      if (fileInfo.imageId) {
+        const sharedImage = this.sharedImages.find(
+          (img) => img.id === fileInfo.imageId
+        );
+        if (sharedImage) {
+          // Only add file once per unique image
+          if (
+            sharedImage.file &&
+            !imageFiles.some((f) => f === sharedImage.file)
+          ) {
+            imageFiles.push(sharedImage.file);
+          }
+          imageName = sharedImage.name;
+        }
       }
 
       return {
@@ -257,9 +330,7 @@ export class FullTestAddComponent implements OnInit {
         part: q.part,
         explanation: q.explanation?.trim() || undefined,
         action: action,
-        imageName: fileInfo.imageFile
-          ? fileInfo.imageFile.name
-          : fileInfo.imageName || undefined,
+        imageName: imageName,
         audioName: fileInfo.audioFile
           ? fileInfo.audioFile.name
           : fileInfo.audioName || undefined,
@@ -317,15 +388,155 @@ export class FullTestAddComponent implements OnInit {
     if (input.files && input.files.length > 0) {
       const file = input.files[0];
 
-      // Clean up previous preview URL
-      if (this.questionFiles[index].imagePreviewUrl) {
-        URL.revokeObjectURL(this.questionFiles[index].imagePreviewUrl!);
+      // Remove previous image reference
+      const oldImageId = this.questionFiles[index].imageId;
+      if (oldImageId) {
+        const oldImage = this.sharedImages.find((img) => img.id === oldImageId);
+        if (oldImage) {
+          oldImage.usedByQuestions = oldImage.usedByQuestions.filter(
+            (qIdx) => qIdx !== index
+          );
+          if (oldImage.usedByQuestions.length === 0) {
+            if (
+              oldImage.previewUrl &&
+              oldImage.previewUrl.startsWith('blob:')
+            ) {
+              URL.revokeObjectURL(oldImage.previewUrl);
+            }
+            this.sharedImages = this.sharedImages.filter(
+              (img) => img.id !== oldImageId
+            );
+          }
+        }
       }
 
-      this.questionFiles[index].imageFile = file;
-      this.questionFiles[index].imagePreviewUrl = URL.createObjectURL(file);
-      this.questionFiles[index].imageName = file.name;
+      // Create new shared image
+      const imageId = `img_${this.imageIdCounter++}`;
+      const previewUrl = URL.createObjectURL(file);
+
+      this.sharedImages.push({
+        id: imageId,
+        file: file,
+        previewUrl: previewUrl,
+        name: file.name,
+        usedByQuestions: [index],
+      });
+
+      this.questionFiles[index].imageId = imageId;
     }
+  }
+
+  selectSharedImage(imageId: string, questionIndex: number): void {
+    const sharedImage = this.sharedImages.find((img) => img.id === imageId);
+    if (!sharedImage) return;
+
+    // Validate: questions using same image must be consecutive and same part
+    const currentPart = this.getQuestionControl(questionIndex, 'part').value;
+    const usedIndices = [...sharedImage.usedByQuestions, questionIndex].sort(
+      (a, b) => a - b
+    );
+
+    // Check if all questions are consecutive
+    const isConsecutive = usedIndices.every(
+      (idx, i) => i === 0 || idx === usedIndices[i - 1] + 1
+    );
+
+    // Check if all questions have same part
+    const allSamePart = usedIndices.every(
+      (idx) => this.getQuestionControl(idx, 'part').value === currentPart
+    );
+
+    if (!isConsecutive || !allSamePart) {
+      this.error =
+        'Các câu hỏi dùng chung một ảnh phải có thứ tự liên tiếp và cùng part.';
+      setTimeout(() => {
+        this.error = null;
+      }, 5000);
+      return;
+    }
+
+    // Remove previous image reference
+    const oldImageId = this.questionFiles[questionIndex].imageId;
+    if (oldImageId && oldImageId !== imageId) {
+      const oldImage = this.sharedImages.find((img) => img.id === oldImageId);
+      if (oldImage) {
+        oldImage.usedByQuestions = oldImage.usedByQuestions.filter(
+          (qIdx) => qIdx !== questionIndex
+        );
+        if (oldImage.usedByQuestions.length === 0) {
+          if (oldImage.previewUrl && oldImage.previewUrl.startsWith('blob:')) {
+            URL.revokeObjectURL(oldImage.previewUrl);
+          }
+          this.sharedImages = this.sharedImages.filter(
+            (img) => img.id !== oldImageId
+          );
+        }
+      }
+    }
+
+    // Add to shared image
+    if (!sharedImage.usedByQuestions.includes(questionIndex)) {
+      sharedImage.usedByQuestions.push(questionIndex);
+    }
+
+    this.questionFiles[questionIndex].imageId = imageId;
+  }
+
+  removeImageFromQuestion(questionIndex: number): void {
+    const imageId = this.questionFiles[questionIndex].imageId;
+    if (!imageId) return;
+
+    const sharedImage = this.sharedImages.find((img) => img.id === imageId);
+    if (sharedImage) {
+      sharedImage.usedByQuestions = sharedImage.usedByQuestions.filter(
+        (qIdx) => qIdx !== questionIndex
+      );
+      // If no questions use this image, remove it
+      if (sharedImage.usedByQuestions.length === 0) {
+        if (
+          sharedImage.previewUrl &&
+          sharedImage.previewUrl.startsWith('blob:')
+        ) {
+          URL.revokeObjectURL(sharedImage.previewUrl);
+        }
+        this.sharedImages = this.sharedImages.filter(
+          (img) => img.id !== imageId
+        );
+      }
+    }
+
+    this.questionFiles[questionIndex].imageId = null;
+  }
+
+  getSharedImageForQuestion(questionIndex: number) {
+    const imageId = this.questionFiles[questionIndex]?.imageId;
+    if (!imageId) return null;
+    return this.sharedImages.find((img) => img.id === imageId) || null;
+  }
+
+  getAvailableImagesForQuestion(questionIndex: number) {
+    const currentPart = this.getQuestionControl(questionIndex, 'part').value;
+    // Return images that are either:
+    // 1. Not used yet
+    // 2. Used by questions in the same part and can be extended consecutively
+    return this.sharedImages.filter((img) => {
+      if (img.usedByQuestions.length === 0) return true;
+
+      // Check if all questions using this image have same part
+      const allSamePart = img.usedByQuestions.every(
+        (idx) => this.getQuestionControl(idx, 'part').value === currentPart
+      );
+
+      if (!allSamePart) return false;
+
+      // Check if questionIndex can be added consecutively
+      const usedIndices = [...img.usedByQuestions, questionIndex].sort(
+        (a, b) => a - b
+      );
+      return usedIndices.every(
+        (idx, i) => i === 0 || idx === usedIndices[i - 1] + 1
+      );
+    });
   }
 
   onAudioSelected(event: Event, index: number): void {
@@ -342,17 +553,6 @@ export class FullTestAddComponent implements OnInit {
       this.questionFiles[index].audioPreviewUrl = URL.createObjectURL(file);
       this.questionFiles[index].audioName = file.name;
     }
-  }
-
-  removeImageFile(index: number): void {
-    // Clean up preview URL
-    if (this.questionFiles[index].imagePreviewUrl) {
-      URL.revokeObjectURL(this.questionFiles[index].imagePreviewUrl!);
-    }
-
-    this.questionFiles[index].imageFile = null;
-    this.questionFiles[index].imagePreviewUrl = null;
-    this.questionFiles[index].imageName = null;
   }
 
   removeAudioFile(index: number): void {

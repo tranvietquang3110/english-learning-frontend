@@ -98,12 +98,18 @@
                     class="text-2xl font-bold"
                     [class]="getScoreColor(exam.score)"
                   >
-                    {{ exam.score }}%
+                    {{
+                      exam.testType !== itemType.FULL_TEST.toString()
+                        ? exam.score + "%"
+                        : exam.score
+                    }}
                   </span>
                 </div>
               </td>
               <td class="py-4 px-4 text-gray-600">
-                {{ formatDuration(exam.duration) }}
+                {{
+                  common.diffDateTimeToString(exam.submittedAt, exam.takenAt)
+                }}
               </td>
               <td class="py-4 px-4 text-gray-600">
                 <div>{{ exam.takenAt | date : "dd/MM/yyyy" }}</div>

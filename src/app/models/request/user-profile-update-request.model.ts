@@ -1,4 +1,4 @@
-import { Level } from './plan-intent-request.model';
+import { Level } from '../../models/level.enum';
 
 export enum StudyTime {
   MORNING,

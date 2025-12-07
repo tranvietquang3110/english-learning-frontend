@@ -26,19 +26,28 @@
             </p>
           </div>
         </div>
-        <button
-          class="flex items-center gap-2 bg-navy-header hover:opacity-80 text-white px-4 py-2 rounded-lg font-medium transition-all duration-200 hover:shadow-lg hover:scale-105 active:scale-95"
-          (click)="addTest()"
-        >
-          <fa-icon [icon]="faPlus" class="text-sm"></fa-icon>
-          Thêm bài test
-        </button>
+        <div>
+          <button
+            class="flex items-center gap-2 bg-navy-header hover:opacity-80 text-white px-4 py-2 rounded-lg font-medium transition-all duration-200 hover:shadow-lg hover:scale-105 active:scale-95"
+            (click)="addTestByFile()"
+          >
+            <fa-icon [icon]="faFileAlt" class="text-sm"></fa-icon>
+            <span>Thêm bài test bằng file</span>
+          </button>
+          <button
+            class="flex items-center gap-2 bg-navy-header hover:opacity-80 text-white px-4 py-2 rounded-lg font-medium transition-all duration-200 hover:shadow-lg hover:scale-105 active:scale-95"
+            (click)="addTest()"
+          >
+            <fa-icon [icon]="faPlus" class="text-sm"></fa-icon>
+            Thêm bài test
+          </button>
+        </div>
       </div>
-      @if (currentStatus === Status.ADD) {
+      @if (currentStatus === Status.ADD || currentStatus === Status.EDIT) {
       <div class="flex items-center justify-between mb-4">
         <div class="flex items-center gap-4">
           <button
-            (click)="goBack()"
+            (click)="onCancelTest()"
             class="flex items-center gap-2 px-4 py-2 text-slate-700 hover:bg-slate-100 rounded-lg transition-colors"
           >
             <fa-icon [icon]="faArrowLeft" class="text-lg"></fa-icon>
@@ -48,22 +57,41 @@
         <div>
           <h1 class="text-3xl font-bold text-slate-800 flex items-center gap-3">
             <fa-icon [icon]="faFileAlt" class="text-navy-header"></fa-icon>
-            {{ group?.name || "Danh sách bài test TOEIC" }}
+            {{
+              currentStatus === Status.EDIT
+                ? "Chỉnh sửa bài test"
+                : "Tạo bài test mới"
+            }}
           </h1>
         </div>
       </div>
       <p class="text-slate-600 mt-2">
-        Quản lý và xem chi tiết các bài test trong nhóm này
+        {{
+          currentStatus === Status.EDIT
+            ? "Chỉnh sửa thông tin và câu hỏi của bài test"
+            : "Tạo bài test TOEIC mới cho nhóm này"
+        }}
       </p>
       }
     </div>
 
-    @if (currentStatus === Status.ADD) {
+    @if (currentStatus === Status.ADD || currentStatus === Status.EDIT) {
     <app-full-test-add
       [groupId]="groupId"
+      [initialData]="editingTest"
+      [isEditMode]="currentStatus === Status.EDIT"
       (save)="onSaveTest($event)"
       (cancel)="onCancelTest()"
     ></app-full-test-add>
+    } @if (currentStatus === Status.ADD_BY_FILE) {
+    <app-upload-by-file
+      (uploadFile)="onUploadTestByFile($event)"
+      [title]="'Thêm bài test bằng file'"
+      [description]="'Thêm bài test bằng file để tạo mới'"
+      [isContainsImage]="true"
+      [isContainsAudio]="true"
+      [excelTemplate]="excelTemplate"
+    ></app-upload-by-file>
     }
     <!-- Error Message -->
     <div
@@ -119,7 +147,7 @@
               <th
                 class="text-left py-4 px-6 font-semibold text-slate-700 text-sm uppercase tracking-wide"
               >
-                Số câu hỏi
+                Tổng số người làm bài
               </th>
               <th
                 class="text-left py-4 px-6 font-semibold text-slate-700 text-sm uppercase tracking-wide"
@@ -165,7 +193,7 @@
                     class="text-slate-400 text-sm"
                   ></fa-icon>
                   <span class="text-slate-700 font-medium">
-                    {{ getQuestionCount(test) }} câu
+                    {{ getTotalCompletion(test) }} total completion
                   </span>
                 </div>
               </td>
@@ -182,6 +210,20 @@
                   >
                     <fa-icon [icon]="faEye" class="text-sm"></fa-icon>
                     <span>Xem chi tiết</span>
+                  </button>
+                  <button
+                    (click)="editTest(test.id)"
+                    class="flex items-center gap-2 px-4 py-2 bg-yellow-600 hover:bg-yellow-700 text-white rounded-lg font-medium text-sm transition-all duration-200 hover:shadow-md hover:scale-105 active:scale-95"
+                  >
+                    <fa-icon [icon]="faEdit" class="text-sm"></fa-icon>
+                    <span>Chỉnh sửa</span>
+                  </button>
+                  <button
+                    (click)="deleteTest(test.id, test.name)"
+                    class="flex items-center gap-2 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg font-medium text-sm transition-all duration-200 hover:shadow-md hover:scale-105 active:scale-95"
+                  >
+                    <fa-icon [icon]="faTrash" class="text-sm"></fa-icon>
+                    <span>Xóa</span>
                   </button>
                 </div>
               </td>

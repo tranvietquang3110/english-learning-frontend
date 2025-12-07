@@ -7,7 +7,7 @@ import {
   UserProfileUpdateRequest,
   StudyTime,
 } from '../../../models/request/user-profile-update-request.model';
-import { Level } from '../../../models/request/plan-intent-request.model';
+import { Level } from '../../../models/level.enum';
 import { faCamera, faPencil, faLock } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { ChangePasswordComponent } from '../change-password/change-password.component';
@@ -90,26 +90,26 @@ export class ProfileComponent implements OnInit {
     this.editForm.target = this.profile.target?.toString() || '';
 
     // Map studyTime to StudyLevel enum
-    const studyTimeUpper = this.profile.studyTime?.toUpperCase();
-    if (studyTimeUpper === 'MORNING') {
+    const studyTimeUpper = this.profile.studyTime.toString();
+    if (studyTimeUpper === StudyTime.MORNING.toString()) {
       this.editForm.studyTime = StudyTime.MORNING;
-    } else if (studyTimeUpper === 'AFTERNOON') {
+    } else if (studyTimeUpper === StudyTime.AFTERNOON.toString()) {
       this.editForm.studyTime = StudyTime.AFTERNOON;
-    } else if (studyTimeUpper === 'EVENING') {
+    } else if (studyTimeUpper === StudyTime.EVENING.toString()) {
       this.editForm.studyTime = StudyTime.EVENING;
-    } else if (studyTimeUpper === 'NIGHT') {
+    } else if (studyTimeUpper === StudyTime.NIGHT.toString()) {
       this.editForm.studyTime = StudyTime.NIGHT;
     } else {
       this.editForm.studyTime = StudyTime.MORNING;
     }
 
     // Map level string to Level enum
-    const levelUpper = this.profile.level?.toUpperCase();
-    if (levelUpper === 'BEGINNER') {
+    const levelUpper = this.profile.level.toString();
+    if (levelUpper === Level.BEGINNER.toString()) {
       this.editForm.level = Level.BEGINNER;
-    } else if (levelUpper === 'INTERMEDIATE') {
+    } else if (levelUpper === Level.INTERMEDIATE.toString()) {
       this.editForm.level = Level.INTERMEDIATE;
-    } else if (levelUpper === 'ADVANCED') {
+    } else if (levelUpper === Level.ADVANCED.toString()) {
       this.editForm.level = Level.ADVANCED;
     } else {
       this.editForm.level = Level.BEGINNER;
@@ -166,14 +166,14 @@ export class ProfileComponent implements OnInit {
     const option = this.studyLevelOptions.find(
       (opt) => opt.value === this.editForm.studyTime
     );
-    return option?.label || this.profile?.studyTime || '';
+    return option?.label || this.profile?.studyTime.toString() || '';
   }
 
   getLevelLabel(): string {
     const option = this.levelOptions.find(
       (opt) => opt.value === this.editForm.level
     );
-    return option?.label || this.profile?.level || '';
+    return option?.label || this.profile?.level.toString() || '';
   }
 
   onSubmit(): void {
