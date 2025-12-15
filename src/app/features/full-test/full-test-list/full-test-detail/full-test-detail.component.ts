@@ -243,7 +243,7 @@ export class FullTestDetailComponent implements OnInit, OnDestroy {
           },
           correctAnswer: ['A', 'B', 'C', 'D'][Math.floor(Math.random() * 4)],
           part: partInfo.part,
-          createdAt: new Date().toISOString(),
+          createdAt: CommonUtils.getNow(),
         };
 
         // Add image for Part 1

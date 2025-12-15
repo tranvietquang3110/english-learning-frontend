@@ -385,4 +385,10 @@ export class TestFormComponent implements OnInit {
       delete: this.getQuestionsToDelete().length,
     };
   }
+
+  get visibleQuestions() {
+    return this.testData.questions.filter(
+      (q) => q.requestType !== RequestType.DELETE
+    );
+  }
 }

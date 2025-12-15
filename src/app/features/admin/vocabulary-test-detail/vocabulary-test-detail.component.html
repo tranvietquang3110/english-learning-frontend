@@ -27,9 +27,6 @@
         </div>
 
         <div class="flex space-x-3" *ngIf="test">
-          <button (click)="editTest()" class="form-button-primary">
-            Chỉnh sửa
-          </button>
           <button (click)="deleteTest()" class="form-button-danger">Xóa</button>
         </div>
       </div>
@@ -153,9 +150,6 @@
                 <h4 class="text-lg font-medium text-gray-900">
                   Câu {{ i + 1 }}
                 </h4>
-                <span class="text-sm text-gray-500"
-                  >Thứ tự: {{ question.questionOrder }}</span
-                >
               </div>
 
               <!-- Question Content -->

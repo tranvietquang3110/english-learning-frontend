@@ -56,7 +56,11 @@
             class="text-3xl font-bold"
             [class]="getScoreColor(historyDetail.score)"
           >
-            {{ historyDetail.score }}%
+            {{
+              historyDetail.testType !== itemType.FULL_TEST
+                ? historyDetail.score + "%"
+                : historyDetail.score
+            }}
           </div>
           <div class="text-sm text-gray-600">Điểm số</div>
         </div>
@@ -74,7 +78,7 @@
         </div>
         <div class="text-center p-4 bg-purple-50 rounded-lg">
           <div class="text-2xl font-bold text-purple-600">
-            {{ formatDuration(historyDetail.duration) }}
+            {{ getTime(historyDetail.takenAt, historyDetail.submittedAt) }}
           </div>
           <div class="text-sm text-gray-600">Thời gian</div>
         </div>

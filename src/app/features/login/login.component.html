@@ -21,14 +21,20 @@
 
     <!-- Login Form -->
     <div
-      class="bg-white/5 backdrop-blur-xl border border-white/10 shadow-2xl rounded-lg"
+      class="p-6 bg-white/5 backdrop-blur-xl border border-white/10 shadow-2xl rounded-lg"
     >
-      <div class="space-y-1 pb-6 text-center p-6">
+      <div *ngIf="errorMessage != ''" class="text-red-600">
+        {{ errorMessage }}
+      </div>
+      <div *ngIf="successMessage != ''" class="text-green-600">
+        {{ successMessage }}
+      </div>
+      <div *ngIf="authState === 'LOGIN'" class="space-y-1 text-center p-6">
         <h2 class="text-2xl font-semibold text-white">Đăng nhập</h2>
         <p class="text-slate-300">Nhập thông tin tài khoản của bạn</p>
       </div>
 
-      <div class="px-6 pb-6">
+      <div *ngIf="authState === 'LOGIN'" class="">
         <form
           #loginForm="ngForm"
           (ngSubmit)="handleSubmit(loginForm)"
@@ -103,8 +109,10 @@
           <!-- Remember + Forgot -->
           <div class="flex items-center justify-between text-sm">
             <a
-              routerLink="/forgot-password"
-              class="text-primary hover:text-primary/80 transition-colors"
+              href="javascript:void(0)"
+              (click)="setState('FORGOT')"
+              class="text-primary hover:text-primary/80"
+            >
               >Quên mật khẩu?</a
             >
           </div>
@@ -149,6 +157,268 @@
               >Đăng ký ngay</a
             >
           </p>
+        </div>
+      </div>
+      <div *ngIf="authState === 'FORGOT'" class="space-y-6">
+        <div class="text-center mb-6">
+          <h2 class="text-2xl font-semibold text-white">Quên mật khẩu</h2>
+          <p class="text-slate-300 text-sm">
+            Nhập email để nhận link đặt lại mật khẩu
+          </p>
+        </div>
+
+        <form #forgotForm="ngForm" (ngSubmit)="submitForgot(forgotForm)">
+          <div class="space-y-2">
+            <label class="text-sm text-slate-200">Email</label>
+            <input
+              type="email"
+              name="email"
+              [(ngModel)]="forgotEmail"
+              required
+              email
+              class="w-full h-12 px-3 bg-white/5 border border-white/20 rounded-md text-white"
+            />
+          </div>
+
+          <button
+            type="submit"
+            [disabled]="isLoading"
+            class="mt-4 w-full h-12 bg-primary hover:bg-primary/90 text-white font-medium rounded-md transition-all duration-200 group flex items-center justify-center"
+          >
+            <ng-container *ngIf="isLoading; else normalForgot">
+              <div class="flex items-center space-x-2">
+                <div
+                  class="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"
+                ></div>
+                <span>Đang gửi...</span>
+              </div>
+            </ng-container>
+            <ng-template #normalForgot>
+              <button
+                type="submit"
+                [disabled]="forgotForm.invalid"
+                class="flex items-center space-x-2"
+              >
+                <span> Gửi link đặt lại mật khẩu</span>
+                <fa-icon
+                  [icon]="faArrowRight"
+                  class="w-4 h-4 group-hover:translate-x-1 transition-transform"
+                ></fa-icon>
+              </button>
+            </ng-template>
+          </button>
+        </form>
+
+        <button
+          type="button"
+          (click)="setState('LOGIN')"
+          class="text-sm text-slate-400 hover:text-white mt-4"
+        >
+          ← Quay lại đăng nhập
+        </button>
+      </div>
+
+      <div
+        *ngIf="authState === 'OTP'"
+        class="space-y-6 animate-fade-in px-6 py-6"
+      >
+        <!-- Info -->
+        <p class="text-slate-300 text-sm text-center">
+          Mã OTP đã được gửi đến email
+          <br />
+          <strong class="text-white">{{ forgotEmail }}</strong>
+        </p>
+
+        <!-- OTP Form -->
+        <form [formGroup]="otpForm" (ngSubmit)="verifyOtp()" class="space-y-6">
+          <!-- Label -->
+          <label class="block text-sm font-medium text-slate-200 text-center">
+            Nhập mã OTP (4 số)
+          </label>
+
+          <!-- OTP Inputs -->
+          <div class="flex justify-center gap-3">
+            <input
+              *ngFor="let field of otpFields; let i = index"
+              #inputField
+              type="text"
+              inputmode="numeric"
+              maxlength="1"
+              autocomplete="off"
+              placeholder="0"
+              (keyup)="onKeyUp($event)"
+              class="w-12 h-12 text-center text-lg font-semibold bg-white/5 border border-white/20 rounded-md text-white placeholder:text-slate-400 focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/30 transition-all duration-150"
+              [ngClass]="{
+                'border-red-500 ring-2 ring-red-500/30':
+                  otpForm.get('otp')?.invalid && otpForm.get('otp')?.touched
+              }"
+              [attr.aria-label]="'OTP digit ' + (i + 1)"
+            />
+          </div>
+
+          <!-- Error -->
+          <p
+            *ngIf="otpForm.get('otp')?.invalid && otpForm.get('otp')?.touched"
+            class="text-red-400 text-sm text-center"
+          >
+            Vui lòng nhập đầy đủ 4 số OTP
+          </p>
+
+          <!-- Submit -->
+          <button
+            type="submit"
+            [disabled]="isLoading"
+            class="w-full h-12 bg-primary hover:bg-primary/90 text-white font-medium rounded-md transition-all duration-200 flex items-center justify-center disabled:opacity-60 disabled:cursor-not-allowed"
+          >
+            <ng-container *ngIf="isLoading; else otpBtn">
+              <div class="flex items-center gap-2">
+                <div
+                  class="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"
+                ></div>
+                <span>Đang xác thực...</span>
+              </div>
+            </ng-container>
+
+            <ng-template #otpBtn> Xác thực OTP </ng-template>
+          </button>
+        </form>
+
+        <!-- Divider -->
+        <div class="border-t border-white/10"></div>
+
+        <!-- Resend -->
+        <div class="text-center text-sm">
+          <button
+            *ngIf="canResendOtp"
+            type="button"
+            (click)="resendOtp()"
+            [disabled]="isLoading"
+            class="text-primary hover:text-primary/80 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            Gửi lại mã OTP
+          </button>
+
+          <p *ngIf="!canResendOtp" class="text-slate-400">
+            Vui lòng chờ
+            <span class="text-white font-medium"> {{ remainingTime }}s </span>
+            để gửi lại mã OTP
+          </p>
+        </div>
+      </div>
+
+      <div *ngIf="authState === 'PASSWORD'" class="space-y-6 animate-fade-in">
+        <!-- Title -->
+        <div class="text-center space-y-2">
+          <h2 class="text-2xl font-semibold text-white">Đặt lại mật khẩu</h2>
+          <p class="text-slate-300 text-sm">
+            Nhập mật khẩu mới cho tài khoản
+            <br />
+            <strong class="text-white">{{ forgotEmail }}</strong>
+          </p>
+        </div>
+
+        <!-- Password Form -->
+        <form
+          [formGroup]="passwordForm"
+          (ngSubmit)="resetPassword()"
+          class="space-y-6"
+        >
+          <!-- New Password -->
+          <div class="space-y-2">
+            <label class="block text-sm font-medium text-slate-200">
+              Mật khẩu mới
+            </label>
+
+            <input
+              type="password"
+              formControlName="newPassword"
+              placeholder="Nhập mật khẩu mới"
+              class="w-full h-12 px-3 bg-white/5 border border-white/20 rounded-md text-white placeholder:text-slate-400 focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/30 transition-all"
+              [ngClass]="{
+                'border-red-500 ring-2 ring-red-500/30':
+                  passwordForm.get('newPassword')?.invalid &&
+                  passwordForm.get('newPassword')?.touched
+              }"
+            />
+
+            <p
+              *ngIf="
+          passwordForm.get('newPassword')?.errors?.['required'] &&
+          passwordForm.get('newPassword')?.touched
+        "
+              class="text-red-400 text-sm"
+            >
+              Mật khẩu mới là bắt buộc
+            </p>
+
+            <p
+              *ngIf="
+          passwordForm.get('newPassword')?.errors?.['minlength'] &&
+          passwordForm.get('newPassword')?.touched
+        "
+              class="text-red-400 text-sm"
+            >
+              Mật khẩu phải có ít nhất 6 ký tự
+            </p>
+          </div>
+
+          <!-- Confirm Password -->
+          <div class="space-y-2">
+            <label class="block text-sm font-medium text-slate-200">
+              Xác nhận mật khẩu mới
+            </label>
+
+            <input
+              type="password"
+              formControlName="confirmPassword"
+              placeholder="Nhập lại mật khẩu"
+              class="w-full h-12 px-3 bg-white/5 border border-white/20 rounded-md text-white placeholder:text-slate-400 focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/30 transition-all"
+              [ngClass]="{
+          'border-red-500 ring-2 ring-red-500/30':
+            passwordForm.errors?.['passwordMismatch'] &&
+            passwordForm.get('confirmPassword')?.touched
+        }"
+            />
+
+            <p
+              *ngIf="
+          passwordForm.errors?.['passwordMismatch'] &&
+          passwordForm.get('confirmPassword')?.touched
+        "
+              class="text-red-400 text-sm"
+            >
+              Mật khẩu xác nhận không khớp
+            </p>
+          </div>
+
+          <!-- Submit -->
+          <button
+            type="submit"
+            [disabled]="passwordForm.invalid || isLoading"
+            class="w-full h-12 bg-primary hover:bg-primary/90 text-white font-medium rounded-md transition-all duration-200 flex items-center justify-center disabled:opacity-60 disabled:cursor-not-allowed"
+          >
+            <ng-container *ngIf="isLoading; else resetBtn">
+              <div class="flex items-center gap-2">
+                <div
+                  class="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"
+                ></div>
+                <span>Đang cập nhật...</span>
+              </div>
+            </ng-container>
+
+            <ng-template #resetBtn> Cập nhật mật khẩu </ng-template>
+          </button>
+        </form>
+
+        <!-- Back -->
+        <div class="text-center">
+          <button
+            type="button"
+            (click)="setState('LOGIN')"
+            class="text-sm text-slate-400 hover:text-white transition-colors"
+          >
+            ← Quay lại đăng nhập
+          </button>
         </div>
       </div>
     </div>

@@ -104,15 +104,12 @@ export class ChangePasswordComponent
 
     this.userService.sendOtp(this.email).subscribe({
       next: (response) => {
+        console.log(response);
         this.isLoading = false;
-        if (response.code === 200 || response.code === 0) {
-          this.successMessage =
-            'Mã OTP đã được gửi đến email của bạn. Vui lòng kiểm tra hộp thư.';
-          this.startResendTimer();
-        } else {
-          this.errorMessage =
-            response.message || 'Không thể gửi mã OTP. Vui lòng thử lại.';
-        }
+        console.log('vao day');
+        this.successMessage =
+          'Mã OTP đã được gửi đến email của bạn. Vui lòng kiểm tra hộp thư.';
+        this.startResendTimer();
       },
       error: (error) => {
         this.isLoading = false;
@@ -230,18 +227,13 @@ export class ChangePasswordComponent
     this.userService.resetPassword(this.resetToken, newPassword).subscribe({
       next: (response) => {
         this.isLoading = false;
-        if (response.code === 200 || response.code === 0) {
-          this.successMessage = 'Đổi mật khẩu thành công!';
-          console.log('response', response);
-          // Reset form
-          setTimeout(() => {
-            this.userService.logout();
-            this.router.navigate(['/login']);
-          }, 2000);
-        } else {
-          this.errorMessage =
-            response.message || 'Không thể đổi mật khẩu. Vui lòng thử lại.';
-        }
+        this.successMessage = 'Đổi mật khẩu thành công!';
+        console.log('response', response);
+        // Reset form
+        setTimeout(() => {
+          this.userService.logout();
+          this.router.navigate(['/login']);
+        }, 2000);
       },
       error: (error) => {
         this.isLoading = false;

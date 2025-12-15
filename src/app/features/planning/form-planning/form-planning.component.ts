@@ -62,6 +62,7 @@ export class FormPlanningComponent implements OnInit {
 
   // Available topic types
   topicTypes = [
+    { value: ItemTypeEnum.NOTHING, label: 'Chọn loại chủ đề topic' },
     { value: ItemTypeEnum.VOCABULARY, label: 'Từ vựng' },
     { value: ItemTypeEnum.GRAMMAR, label: 'Ngữ pháp' },
     { value: ItemTypeEnum.LISTENING, label: 'Nghe hiểu' },
@@ -85,6 +86,7 @@ export class FormPlanningComponent implements OnInit {
 
   ngOnInit(): void {
     console.log('FormPlanningComponent ngOnInit', this.planToEdit);
+
     if (
       (this.isEditMode && this.planToEdit) ||
       (this.isGenerateMode && this.planToEdit)
@@ -100,19 +102,19 @@ export class FormPlanningComponent implements OnInit {
       this.planRequest = {
         title: this.planToEdit.title,
         description: this.planToEdit.description,
-        startDate: this.formatDateFromISO(this.planToEdit.startDate),
-        endDate: this.formatDateFromISO(this.planToEdit.endDate),
+        startDate: this.formatDateFromISO(this.planToEdit.startDate.toString()),
+        endDate: this.formatDateFromISO(this.planToEdit.endDate.toString()),
         target: this.planToEdit.target,
         planGroups: this.planToEdit.planGroups.map((group) => ({
           name: group.name,
           description: group.description,
-          startDate: this.formatDateFromISO(group.startDate),
-          endDate: this.formatDateFromISO(group.endDate),
+          startDate: this.formatDateFromISO(group.startDate.toString()),
+          endDate: this.formatDateFromISO(group.endDate.toString()),
           planDetails: group.planDetails.map((detail) => ({
             topicType: detail.topicType,
             topicId: detail.topicId,
-            startDate: this.formatDateFromISO(detail.startDate),
-            endDate: this.formatDateFromISO(detail.endDate),
+            startDate: detail.startDate,
+            endDate: detail.endDate,
             topicName: detail.topicName,
             description: detail.description,
           })),
@@ -206,7 +208,7 @@ export class FormPlanningComponent implements OnInit {
   getNewPlanDetailForGroup(groupIndex: number): PlanDetailRequest {
     if (!this.planRequest.planGroups[groupIndex].newPlanDetail) {
       this.planRequest.planGroups[groupIndex].newPlanDetail = {
-        topicType: ItemTypeEnum.VOCABULARY,
+        topicType: ItemTypeEnum.NOTHING,
         topicId: '',
         startDate: '',
         endDate: '',
@@ -258,6 +260,7 @@ export class FormPlanningComponent implements OnInit {
   }
 
   getTopicTypeLabel(topicType: ItemTypeEnum): string {
+    if (topicType === ItemTypeEnum.NOTHING) return '';
     const type = this.topicTypes.find((t) => t.value === topicType);
     return type ? type.label : topicType;
   }
@@ -376,10 +379,8 @@ export class FormPlanningComponent implements OnInit {
   }
 
   formatDateForAPI(dateString: string): string {
-    // Convert datetime-local format to ISO string for API
     if (!dateString) return '';
-    const date = new Date(dateString);
-    return date.toISOString();
+    return dateString.length === 16 ? `${dateString}:00` : dateString;
   }
 
   formatDateFromISO(isoString: string): string {
@@ -414,7 +415,7 @@ export class FormPlanningComponent implements OnInit {
         })),
       })),
     };
-
+    console.log(planRequestForAPI);
     // Use appropriate API based on mode
     let apiCall: Observable<PlanResponse>;
     if (this.isEditMode && this.planToEdit) {

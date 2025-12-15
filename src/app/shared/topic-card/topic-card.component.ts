@@ -34,9 +34,11 @@ export class TopicCardComponent {
   faHeartSolid = faHeartSolid;
   faHeartRegular = faHeartRegular;
 
-  badgeClass(status: TopicBase['status']) {
-    if (status === 'Completed') return 'bg-primary text-primary-foreground';
-    if (status === 'In Progress') return 'bg-muted text-foreground';
+  badgeClass(base: TopicBase) {
+    console.log(base);
+    if (base.status === 'Completed')
+      return 'bg-primary text-primary-foreground';
+    if (base.status === 'In Progress') return 'bg-muted text-foreground';
     return 'border border-primary text-primary';
   }
 
@@ -56,6 +58,7 @@ export class TopicCardComponent {
   }
 
   onDelete(e: MouseEvent) {
+    console.log('on Delete topic card');
     e.stopPropagation();
     this.delete.emit(this.topic);
   }

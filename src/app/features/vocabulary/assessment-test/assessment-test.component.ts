@@ -17,6 +17,7 @@ import { QuestionGridComponent } from '../../../shared/question-grid-component/q
 import { HistoryService } from '../../../services/HistoryService';
 import { ItemTypeEnum } from '../../../models/item-type-enum';
 import { ExamHistoryResponse } from '../../../models/response/exam-history-response.model';
+import { CommonUtils } from '../../../shared/utils/common';
 
 @Component({
   selector: 'app-assessment-test',
@@ -36,8 +37,8 @@ export class AssessmentTestComponent implements OnDestroy {
   selectedAnswers: (string | undefined)[] = [];
   showResults = false;
   timeRemaining = 300;
-  startDate = new Date();
-  endDate = new Date();
+  startDate = CommonUtils.getNow();
+  endDate = CommonUtils.getNow();
   // icons
   faChevronRight = faChevronRight;
   faCheckCircle = faCheckCircle;
@@ -123,18 +124,6 @@ export class AssessmentTestComponent implements OnDestroy {
   }
 
   handleFinish() {
-    console.log({
-      testType: ItemTypeEnum.VOCABULARY,
-      testId: this.testId,
-      score: this.calculateScore().percentage,
-      answers: this.selectedAnswers.map((answer, index) => ({
-        questionId: this.questions[index].id,
-        selectedAnswer: answer || '',
-        isCorrect: this.questions[index].correctAnswer === answer,
-      })),
-      takenAt: this.startDate.toISOString(),
-      submittedAt: new Date().toISOString(),
-    });
     this.showResults = true;
     this.clearTimer();
     this.historyService
@@ -147,8 +136,8 @@ export class AssessmentTestComponent implements OnDestroy {
           selectedAnswer: answer || '',
           correct: this.questions[index].correctAnswer === answer,
         })),
-        takenAt: this.startDate.toISOString(),
-        submittedAt: new Date().toISOString(),
+        takenAt: this.startDate,
+        submittedAt: CommonUtils.getNow(),
       })
       .subscribe({
         next: (data: ExamHistoryResponse) => {

@@ -376,7 +376,7 @@
 
       <div class="space-y-4">
         <div
-          *ngFor="let question of testData.questions; let i = index"
+          *ngFor="let question of visibleQuestions; let i = index"
           class="p-4 border border-gray-200 rounded-lg"
         >
           <div *ngIf="question.requestType !== RequestType.DELETE">

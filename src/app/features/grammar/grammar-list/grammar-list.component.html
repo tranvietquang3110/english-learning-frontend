@@ -2,7 +2,7 @@
   <ng-container *ngIf="!selectedGrammar; else detailView">
     <!-- List view -->
     <div>
-      <h1 class="text-3xl font-bold mb-2">{{ title }}</h1>
+      <h1 class="text-3xl font-bold mb-2 text-white">{{ title }}</h1>
       <button
         class="mb-4 flex items-center gap-2 text-sm text-muted-foreground hover:text-primary"
         (click)="goBack()"
@@ -15,25 +15,25 @@
     <div class="grid grid-cols-1 gap-6">
       <div
         *ngFor="let grammar of grammars; let i = index"
-        class="group border rounded-md bg-white px-4 py-3 cursor-pointer transition-all"
+        class="bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-slate-700 shadow-sm hover:shadow-md transition-shadow duration-300 group border rounded-md px-4 py-3 cursor-pointer transition-all"
       >
         <div class="flex items-center justify-between">
           <div class="flex-1 pr-4">
             <!-- số thứ tự -->
             <div class="flex items-center gap-2 mb-1">
               <span
-                class="flex h-6 w-6 items-center justify-center rounded-full bg-navy-header text-white text-xs font-bold"
+                class="flex h-6 w-6 items-center justify-center rounded-full bg-white text-navy-header text-xs font-bold"
               >
                 {{ i + 1 }}
               </span>
-              <h3 class="text-lg font-bold text-navy-header">
+              <h3 class="text-lg font-bold text-white">
                 {{ grammar.title }}
               </h3>
             </div>
 
             <!-- tóm tắt + mở rộng khi hover -->
             <p
-              class="text-gray-600 text-sm overflow-hidden transition-all duration-300 ease-in-out max-h-10 group-hover:max-h-40"
+              class="text-white text-sm overflow-hidden transition-all duration-300 ease-in-out max-h-10 group-hover:max-h-40"
             >
               {{ grammar.description }}
             </p>
@@ -42,7 +42,7 @@
           <!-- button -->
           <button
             (click)="onLearn(grammar)"
-            class="ml-4 border border-navy-header text-navy-header font-medium px-3 py-1 rounded-md hover:bg-navy-header hover:text-white transition-colors"
+            class="ml-4 border border-white text-white font-medium px-3 py-1 rounded-md hover:bg-navy-header hover:text-white transition-colors"
           >
             Học ngay
           </button>

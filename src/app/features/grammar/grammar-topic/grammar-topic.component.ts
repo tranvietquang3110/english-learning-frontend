@@ -80,6 +80,7 @@ export class GrammarTopicComponent implements OnInit {
               name: topic.name,
               progress: 0,
               status: 'Complete',
+              level: topic.level,
             });
           });
           this.totalPages = data.totalPages;

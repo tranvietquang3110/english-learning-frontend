@@ -4,6 +4,8 @@ import { ActivatedRoute, RouterModule } from '@angular/router';
 import { HistoryService } from '../../../services/HistoryService';
 import { ExamHistoryResponse } from '../../../models/response/exam-history-response.model';
 import { QuestionResponse } from '../../../models/response/question-response.model';
+import { ItemTypeEnum } from '../../../models/item-type-enum';
+import { CommonUtils } from '../../../shared/utils/common';
 
 @Component({
   selector: 'app-history-detail',
@@ -13,6 +15,7 @@ import { QuestionResponse } from '../../../models/response/question-response.mod
   styleUrl: './history-detail.component.scss',
 })
 export class HistoryDetailComponent implements OnInit {
+  itemType = ItemTypeEnum;
   examHistoryId: string = '';
   historyDetail: ExamHistoryResponse | null = null;
   constructor(
@@ -28,6 +31,7 @@ export class HistoryDetailComponent implements OnInit {
   loadHistoryDetail() {
     this.historyService.getHistoryById(this.examHistoryId).subscribe((res) => {
       this.historyDetail = res;
+      console.log(this.historyDetail.testType === ItemTypeEnum.FULL_TEST);
       console.log(res);
     });
   }
@@ -63,6 +67,9 @@ export class HistoryDetailComponent implements OnInit {
     const minutes = Math.floor(duration / 60);
     const seconds = duration % 60;
     return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+  }
+  getTime(takenTime: string, submitTime: string) {
+    return CommonUtils.diffDateTimeToString(submitTime, takenTime);
   }
 
   isAnswerCorrect(question: QuestionResponse): boolean {

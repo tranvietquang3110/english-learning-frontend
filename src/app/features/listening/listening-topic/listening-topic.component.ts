@@ -53,6 +53,7 @@ export class ListeningTopicsComponent implements OnInit {
             progress: 0,
             status: 'Complete',
             favoriteId: topic.favoriteId,
+            level: topic.level,
           });
         });
         this.isLoading = false;

@@ -3,4 +3,5 @@ export enum ItemTypeEnum {
   VOCABULARY = 'VOCABULARY',
   GRAMMAR = 'GRAMMAR',
   FULL_TEST = 'FULL_TEST',
+  NOTHING = 'NOTHING',
 }

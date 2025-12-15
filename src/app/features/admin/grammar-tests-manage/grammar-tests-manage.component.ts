@@ -28,6 +28,7 @@ import { TestBase } from '../../../models/test-base';
 import { GrammarTestRequest } from '../../../models/request/grammar-test-request.model';
 import { GrammarTestQuestion } from '../../../models/grammar/grammar-test-question.model';
 import { RequestType } from '../../../models/request-type.model';
+import { CommonUtils } from '../../../shared/utils/common';
 
 enum State {
   View,
@@ -269,7 +270,7 @@ export class GrammarTestsManageComponent implements OnInit {
           grammarId: testData.grammarId,
           name: testData.testName,
           duration: testData.duration,
-          createdAt: new Date().toISOString(), // Default value since not provided
+          createdAt: CommonUtils.getNow(), // Default value since not provided
         };
 
         // Store questions for editing

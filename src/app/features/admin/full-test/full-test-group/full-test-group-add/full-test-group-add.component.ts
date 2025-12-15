@@ -82,7 +82,7 @@ export class FullTestGroupAddComponent implements OnInit {
 
   formatDateForAPI(dateString: string): string {
     if (!dateString) return '';
-    // Convert YYYY-MM-DD to ISO string
+
     const date = new Date(dateString);
     return date.toISOString();
   }

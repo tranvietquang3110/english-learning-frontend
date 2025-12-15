@@ -20,6 +20,7 @@ import {
 import { HistoryService } from '../../../services/HistoryService';
 import { ItemTypeEnum } from '../../../models/item-type-enum';
 import { ExamHistoryResponse } from '../../../models/response/exam-history-response.model';
+import { CommonUtils } from '../../../shared/utils/common';
 
 @Component({
   selector: 'app-listening-test',
@@ -128,7 +129,7 @@ export class ListeningTestComponent {
     if (!this.questions) return;
     this.isTestStarted = true;
     this.timeRemaining = this.duration * 60; // Convert minutes to seconds
-    this.startDate = new Date().toISOString();
+    this.startDate = CommonUtils.getNow();
     const timer = setInterval(() => {
       if (!this.isTestStarted || this.isTestCompleted) {
         clearInterval(timer);
@@ -198,7 +199,7 @@ export class ListeningTestComponent {
           correct: d.correct,
         })),
         takenAt: this.startDate,
-        submittedAt: new Date().toISOString(),
+        submittedAt: CommonUtils.getNow(),
       })
       .subscribe({
         next: (data: ExamHistoryResponse) => {
@@ -250,5 +251,11 @@ export class ListeningTestComponent {
     if (questionIndex >= 0 && questionIndex < this.questions.length) {
       this.currentQuestionIndex = questionIndex;
     }
+  }
+
+  formatDateForAPI(dateString: string): string {
+    // Convert datetime-local format to ISO string for API
+    if (!dateString) return '';
+    return dateString.length === 16 ? `${dateString}:00` : dateString;
   }
 }

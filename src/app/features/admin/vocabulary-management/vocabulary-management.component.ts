@@ -124,6 +124,7 @@ export class VocabularyManagementComponent implements OnInit {
           this.topics = this.topics.filter(
             (t) => t.id !== this.topicToDelete!.id
           );
+          this.isShowConfirmDialog = false;
           this.changeToView();
         },
       });

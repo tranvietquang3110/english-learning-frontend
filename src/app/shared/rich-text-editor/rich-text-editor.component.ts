@@ -60,7 +60,8 @@ export class RichTextEditorComponent
   error: string | null = null;
   selectedImageIndex: number | null = null;
   uploadedImages: Map<string, string> = new Map(); // Map<publicId, url>
-
+  private savedRange: any = null;
+  private previousDelta: any = null;
   // Editor configuration
   private editorConfig = {
     theme: 'snow',
@@ -99,6 +100,16 @@ export class RichTextEditorComponent
 
     try {
       this.quill = new Quill(this.editorRef.nativeElement, this.editorConfig);
+
+      this.previousDelta = this.quill.getContents();
+
+      this.quill.on('text-change', (delta, oldDelta, source) => {
+        if (source !== 'user') return;
+
+        this.detectDeletedImages(oldDelta, delta);
+
+        this.previousDelta = delta;
+      });
 
       // Set initial content
       if (this.content) {
@@ -236,6 +247,8 @@ export class RichTextEditorComponent
   }
 
   selectLocalImage(): void {
+    if (!this.quill) return;
+    this.savedRange = this.quill.getSelection();
     const input = document.createElement('input');
     input.setAttribute('type', 'file');
     input.setAttribute('accept', 'image/*');
@@ -270,10 +283,14 @@ export class RichTextEditorComponent
   }
 
   insertImage(url: string): void {
-    if (this.quill) {
-      const range = this.quill.getSelection();
-      this.quill.insertEmbed(range?.index || 0, 'image', url);
-    }
+    if (!this.quill) return;
+
+    const range = this.savedRange || this.quill.getSelection(true);
+
+    const index = range ? range.index : this.quill.getLength();
+
+    this.quill.insertEmbed(index, 'image', url, 'user');
+    this.quill.setSelection(index + 1, 0);
   }
 
   deleteSelectedImage(): void {
@@ -364,5 +381,31 @@ export class RichTextEditorComponent
       event.preventDefault();
       this.contentChange.emit(this.getContent());
     }
+  }
+
+  detectDeletedImages(oldDelta: any, newDelta: any): void {
+    const oldImages = this.extractImages(oldDelta);
+    const newImages = this.extractImages(newDelta);
+
+    const deletedImages = oldImages.filter((img) => !newImages.includes(img));
+
+    deletedImages.forEach((imgUrl) => {
+      console.log('Ảnh bị xóa:', imgUrl);
+      this.deleteImageFromServer(imgUrl);
+    });
+  }
+
+  extractImages(delta: any): string[] {
+    const images: string[] = [];
+
+    if (!delta?.ops) return images;
+
+    delta.ops.forEach((op: any) => {
+      if (op.insert && typeof op.insert === 'object' && op.insert.image) {
+        images.push(op.insert.image);
+      }
+    });
+
+    return images;
   }
 }

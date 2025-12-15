@@ -18,6 +18,7 @@ import { HistoryService } from '../../../services/HistoryService';
 
 import { ItemTypeEnum } from '../../../models/item-type-enum';
 import { ExamHistoryResponse } from '../../../models/response/exam-history-response.model';
+import { CommonUtils } from '../../../shared/utils/common';
 
 @Component({
   selector: 'app-assessment-grammar',
@@ -80,7 +81,7 @@ export class AssessmentGrammarComponent implements OnDestroy {
         this.selectedAnswers = new Array(this.questions.length).fill(undefined);
         this.showResults = false;
         this.startTimer();
-        this.startDate = new Date().toISOString();
+        this.startDate = CommonUtils.getNow();
       },
       error: (err) => {
         console.error('Failed to load grammar questions', err);
@@ -130,7 +131,7 @@ export class AssessmentGrammarComponent implements OnDestroy {
           correct: this.questions[index].correctAnswer === answer,
         })),
         takenAt: this.startDate,
-        submittedAt: new Date().toISOString(),
+        submittedAt: CommonUtils.getNow(),
       })
       .subscribe({
         next: (data: ExamHistoryResponse) => {
