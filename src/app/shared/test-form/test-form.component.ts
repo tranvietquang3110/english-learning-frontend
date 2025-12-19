@@ -22,6 +22,7 @@ export interface TestQuestion {
   audioName?: string;
   requestType?: RequestType; // Optional for backward compatibility
   id?: string; // For existing questions
+  isNewAdd?: boolean;
 }
 
 export interface TestFormData {
@@ -56,6 +57,9 @@ export class TestFormComponent implements OnInit {
   @Input() isEditMode = false; // Flag to indicate edit mode
   @Output() save = new EventEmitter<TestFormData>();
   @Output() cancel = new EventEmitter<void>();
+  isEditQuestion = false;
+  editingQuestion!: TestQuestion;
+  editingIndexQuestion!: number;
   RequestType = RequestType;
   testData: TestFormData = {
     name: '',
@@ -71,12 +75,15 @@ export class TestFormComponent implements OnInit {
     correctAnswer: 'a', // Default to option A
     explaination: '',
     image: undefined,
+    audio: undefined,
     requestType: RequestType.ADD,
+    isNewAdd: true,
   };
 
   selectedAudios: File[] = [];
 
   ngOnInit() {
+    console.log(this.config);
     console.log('Test to edit:', this.testToEdit);
     // Initialize based on config
     if (this.config) {
@@ -156,6 +163,16 @@ export class TestFormComponent implements OnInit {
       return;
     }
 
+    if (this.config.supportsAudio && !this.newQuestion.audioName) {
+      alert('Vui lòng chọn audio');
+      return;
+    }
+
+    if (this.config.supportsImage && !this.newQuestion.imageName) {
+      alert('Vui lòng chọn image');
+      return;
+    }
+
     // Validate correct answer
     if (
       !this.newQuestion.correctAnswer ||
@@ -191,29 +208,64 @@ export class TestFormComponent implements OnInit {
     };
   }
 
-  removeQuestion(index: number) {
-    const question = this.testData.questions[index];
-    question.requestType = RequestType.DELETE;
-    // Keep in array but mark for deletion
-    console.log('Question marked for deletion:', question);
+  removeQuestion(visibleIndex: number) {
+    let currentVisible = -1;
+
+    for (
+      let realIndex = 0;
+      realIndex < this.testData.questions.length;
+      realIndex++
+    ) {
+      const q = this.testData.questions[realIndex];
+
+      if (q.requestType !== RequestType.DELETE) {
+        currentVisible++;
+      }
+
+      if (currentVisible === visibleIndex) {
+        q.requestType = RequestType.DELETE;
+        console.log('Question marked for deletion:', q);
+        return;
+      }
+    }
   }
 
-  editQuestion(index: number) {
-    console.log('Edit question11:', this.testData.questions[index]);
-    const question = this.testData.questions[index];
-    this.newQuestion = {
-      question: question.question,
-      options: [...question.options],
-      correctAnswer: question.correctAnswer,
-      explaination: question.explaination || '',
-      image: undefined, // Reset file input
-      audio: undefined, // Reset file input
-      id: question.id, // Preserve existing question ID
-      requestType: question.id ? RequestType.UPDATE : RequestType.ADD, // Set based on whether question has ID
-    };
-    console.log('New question11:', this.newQuestion);
-    // Remove the question from the list temporarily
-    this.testData.questions.splice(index, 1);
+  editQuestion(visibleIndex: number) {
+    let currentVisible = -1;
+
+    for (
+      let realIndex = 0;
+      realIndex < this.testData.questions.length;
+      realIndex++
+    ) {
+      const q = this.testData.questions[realIndex];
+
+      if (q.requestType !== RequestType.DELETE) {
+        currentVisible++;
+      }
+
+      if (currentVisible === visibleIndex) {
+        const question = this.testData.questions[realIndex];
+        this.newQuestion = {
+          question: question.question,
+          options: [...question.options],
+          correctAnswer: question.correctAnswer,
+          explaination: question.explaination || '',
+          image: undefined, // Reset file input
+          audio: undefined, // Reset file input
+          id: question.id, // Preserve existing question ID
+          requestType: question.id ? RequestType.UPDATE : RequestType.ADD, // Set based on whether question has ID
+          isNewAdd: question.id ? false : true,
+        };
+        console.log(this.newQuestion);
+        // Remove the question from the list temporarily
+        this.testData.questions.splice(realIndex, 1);
+        this.isEditQuestion = true;
+        this.editingQuestion = question;
+        this.editingIndexQuestion = realIndex;
+        return;
+      }
+    }
   }
 
   updateQuestion() {
@@ -239,6 +291,16 @@ export class TestFormComponent implements OnInit {
       alert('Vui lòng chọn đáp án đúng (A, B, C, hoặc D)');
       return;
     }
+    console.log('before UPDATE: ', this.editingQuestion);
+    this.newQuestion.audioUrl = this.editingQuestion.audioUrl;
+    this.newQuestion.imageUrl = this.editingQuestion.imageUrl;
+    // if (this.newQuestion.isNewAdd) {
+    //   this.newQuestion.audioName = this.editingQuestion.audioName;
+    //   this.newQuestion.audio = this.editingQuestion.audio;
+    //   this.newQuestion.imageName = this.editingQuestion.imageName;
+    //   this.newQuestion.image = this.editingQuestion.image;
+    //   console.log('isnewadd', console.log(this.newQuestion));
+    // }
 
     // Store the question with letter-based correct answer
     const questionToAdd = {
@@ -247,7 +309,9 @@ export class TestFormComponent implements OnInit {
       requestType: this.newQuestion.requestType || RequestType.UPDATE, // Preserve request type
     };
 
-    this.testData.questions.push(questionToAdd);
+    console.log('UPDATE: index', this.editingIndexQuestion);
+
+    this.testData.questions.splice(this.editingIndexQuestion, 0, questionToAdd);
     console.log('Question updated:', questionToAdd);
 
     // Reset form
@@ -261,6 +325,8 @@ export class TestFormComponent implements OnInit {
       image: undefined,
       requestType: RequestType.ADD,
     };
+
+    this.isEditQuestion = false;
   }
 
   cancelEdit() {
@@ -273,8 +339,16 @@ export class TestFormComponent implements OnInit {
       correctAnswer: 'a', // Default to option A
       explaination: '',
       image: undefined,
+      audio: undefined,
+      isNewAdd: true,
       requestType: RequestType.ADD,
     };
+    this.isEditQuestion = false;
+    this.testData.questions.splice(
+      this.editingIndexQuestion,
+      0,
+      this.editingQuestion
+    );
   }
 
   onSave() {
@@ -345,15 +419,7 @@ export class TestFormComponent implements OnInit {
   }
 
   isEditingQuestion(): boolean {
-    console.log('Is editing question11:', this.testData.questions.length);
-    console.log('Test data questions11:', this.testData.questions);
-    // Check if we're in the middle of editing a question
-    // This happens when newQuestion has content but we're not adding a new question
-    return (
-      this.newQuestion.question.trim() !== '' &&
-      this.testData.questions.length > 0 &&
-      this.newQuestion.options.some((opt) => opt.trim() !== '')
-    );
+    return this.isEditQuestion;
   }
 
   getSaveButtonText(): string {
@@ -390,5 +456,10 @@ export class TestFormComponent implements OnInit {
     return this.testData.questions.filter(
       (q) => q.requestType !== RequestType.DELETE
     );
+  }
+
+  generateImageUrl(file: File) {
+    if (!file) return null;
+    return URL.createObjectURL(file);
   }
 }

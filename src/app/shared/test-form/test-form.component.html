@@ -371,7 +371,7 @@
     <!-- Questions List -->
     <div *ngIf="testData.questions.length > 0" class="form-section">
       <h3 class="form-section-title">
-        Danh sách câu hỏi ({{ testData.questions.length }})
+        Danh sách câu hỏi ({{ visibleQuestions.length }})
       </h3>
 
       <div class="space-y-4">
@@ -444,9 +444,13 @@
             </div>
 
             <!-- Question Image -->
-            <div *ngIf="question.imageUrl" class="mt-2">
+            <div *ngIf="config.supportsImage" class="mt-2">
               <img
-                [src]="question.imageUrl"
+                [src]="
+                  question.image
+                    ? generateImageUrl(question.image)
+                    : question.imageUrl
+                "
                 alt="Question image"
                 class="w-32 h-32 object-cover rounded border"
                 title="Hình ảnh câu hỏi"

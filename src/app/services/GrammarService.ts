@@ -162,4 +162,20 @@ export class GrammarService {
       `${this.apiUrl}/search?q=${query}&page=${page}&limit=${limit}`
     );
   }
+
+  uploadTestsByFile(
+    grammarId: string,
+    excelFile: File,
+    imageFiles: File[],
+    audioFiles: File[]
+  ): Observable<GrammarTest[]> {
+    const formData = new FormData();
+    formData.append('test_file', excelFile);
+    imageFiles.forEach((file) => formData.append('images', file));
+    audioFiles.forEach((file) => formData.append('audios', file));
+    return this.http.post<GrammarTest[]>(
+      `${this.apiUrl}/topics/${grammarId}/file-tests`,
+      formData
+    );
+  }
 }

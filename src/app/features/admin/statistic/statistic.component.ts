@@ -24,6 +24,7 @@ import { StatisticResponse } from '../../../models/response/statistic-response.m
 import { TopicViewSummaryResponse } from '../../../models/response/topic-view-summary-response.model';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { FilterType } from '../../../models/request/filter-type';
 
 // Register Chart.js components
 Chart.register(
@@ -156,40 +157,48 @@ export class StatisticComponent implements OnInit {
   ];
 
   topCount: number = 10;
-  isLoading: boolean = false;
+  testTakenTotal = 0;
+  testTakenTimeRange: TimeRange = TimeRange.TODAY;
+  // ===== USER SCORE =====
+  scoreTimeRange: TimeRange = TimeRange.TODAY;
+  scoreFilterType: FilterType = FilterType.LISTENING;
+
+  scoreFilterOptions = [
+    { value: FilterType.LISTENING, label: 'Listening' },
+    { value: FilterType.VOCABULARY, label: 'Vocabulary' },
+    { value: FilterType.GRAMMAR, label: 'Grammar' },
+    { value: FilterType.FULL_TEST, label: 'Full Test' },
+  ];
 
   constructor(private statisticService: StatisticService) {}
 
   ngOnInit(): void {
     this.loadTimeSeriesData();
     this.loadTopTopicsData();
+    this.loadStatistics();
+    this.loadUserScores();
+    this.loadTestTaken();
   }
 
   loadTimeSeriesData(): void {
-    this.isLoading = true;
     this.statisticService.getTopicViews(this.selectedTimeRange).subscribe({
       next: (response: StatisticResponse) => {
         this.totalViews = response.totalCount;
         this.updateTimeSeriesChart(response.newElementsByPeriod);
-        this.isLoading = false;
       },
       error: (error) => {
         console.error('Error loading time series data:', error);
-        this.isLoading = false;
       },
     });
   }
 
   loadTopTopicsData(): void {
-    this.isLoading = true;
     this.statisticService.getTopicViewsSummary(this.topCount).subscribe({
       next: (response: TopicViewSummaryResponse[]) => {
         this.updateTopTopicsChart(response);
-        this.isLoading = false;
       },
       error: (error) => {
         console.error('Error loading top topics data:', error);
-        this.isLoading = false;
       },
     });
   }
@@ -239,5 +248,289 @@ export class StatisticComponent implements OnInit {
       (tr) => tr.value === this.selectedTimeRange
     );
     return range?.label || '';
+  }
+
+  userStatistics: StatisticResponse = {
+    totalCount: 0,
+    newElementsByPeriod: {},
+  };
+
+  selectedTimeRangeTotalUser: TimeRange = TimeRange.TODAY;
+  timeRangesTotalUser = [
+    { value: TimeRange.TODAY, label: 'Hôm nay' },
+    { value: TimeRange.ONE_WEEK, label: '1 tuần' },
+    { value: TimeRange.ONE_MONTH, label: '1 tháng' },
+    { value: TimeRange.TWELVE_MONTHS, label: '12 tháng' },
+    { value: TimeRange.ALL, label: 'Tất cả' },
+  ];
+
+  // Line chart data for new elements by period
+  lineChartData: ChartConfiguration<'line'>['data'] = {
+    labels: [],
+    datasets: [
+      {
+        data: [],
+        label: 'Số lượng mới',
+        borderColor: 'rgb(59, 130, 246)',
+        backgroundColor: 'rgba(59, 130, 246, 0.1)',
+        tension: 0.4,
+        fill: true,
+        pointBackgroundColor: 'rgb(59, 130, 246)',
+        pointBorderColor: '#fff',
+        pointHoverBackgroundColor: '#fff',
+        pointHoverBorderColor: 'rgb(59, 130, 246)',
+      },
+    ],
+  };
+
+  lineChartOptions: ChartOptions<'line'> = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        display: true,
+        position: 'top',
+      },
+      title: {
+        display: true,
+        text: 'Users đã được tạo',
+        font: {
+          size: 16,
+          weight: 'bold',
+        },
+      },
+      tooltip: {
+        mode: 'index',
+        intersect: false,
+      },
+    },
+    scales: {
+      y: {
+        beginAtZero: true,
+        ticks: {
+          stepSize: 1,
+        },
+        title: {
+          display: true,
+          text: 'Số lượng',
+        },
+      },
+      x: {
+        title: {
+          display: true,
+          text: 'Thời gian',
+        },
+      },
+    },
+  };
+
+  // Bar chart data for total statistics
+  barChartData: ChartConfiguration<'bar'>['data'] = {
+    labels: ['Tổng số'],
+    datasets: [
+      {
+        data: [0],
+        label: 'Tổng số đã học',
+        backgroundColor: 'rgba(34, 197, 94, 0.8)',
+        borderColor: 'rgb(34, 197, 94)',
+        borderWidth: 1,
+      },
+    ],
+  };
+
+  barChartOptions: ChartOptions<'bar'> = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        display: true,
+        position: 'top',
+      },
+      title: {
+        display: true,
+        text: 'Tổng số đã học',
+        font: {
+          size: 16,
+          weight: 'bold',
+        },
+      },
+    },
+    scales: {
+      y: {
+        beginAtZero: true,
+        ticks: {
+          stepSize: 1,
+        },
+      },
+    },
+  };
+
+  loadStatistics(): void {
+    this.statisticService
+      .getUserStatisticsSummary(this.selectedTimeRangeTotalUser)
+      .subscribe({
+        next: (response: StatisticResponse) => {
+          console.log(response);
+          this.userStatistics = response;
+          this.updateCharts(response);
+        },
+        error: (error) => {
+          console.error('Error loading statistics:', error);
+        },
+      });
+  }
+
+  onTimeRangeChangeTotalUser(): void {
+    this.loadStatistics();
+  }
+
+  getTimeRangeLabelTotalUser(): string {
+    const range = this.timeRangesTotalUser.find(
+      (tr) => tr.value === this.selectedTimeRangeTotalUser
+    );
+    return range?.label || '';
+  }
+
+  updateCharts(data: StatisticResponse): void {
+    // Update line chart with newElementsByPeriod
+    const periods = Object.keys(data.newElementsByPeriod).sort();
+    const values = periods.map((period) => data.newElementsByPeriod[period]);
+
+    this.lineChartData = {
+      ...this.lineChartData,
+      labels: periods,
+      datasets: [
+        {
+          ...this.lineChartData.datasets[0],
+          data: values,
+        },
+      ],
+    };
+
+    // Update bar chart with totalCount
+    this.barChartData = {
+      ...this.barChartData,
+      datasets: [
+        {
+          ...this.barChartData.datasets[0],
+          data: [data.totalCount],
+        },
+      ],
+    };
+  }
+
+  avgScoreChartData: ChartConfiguration<'line'>['data'] = {
+    labels: [],
+    datasets: [
+      {
+        data: [],
+        label: 'Điểm trung bình',
+        borderColor: 'rgb(16, 185, 129)',
+        backgroundColor: 'rgba(16, 185, 129, 0.15)',
+        tension: 0.4,
+        fill: true,
+      },
+    ],
+  };
+
+  avgScoreChartOptions: ChartOptions<'line'> = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: { display: false },
+      title: {
+        display: true,
+        text: 'Điểm trung bình theo thời gian',
+      },
+    },
+    scales: {
+      y: {
+        beginAtZero: true,
+        suggestedMax: 10, // điểm thường từ 0–10
+      },
+    },
+  };
+
+  loadUserScores(): void {
+    this.statisticService
+      .getUserScores(this.scoreTimeRange, this.scoreFilterType)
+      .subscribe({
+        next: (res) => {
+          this.updateAvgScoreChart(res.scores);
+        },
+        error: (err) => {
+          console.error('Load user scores error:', err);
+        },
+      });
+  }
+
+  private updateAvgScoreChart(scores: Record<string, number>): void {
+    const labels = Object.keys(scores).sort(); // yyyy-MM-dd
+    const values = labels.map((k) => scores[k]);
+
+    this.avgScoreChartData = {
+      ...this.avgScoreChartData,
+      labels,
+      datasets: [
+        {
+          ...this.avgScoreChartData.datasets[0],
+          data: values,
+        },
+      ],
+    };
+  }
+
+  loadTestTaken(): void {
+    this.statisticService.getTestTaken(this.testTakenTimeRange).subscribe({
+      next: (res: StatisticResponse) => {
+        this.testTakenTotal = res.totalCount;
+        this.updateTestTakenChart(res.newElementsByPeriod);
+      },
+      error: (err) => {
+        console.error('Error loading test taken:', err);
+      },
+    });
+  }
+
+  testTakenChartData: ChartConfiguration<'line'>['data'] = {
+    labels: [],
+    datasets: [
+      {
+        data: [],
+        label: 'Số lượt làm',
+        borderColor: 'rgb(99, 102, 241)',
+        backgroundColor: 'rgba(99, 102, 241, 0.15)',
+        tension: 0.4,
+        fill: true,
+      },
+    ],
+  };
+
+  testTakenChartOptions: ChartOptions<'line'> = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: { display: false },
+      title: { display: true, text: 'Lượt làm bài theo thời gian' },
+    },
+    scales: {
+      y: { beginAtZero: true },
+    },
+  };
+
+  private updateTestTakenChart(map: Record<string, number>): void {
+    const labels = Object.keys(map).sort(); // OK nếu key là yyyy-MM-dd
+    const values = labels.map((k) => map[k]);
+
+    this.testTakenChartData = {
+      ...this.testTakenChartData,
+      labels,
+      datasets: [
+        {
+          ...this.testTakenChartData.datasets[0],
+          data: values,
+        },
+      ],
+    };
   }
 }

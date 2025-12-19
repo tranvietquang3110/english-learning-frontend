@@ -29,11 +29,13 @@ import { GrammarTestRequest } from '../../../models/request/grammar-test-request
 import { GrammarTestQuestion } from '../../../models/grammar/grammar-test-question.model';
 import { RequestType } from '../../../models/request-type.model';
 import { CommonUtils } from '../../../shared/utils/common';
+import { UploadByFileComponent } from '../upload-by-file/upload-by-file.component';
 
 enum State {
   View,
   Create,
   Edit,
+  Upload,
 }
 
 @Component({
@@ -45,6 +47,7 @@ enum State {
     ConfirmDialogComponent,
     TopicTestCardGridComponent,
     TestListComponent,
+    UploadByFileComponent,
   ],
   templateUrl: './grammar-tests-manage.component.html',
   styleUrl: './grammar-tests-manage.component.scss',
@@ -68,6 +71,7 @@ export class GrammarTestsManageComponent implements OnInit {
   testQuestionsForEdit: GrammarTestQuestion[] = [];
   testsBase: TestBase[] = [];
   grammarTests: GrammarTest[] = [];
+  excelTemplate = environment.excelGrammarTestsTemplate;
   grammarTestConfig: TestFormConfig = {
     testType: TestType.GRAMMAR,
     topicName: '',
@@ -339,5 +343,35 @@ export class GrammarTestsManageComponent implements OnInit {
     this.currentPage = 1;
     this.totalPages = 0;
     this.currentState = State.View;
+  }
+
+  onUploadTest(files: {
+    excelFile: File;
+    imageFiles: File[];
+    audioFiles: File[];
+  }) {
+    console.log(files);
+    this.grammarService
+      .uploadTestsByFile(
+        this.selectedGrammar!.id,
+        files.excelFile,
+        files.imageFiles,
+        files.audioFiles
+      )
+      .subscribe({
+        next: (response: GrammarTest[]) => {
+          console.log('Listening tests uploaded successfully:', response);
+          this.currentState = State.View;
+          this.loadGrammarsForTopic(this.selectedTopic!.id);
+        },
+        error: (error) => {
+          console.error('Error uploading test:', error);
+          alert('Không thể tải lên bài test');
+        },
+      });
+  }
+
+  onUploadTestState() {
+    this.currentState = State.Upload;
   }
 }

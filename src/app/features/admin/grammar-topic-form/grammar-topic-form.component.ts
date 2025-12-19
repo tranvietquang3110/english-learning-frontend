@@ -41,8 +41,8 @@ export class GrammarTopicFormComponent implements OnInit {
   ngOnInit(): void {
     this.form = this.fb.group({
       name: [this.initialData?.name || '', Validators.required],
-      description: [this.initialData?.description || ''],
-      imageUrl: [null],
+      description: [this.initialData?.description || '', Validators.required],
+      imageUrl: [null, Validators.required],
       level: [this.initialData?.level || Level.BEGINNER],
     });
 

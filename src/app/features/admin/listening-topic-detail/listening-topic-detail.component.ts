@@ -101,7 +101,11 @@ export class ListeningTopicDetailComponent implements OnInit {
     // Show confirmation dialog and delete
     if (confirm('Are you sure you want to delete this listening exercise?')) {
       console.log('Delete listening:', listening);
-      // Implement delete functionality
+      this.listeningService.deleteListening(listening.id).subscribe({
+        next: () => {
+          this.loadListenings();
+        },
+      });
     }
   }
 
@@ -128,7 +132,7 @@ export class ListeningTopicDetailComponent implements OnInit {
 
     // Prepare exercises as ListeningRequest
     const listeningRequests: ListeningRequest[] = data.exercises.map(
-      (exercise) => ({
+      (exercise, i) => ({
         name: exercise.name || '',
         transcript: exercise.transcript || '',
         question: exercise.question || '',
@@ -139,6 +143,8 @@ export class ListeningTopicDetailComponent implements OnInit {
           d: exercise.options?.['D'] || exercise.options?.['d'] || '',
         },
         correctAnswer: exercise.correctAnswer || '',
+        audioName: data.audioFiles[i].name,
+        imageName: data.imageFiles[i].name,
       })
     );
 

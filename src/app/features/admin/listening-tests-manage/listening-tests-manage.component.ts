@@ -75,7 +75,7 @@ export class ListeningTestsManageComponent implements OnInit {
     supportsAudio: true, // Enable audio for listening (1 per question)
     maxOptions: 4,
   };
-  excelTemplate = environment.excelListeningTemplate;
+  excelTemplate = environment.excelListeningTestsTemplate;
   constructor(
     private listeningService: ListeningService,
     private router: Router,
@@ -364,7 +364,7 @@ export class ListeningTestsManageComponent implements OnInit {
                   q.options['d'],
                 ],
                 correctAnswer: q.correctAnswer,
-                explaination: q.explanation || '',
+                explaination: q.explaination || '',
                 imageUrl: q.imageUrl,
                 audioUrl: q.audioUrl,
               })) || [],
@@ -402,14 +402,14 @@ export class ListeningTestsManageComponent implements OnInit {
   }) {
     console.log(files);
     this.listeningService
-      .uploadListeningsByFile(
+      .uploadTestsByFile(
         this.selectedTopic!.id,
         files.excelFile,
         files.imageFiles,
         files.audioFiles
       )
       .subscribe({
-        next: (response: Listening[]) => {
+        next: (response: ListeningTest[]) => {
           console.log('Listening tests uploaded successfully:', response);
           this.currentState = State.View;
           this.loadTestsForTopic(this.selectedTopic!.id);

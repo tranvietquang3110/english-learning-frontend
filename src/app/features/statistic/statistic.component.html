@@ -1,109 +1,54 @@
-<div class="min-h-full bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 p-6">
+<div
+  class="min-h-full bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 p-6"
+>
   <!-- Header -->
   <div class="mb-8">
-    <h1 class="text-3xl font-bold text-slate-800 dark:text-white mb-2">Thống kê học tập</h1>
-    <p class="text-slate-600 dark:text-slate-300">Theo dõi tiến độ học tập của bạn</p>
+    <h1 class="text-3xl font-bold text-slate-800 dark:text-white mb-2">
+      Thống kê học tập
+    </h1>
+    <p class="text-slate-600 dark:text-slate-300">
+      Theo dõi tiến độ học tập của bạn
+    </p>
   </div>
 
-  <!-- Summary Cards -->
-  <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-    <div class="bg-white dark:bg-slate-800 rounded-xl shadow-md p-6 border border-slate-200 dark:border-slate-700">
-      <div class="flex items-center justify-between">
-        <div>
-          <p class="text-sm text-slate-600 dark:text-slate-300 mb-1">Tổng số đã học</p>
-          <p class="text-3xl font-bold text-slate-800 dark:text-white">{{ userStatistics.totalCount }}</p>
-        </div>
-        <div class="w-12 h-12 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke-width="1.5"
-            stroke="currentColor"
-            class="w-6 h-6 text-blue-600 dark:text-blue-400"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              d="M12 6v12m-3-2.818l3.364-3.364a1.5 1.5 0 012.272 0L18 15.182M9 12h.01M15 12h.01"
-            />
-          </svg>
-        </div>
-      </div>
-    </div>
+  <div class="bg-navy-header rounded-lg shadow-md p-6">
+    <div class="flex items-center justify-between mb-4">
+      <h2 class="text-xl font-semibold text-white">
+        Điểm trung bình theo thời gian
+      </h2>
 
-    <div class="bg-white dark:bg-slate-800 rounded-xl shadow-md p-6 border border-slate-200 dark:border-slate-700">
-      <div class="flex items-center justify-between">
-        <div>
-          <p class="text-sm text-slate-600 dark:text-slate-300 mb-1">Khoảng thời gian</p>
-          <p class="text-lg font-semibold text-slate-800 dark:text-white">{{ getTimeRangeLabel() }}</p>
-        </div>
-        <div class="w-12 h-12 bg-green-100 dark:bg-green-900/30 rounded-lg flex items-center justify-center">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke-width="1.5"
-            stroke="currentColor"
-            class="w-6 h-6 text-green-600 dark:text-green-400"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z"
-            />
-          </svg>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Charts Section -->
-  <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-    <!-- Line Chart -->
-    <div class="bg-white dark:bg-slate-800 rounded-xl shadow-md p-6 border border-slate-200 dark:border-slate-700">
-      <div class="flex items-center justify-between mb-4">
-        <h2 class="text-xl font-semibold text-slate-800 dark:text-white">Thống kê học tập theo thời gian</h2>
+      <div class="flex gap-2">
+        <!-- Time range -->
         <select
-          [(ngModel)]="selectedTimeRange"
-          (ngModelChange)="onTimeRangeChange()"
-          class="px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-700 dark:text-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer"
-          title="Chọn khoảng thời gian"
-          aria-label="Chọn khoảng thời gian"
+          [(ngModel)]="scoreTimeRange"
+          (ngModelChange)="loadUserScores()"
+          class="px-3 py-2 border rounded-lg text-sm"
         >
-          <option *ngFor="let range of timeRanges" [value]="range.value">
-            {{ range.label }}
+          <option *ngFor="let r of timeRanges" [value]="r.value">
+            {{ r.label }}
+          </option>
+        </select>
+
+        <!-- Filter type -->
+        <select
+          [(ngModel)]="scoreFilterType"
+          (ngModelChange)="loadUserScores()"
+          class="px-3 py-2 border rounded-lg text-sm"
+        >
+          <option *ngFor="let f of scoreFilterOptions" [value]="f.value">
+            {{ f.label }}
           </option>
         </select>
       </div>
-      <div class="h-64">
-        <canvas
-          baseChart
-          [data]="lineChartData"
-          [options]="lineChartOptions"
-          type="line"
-        ></canvas>
-      </div>
     </div>
 
-    <!-- Bar Chart -->
-    <div class="bg-white dark:bg-slate-800 rounded-xl shadow-md p-6 border border-slate-200 dark:border-slate-700">
-      <div class="h-64">
-        <canvas
-          baseChart
-          [data]="barChartData"
-          [options]="barChartOptions"
-          type="bar"
-        ></canvas>
-      </div>
-    </div>
-  </div>
-
-  <!-- Loading State -->
-  <div *ngIf="isLoading" class="fixed inset-0 bg-black/20 dark:bg-black/40 backdrop-blur-sm flex items-center justify-center z-50">
-    <div class="bg-white dark:bg-slate-800 rounded-xl shadow-xl p-8 flex flex-col items-center gap-4">
-      <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 dark:border-blue-400"></div>
-      <p class="text-slate-700 dark:text-slate-300 font-medium">Đang tải dữ liệu...</p>
+    <div class="h-64">
+      <canvas
+        baseChart
+        [data]="avgScoreChartData"
+        [options]="avgScoreChartOptions"
+        type="line"
+      ></canvas>
     </div>
   </div>
 </div>

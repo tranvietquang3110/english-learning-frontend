@@ -48,7 +48,7 @@ export class ListeningTopicFormComponent {
   }
 
   onSubmit() {
-    if (this.topic.name && this.topic.description) {
+    if (this.topic.name && this.topic.description && this.topic.imageUrl) {
       this.submit.emit(this.topic as ListeningTopic);
     }
   }

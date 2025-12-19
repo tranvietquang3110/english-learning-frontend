@@ -128,7 +128,9 @@ export class AssessmentGrammarComponent implements OnDestroy {
         answers: this.selectedAnswers.map((answer, index) => ({
           questionId: this.questions[index].id,
           selectedAnswer: answer || '',
-          correct: this.questions[index].correctAnswer === answer,
+          correct:
+            this.questions[index].correctAnswer.toLowerCase() ===
+            answer?.toLocaleLowerCase(),
         })),
         takenAt: this.startDate,
         submittedAt: CommonUtils.getNow(),

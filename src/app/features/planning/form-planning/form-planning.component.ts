@@ -182,8 +182,20 @@ export class FormPlanningComponent implements OnInit {
 
   // Plan Groups Management
   addPlanGroup() {
-    if (this.newPlanGroup.name.trim() && this.newPlanGroup.description.trim()) {
+    if (
+      this.newPlanGroup.name.trim() &&
+      this.newPlanGroup.description.trim() &&
+      this.newPlanGroup.startDate &&
+      this.newPlanGroup.endDate &&
+      this.isValidDate(this.newPlanGroup.startDate) &&
+      this.isValidDate(this.newPlanGroup.endDate) &&
+      this.isStartBeforeEnd(
+        this.newPlanGroup.startDate,
+        this.newPlanGroup.endDate
+      )
+    ) {
       this.planRequest.planGroups.push({ ...this.newPlanGroup });
+
       this.newPlanGroup = {
         name: '',
         description: '',
@@ -191,6 +203,9 @@ export class FormPlanningComponent implements OnInit {
         endDate: '',
         planDetails: [],
       };
+    } else {
+      // optional: show error message
+      console.warn('Ngày bắt đầu / kết thúc không hợp lệ');
     }
   }
 
@@ -444,5 +459,19 @@ export class FormPlanningComponent implements OnInit {
         console.error('Error saving plan:', error);
       },
     });
+  }
+
+  private isValidDate(dateStr: string): boolean {
+    if (!dateStr) return false;
+
+    const d = new Date(dateStr);
+    return !isNaN(d.getTime());
+  }
+
+  private isStartBeforeEnd(start: string, end: string): boolean {
+    const startDate = new Date(start);
+    const endDate = new Date(end);
+
+    return startDate.getTime() < endDate.getTime();
   }
 }

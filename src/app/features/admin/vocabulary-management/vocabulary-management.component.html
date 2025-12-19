@@ -14,6 +14,10 @@
       >
         Thêm topic mới
       </button>
+
+      <app-ai-button class="ml-4" (click)="onOpenTopicGenerate()"
+        >Topic Generate</app-ai-button
+      >
     </div>
     <div
       *ngIf="currentState === State.View"
@@ -54,3 +58,10 @@
   (confirm)="confirmDelete()"
   (cancel)="onCancelDelete()"
 ></app-confirm-dialog>
+<app-topic-generate
+  *ngIf="isShowTopicGenerate"
+  [isLoading]="isLoading"
+  [isOpen]="isShowTopicGenerate"
+  (closed)="onCloseTopicGenerate()"
+  (submitted)="onSubmitTopicGenerate($event)"
+></app-topic-generate>

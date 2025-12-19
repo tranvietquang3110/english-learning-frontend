@@ -54,6 +54,9 @@ export class LearnNewWordComponent implements OnInit {
           this.currentIndex = 0;
           this.isFlipped = false;
           this.completedWords.clear();
+          if (this.currentWord?.id !== null) {
+            this.completedWords.add(this.currentWord!.id);
+          }
         },
         error: (err) => console.error('Lỗi load vocabulary:', err),
       });
@@ -66,8 +69,8 @@ export class LearnNewWordComponent implements OnInit {
 
   handleNext() {
     if (this.currentIndex < this.words.length - 1) {
-      this.completedWords.add(this.currentWord!.id);
       this.currentIndex++;
+      this.completedWords.add(this.currentWord!.id);
       this.isFlipped = false;
     }
   }

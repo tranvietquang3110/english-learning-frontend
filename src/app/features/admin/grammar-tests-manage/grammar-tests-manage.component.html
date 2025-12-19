@@ -14,9 +14,16 @@
       <button
         *ngIf="selectedGrammar && currentState === State.View"
         (click)="onCreateTest()"
-        class="bg-primary text-white px-4 py-2 rounded-lg hover:opacity-80"
+        class="w-fit inline-flex items-center justify-center gap-2 rounded-md px-4 py-2 border border-primary text-primary text-primary-foreground bg-navy-header hover:opacity-90"
       >
         Tạo bài test mới
+      </button>
+      <button
+        (click)="onUploadTestState()"
+        *ngIf="selectedGrammar && currentState === State.View"
+        class="w-fit inline-flex items-center justify-center gap-2 rounded-md px-4 py-2 border border-primary text-primary text-primary-foreground bg-navy-header hover:opacity-90"
+      >
+        Tải bài test lên
       </button>
       <button
         *ngIf="selectedGrammar"
@@ -170,4 +177,13 @@
     (confirm)="onConfirmDelete()"
     (cancel)="onCancelDelete()"
   ></app-confirm-dialog>
+
+  <div *ngIf="currentState === State.Upload" class="view-transition">
+    <app-upload-by-file
+      (uploadFile)="onUploadTest($event)"
+      [title]="'Tải lên bài test'"
+      [description]="'Tải lên bài test để tạo mới'"
+      [excelTemplate]="excelTemplate"
+    ></app-upload-by-file>
+  </div>
 </div>

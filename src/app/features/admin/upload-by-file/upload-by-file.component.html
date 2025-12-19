@@ -6,7 +6,14 @@
   </div>
   <div *ngIf="excelTemplate">
     <p class="text-sm text-gray-500">Mẫu file Excel:</p>
-    <pre class="text-sm text-gray-500">{{ excelTemplate }}</pre>
+    <button
+      type="button"
+      (click)="downloadTemplate()"
+      class="download-btn bg-green-600 text-white my-4 hover:opacity-80"
+      [disabled]="!excelFile"
+    >
+      Download
+    </button>
   </div>
   <!-- Excel File Upload -->
   <div class="upload-section">
@@ -271,18 +278,11 @@
       type="button"
       (click)="onUploadFile()"
       class="upload-btn"
-      [disabled]="!excelFile || isLoading"
+      [disabled]="!excelFile"
     >
-      <span *ngIf="isLoading" class="loading-spinner"></span>
-      <span *ngIf="!isLoading">Tải lên</span>
-      <span *ngIf="isLoading">Đang tải lên...</span>
+      <span>Tải lên</span>
     </button>
-    <button
-      type="button"
-      (click)="resetFiles()"
-      class="reset-btn"
-      [disabled]="isLoading"
-    >
+    <button type="button" (click)="resetFiles()" class="reset-btn">
       Xóa tất cả
     </button>
   </div>

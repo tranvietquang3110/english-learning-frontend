@@ -12,6 +12,7 @@ import { Page } from '../models/page.model';
 import { ListeningRequest } from '../models/request/listening-request';
 import { ListeningTestRequest } from '../models/request/listening-test-request.model';
 import { Level } from '../models/level.enum';
+import { ApiResponse } from '../models/response/api-response';
 
 // Models
 
@@ -240,6 +241,12 @@ export class ListeningService {
     return this.http.post<ListeningTest[]>(
       `${this.apiUrl}/topics/${topicId}/file-tests`,
       formData
+    );
+  }
+
+  deleteListening(id: string): Observable<ApiResponse<string>> {
+    return this.http.delete<ApiResponse<string>>(
+      `${this.apiUrl}/listenings/${id}`
     );
   }
 }

@@ -9,6 +9,7 @@ import {
   faClock,
   faCheckCircle,
   faTimesCircle,
+  faStar,
 } from '@fortawesome/free-solid-svg-icons';
 import { AudioPlayerComponent } from '../../../shared/audio-player/audio-player.component';
 import { QuestionGridComponent } from '../../../shared/question-grid-component/question-grid.component';
@@ -42,6 +43,7 @@ export class ListeningTestComponent {
   faClock = faClock;
   faCheckCircle = faCheckCircle;
   faTimesCircle = faTimesCircle;
+  faRegularStar = faStar;
 
   testId = '';
   questions: ListeningTestQuestion[] = [];
@@ -55,7 +57,7 @@ export class ListeningTestComponent {
   title = '';
   topicName = '';
   startDate = '';
-
+  markedQuestions: number[] = [];
   // For QuestionGridComponent
   get questionGridAnswers(): (string | undefined)[] {
     if (!this.questions) return [];
@@ -63,16 +65,6 @@ export class ListeningTestComponent {
       const question = this.questions[index];
       return this.selectedAnswers[question.id] || undefined;
     });
-  }
-
-  get markedQuestions(): number[] {
-    // Mark questions that have been answered
-    if (!this.questions) return [];
-    return this.questions
-      .map((question, index) =>
-        this.selectedAnswers[question.id] ? index : -1
-      )
-      .filter((index) => index !== -1);
   }
 
   testResults: {
@@ -257,5 +249,15 @@ export class ListeningTestComponent {
     // Convert datetime-local format to ISO string for API
     if (!dateString) return '';
     return dateString.length === 16 ? `${dateString}:00` : dateString;
+  }
+
+  toggleMark(index: number) {
+    if (this.markedQuestions.includes(index)) {
+      // bỏ mark
+      this.markedQuestions = this.markedQuestions.filter((q) => q !== index);
+    } else {
+      // mark
+      this.markedQuestions.push(index);
+    }
   }
 }

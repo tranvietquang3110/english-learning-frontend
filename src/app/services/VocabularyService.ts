@@ -11,13 +11,14 @@ import { VocabularyRequest } from '../models/request/vocabulary-request.model';
 import { VocabularyTestRequest } from '../models/request/vocabulary-test-request.model';
 import { AddVocabulariesByFileRequest } from '../models/request/add-vocabularies-by-file-request.model';
 import { Level } from '../models/level.enum';
+import { TopicType } from '../models/topic-type.enum';
 
 @Injectable({
   providedIn: 'root',
 })
 export class VocabularyService {
   private apiUrl = `${environment.apiContentServiceUrl}/vocabulary`;
-
+  private agentUrl = `${environment.apiAgentServiceUrl}`;
   constructor(private http: HttpClient) {}
 
   // 1. Get all topics
@@ -238,6 +239,20 @@ export class VocabularyService {
     return this.http.post<VocabularyTest[]>(
       `${this.apiUrl}/topics/${topicId}/file-tests`,
       formData
+    );
+  }
+
+  generateTopic(topicType: string, description: string) {
+    return this.http.post<void>(
+      `${this.agentUrl}/agent/topics?topic_type=${topicType}&description=${description}`,
+      {}
+    );
+  }
+
+  generateTest(topicType: string, description: string) {
+    return this.http.post<void>(
+      `${this.agentUrl}/agent/topics?topic_type=${topicType}&description=${description}`,
+      {}
     );
   }
 }

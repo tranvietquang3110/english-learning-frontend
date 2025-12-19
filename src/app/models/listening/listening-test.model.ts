@@ -18,6 +18,6 @@ export interface ListeningTestQuestion {
   question: string;
   options: { [key: string]: string };
   correctAnswer: string;
-  explanation: string;
+  explaination: string;
   createdAt: string;
 }

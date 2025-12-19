@@ -6,13 +6,14 @@ import {
   faArrowLeft,
   faChevronRight,
   faChevronLeft,
+  faStar,
 } from '@fortawesome/free-solid-svg-icons';
 import { AudioPlayerComponent } from '../../../shared/audio-player/audio-player.component';
 import { QuestionGridComponent } from '../../../shared/question-grid-component/question-grid.component';
 import { ListeningService } from '../../../services/ListeningService';
 import { Listening } from '../../../models/listening/listening.model';
 import { Subject, takeUntil } from 'rxjs';
-
+import { faStar as faRegularStar } from '@fortawesome/free-regular-svg-icons';
 // Using Listening model from the service
 
 @Component({
@@ -31,7 +32,8 @@ export class ListeningPracticeComponent implements OnInit, OnDestroy {
   faArrowLeft = faArrowLeft;
   faChevronRight = faChevronRight;
   faChevronLeft = faChevronLeft;
-
+  faRegularStar = faStar;
+  isFinish = false;
   topic = '';
   exercises: Listening[] = [];
   currentIndex = 0;
@@ -42,21 +44,11 @@ export class ListeningPracticeComponent implements OnInit, OnDestroy {
   topicTitle = '';
   isLoading = true;
   error: string | null = null;
-
+  gridQuestion: string[] = [];
+  markedQuestions: number[] = [];
   // For QuestionGridComponent
   get questionGridAnswers(): (string | undefined)[] {
-    if (!this.exercises.length) return [];
-    return this.exercises.map((_, index) => {
-      if (index === this.currentIndex) {
-        return this.getSelectedOptionKey() || undefined;
-      }
-      return undefined; // Only show current question's answer
-    });
-  }
-
-  get markedQuestions(): number[] {
-    // Mark completed exercises
-    return Array.from(this.completedExercises);
+    return this.gridQuestion;
   }
 
   private destroy$ = new Subject<void>();
@@ -111,9 +103,16 @@ export class ListeningPracticeComponent implements OnInit, OnDestroy {
   }
 
   handleAnswerSelect(optionIndex: number) {
+    console.log(optionIndex);
     if (this.showAnswers) return;
     // Chỉ cho phép chọn 1 đáp án
+    this.gridQuestion[this.currentIndex] = this.indexToLetter(optionIndex);
     this.selectedAnswers = [optionIndex];
+  }
+
+  indexToLetter(index: number): string {
+    const letters = ['a', 'b', 'c', 'd'];
+    return letters[index] ?? '';
   }
 
   handleCheckAnswers() {
@@ -135,6 +134,7 @@ export class ListeningPracticeComponent implements OnInit, OnDestroy {
   }
 
   handleNextExercise() {
+    console.log(this.currentIndex);
     if (this.currentIndex < this.exercises.length - 1) {
       this.completedExercises.add(parseInt(this.currentExercise!.id));
       this.currentIndex++;
@@ -150,14 +150,20 @@ export class ListeningPracticeComponent implements OnInit, OnDestroy {
   }
 
   isCorrectAnswer(optionKey: string): boolean {
-    return this.currentQuestion?.correctAnswer === optionKey;
+    return (
+      this.currentQuestion?.correctAnswer.toLowerCase() ===
+      optionKey.toLowerCase()
+    );
   }
 
   isSelectedCorrect(): boolean {
     if (!this.currentQuestion || this.selectedAnswers.length === 0)
       return false;
     const selectedOptionKey = this.getSelectedOptionKey();
-    return selectedOptionKey === this.currentQuestion.correctAnswer;
+    return (
+      selectedOptionKey.toLowerCase() ===
+      this.currentQuestion.correctAnswer.toLowerCase()
+    );
   }
 
   getSelectedOptionKey(): string {
@@ -189,6 +195,20 @@ export class ListeningPracticeComponent implements OnInit, OnDestroy {
     if (exerciseIndex >= 0 && exerciseIndex < this.exercises.length) {
       this.currentIndex = exerciseIndex;
       this.resetSelection();
+    }
+  }
+
+  finish() {
+    this.isFinish = true;
+  }
+
+  toggleMark(index: number) {
+    if (this.markedQuestions.includes(index)) {
+      // bỏ mark
+      this.markedQuestions = this.markedQuestions.filter((q) => q !== index);
+    } else {
+      // mark
+      this.markedQuestions.push(index);
     }
   }
 }

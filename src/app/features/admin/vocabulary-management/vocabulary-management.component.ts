@@ -13,6 +13,9 @@ import Config from 'chart.js/dist/core/core.config';
 import { ConfirmDialogComponent } from '../../../shared/confirm-dialog/confirm-dialog.component';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { faTrash } from '@fortawesome/free-solid-svg-icons';
+import { TopicGenerateComponent } from './topic-generate/topic-generate.component';
+import { AiButtonComponent } from '../../../shared/ai-button/ai-button.component';
+import { TopicType } from '../../../models/topic-type.enum';
 
 enum State {
   View,
@@ -30,6 +33,8 @@ enum State {
     VocabTopicFormComponent,
     ConfirmDialogComponent,
     FontAwesomeModule,
+    TopicGenerateComponent,
+    AiButtonComponent,
   ],
   templateUrl: './vocabulary-management.component.html',
   styleUrl: './vocabulary-management.component.scss',
@@ -44,6 +49,8 @@ export class VocabularyManagementComponent implements OnInit {
   faTrash = faTrash;
   isShowConfirmDialog = false;
   topicToDelete: TopicBase | null = null;
+  isShowTopicGenerate = false;
+  isLoading = false;
   constructor(
     private vocabService: VocabularyService,
     private router: Router
@@ -129,5 +136,24 @@ export class VocabularyManagementComponent implements OnInit {
         },
       });
     }
+  }
+  onCloseTopicGenerate() {
+    console.log('hehe');
+    this.isShowTopicGenerate = false;
+  }
+  onOpenTopicGenerate() {
+    console.log('hihi');
+    this.isShowTopicGenerate = true;
+  }
+  onSubmitTopicGenerate(data: { topicType: string; description: string }) {
+    this.isLoading = true;
+    this.isShowTopicGenerate = false;
+    this.vocabService
+      .generateTopic(data.topicType, data.description)
+      .subscribe((res) => {
+        console.log(res);
+        this.isLoading = false;
+        this.loadData();
+      });
   }
 }

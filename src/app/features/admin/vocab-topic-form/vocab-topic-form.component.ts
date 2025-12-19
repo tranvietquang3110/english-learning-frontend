@@ -41,9 +41,9 @@ export class VocabTopicFormComponent implements OnInit {
   ngOnInit(): void {
     this.form = this.fb.group({
       name: [this.initialData?.name || '', Validators.required],
-      description: [this.initialData?.description || ''],
+      description: [this.initialData?.description || '', Validators.required],
       imageUrl: [null],
-      level: [this.initialData?.level || Level.BEGINNER],
+      level: [this.initialData?.level || Level.BEGINNER, Validators.required],
     });
 
     if (this.initialData && (this.initialData as any).imageUrl) {

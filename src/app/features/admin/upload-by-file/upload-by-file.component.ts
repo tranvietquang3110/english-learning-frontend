@@ -28,8 +28,6 @@ export class UploadByFileComponent {
   // Preview URLs
   imagePreviewUrls: string[] = [];
 
-  isLoading = false;
-
   onExcelFileSelected(event: Event): void {
     const input = event.target as HTMLInputElement;
     if (input.files && input.files.length > 0) {
@@ -95,7 +93,6 @@ export class UploadByFileComponent {
       return;
     }
 
-    this.isLoading = true;
     this.uploadFile.emit({
       excelFile: this.excelFile,
       imageFiles: this.imageFiles,
@@ -108,5 +105,14 @@ export class UploadByFileComponent {
     this.imageFiles = [];
     this.audioFiles = [];
     this.imagePreviewUrls = [];
+  }
+
+  downloadTemplate() {
+    const url = `assets/templates/${this.excelTemplate}`;
+
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = this.excelTemplate;
+    a.click();
   }
 }

@@ -118,9 +118,21 @@
           </div>
 
           <div class="p-6 border rounded-lg bg-white">
-            <h3 class="text-lg font-semibold mb-4">
-              {{ currentQuestion.question }}
-            </h3>
+            <div class="flex gap-3">
+              <span
+                (click)="toggleMark(currentQuestionIndex)"
+                [ngClass]="{
+                  'text-yellow-500':
+                    markedQuestions.includes(currentQuestionIndex),
+                  'text-gray-400':
+                    !markedQuestions.includes(currentQuestionIndex)
+                }"
+                ><fa-icon [icon]="faRegularStar"></fa-icon
+              ></span>
+              <h3 class="text-lg font-semibold mb-4">
+                {{ currentQuestion.question }}
+              </h3>
+            </div>
             <div class="grid gap-3">
               <button
                 *ngFor="
@@ -216,7 +228,7 @@
               <p class="text-sm text-green-600">
                 Correct answer: {{ getCorrectAnswer(q) }}
               </p>
-              <p class="text-sm italic text-gray-500">{{ q.explanation }}</p>
+              <p class="text-sm italic text-gray-500">{{ q.explaination }}</p>
             </div>
           </div>
         </div>

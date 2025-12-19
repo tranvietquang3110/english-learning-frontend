@@ -1,9 +1,11 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { environment } from '../../environments/environment';
 import { StatisticResponse } from '../models/response/statistic-response.model';
 import { Observable } from 'rxjs';
 import { TopicViewSummaryResponse } from '../models/response/topic-view-summary-response.model';
+import { FilterType } from '../models/request/filter-type';
+import { UserScoreResponse } from '../models/response/user-score-response';
 
 export enum TimeRange {
   TODAY = 'TODAY',
@@ -19,6 +21,7 @@ export enum TimeRange {
 export class StatisticService {
   private apiAdminUrl = environment.apiContentServiceUrl + '/statistic';
   private apiUserUrl = environment.apiUserServiceUrl + '/statistic';
+  private apiLeaningUrl = environment.apiLearningServiceUrl + '/statistic';
   constructor(private http: HttpClient) {}
   getTopicViews(timeRange: TimeRange): Observable<StatisticResponse> {
     return this.http.get<StatisticResponse>(
@@ -39,8 +42,26 @@ export class StatisticService {
     timeRange: TimeRange
   ): Observable<StatisticResponse> {
     return this.http.get<StatisticResponse>(
-      `${this.apiUserUrl}/users?timeRange=${timeRange}`
+      `${this.apiUserUrl}/users?time_range=${timeRange}`
     );
   }
+
+  getTestTaken(timeRange: TimeRange): Observable<StatisticResponse> {
+    return this.http.get<StatisticResponse>(
+      `${this.apiLeaningUrl}/test-taken?time_range=${timeRange}`
+    );
+  }
+
+  getUserScores(
+    timeRange: TimeRange,
+    filterType: FilterType
+  ): Observable<UserScoreResponse> {
+    const params = new HttpParams()
+      .set('time_range', timeRange)
+      .set('filter_type', filterType);
+
+    return this.http.get<UserScoreResponse>(`${this.apiLeaningUrl}/scores`, {
+      params,
+    });
+  }
 }
-  

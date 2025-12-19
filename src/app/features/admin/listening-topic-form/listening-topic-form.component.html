@@ -33,13 +33,6 @@
             placeholder="Enter topic name"
             [class.border-red-500]="!topic.name && topic.name !== undefined"
           />
-          <p
-            *ngIf="!topic.name && topic.name !== undefined"
-            class="mt-2 text-sm text-red-600 flex items-center gap-1"
-          >
-            <fa-icon [icon]="faTimes" class="text-xs"></fa-icon>
-            Name is required
-          </p>
         </div>
 
         <!-- Description -->
@@ -62,13 +55,6 @@
               !topic.description && topic.description !== undefined
             "
           ></textarea>
-          <p
-            *ngIf="!topic.description && topic.description !== undefined"
-            class="mt-2 text-sm text-red-600 flex items-center gap-1"
-          >
-            <fa-icon [icon]="faTimes" class="text-xs"></fa-icon>
-            Description is required
-          </p>
         </div>
 
         <!-- Image Upload -->
@@ -77,7 +63,7 @@
             for="image"
             class="block text-sm font-semibold text-slate-700 mb-2"
           >
-            Topic Image
+            Topic Image <span class="text-red-500">*</span>
           </label>
           <div
             class="border-2 border-dashed border-slate-300 rounded-lg p-6 hover:border-purple-400 transition-colors duration-200"
@@ -180,7 +166,7 @@
           </button>
           <button
             type="submit"
-            [disabled]="!topic.name || !topic.description"
+            [disabled]="!topic.name || !topic.description || !topic.imageUrl"
             class="px-6 py-3 bg-purple-600 text-white rounded-lg font-medium hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 flex items-center gap-2 shadow-md hover:shadow-lg"
           >
             <fa-icon [icon]="faSave"></fa-icon>
