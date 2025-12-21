@@ -50,6 +50,22 @@ export class ListeningService {
     return this.http.post<ListeningTopic>(`${this.apiUrl}/topics`, formData);
   }
 
+  editTopic(
+    topicId: string,
+    topic: { name: string; description: string; level?: Level },
+    imageFile?: File
+  ): Observable<ListeningTopic> {
+    const formData = new FormData();
+    formData.append(
+      'topic',
+      new Blob([JSON.stringify(topic)], { type: 'application/json' })
+    );
+    if (imageFile) {
+      formData.append('image', imageFile);
+    }
+
+    return this.http.put<any>(`${this.apiUrl}/topics/${topicId}`, formData);
+  }
   // 3. Lấy danh sách listenings theo topicId
   getListeningsByTopic(topicId: string): Observable<{
     id: string;

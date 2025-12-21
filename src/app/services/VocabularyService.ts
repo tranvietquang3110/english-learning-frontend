@@ -96,6 +96,23 @@ export class VocabularyService {
     return this.http.post<any>(`${this.apiUrl}/topics`, formData);
   }
 
+  editTopic(
+    topicId: string,
+    topic: { name: string; description: string; level?: Level },
+    imageFile?: File
+  ): Observable<VocabTopic> {
+    const formData = new FormData();
+    formData.append(
+      'topic',
+      new Blob([JSON.stringify(topic)], { type: 'application/json' })
+    );
+    if (imageFile) {
+      formData.append('image', imageFile);
+    }
+
+    return this.http.put<any>(`${this.apiUrl}/topics/${topicId}`, formData);
+  }
+
   // 6. Delete topic
   deleteTopic(topicId: string): Observable<any> {
     return this.http.delete<any>(`${this.apiUrl}/topics/${topicId}`);
@@ -239,20 +256,6 @@ export class VocabularyService {
     return this.http.post<VocabularyTest[]>(
       `${this.apiUrl}/topics/${topicId}/file-tests`,
       formData
-    );
-  }
-
-  generateTopic(topicType: string, description: string) {
-    return this.http.post<void>(
-      `${this.agentUrl}/agent/topics?topic_type=${topicType}&description=${description}`,
-      {}
-    );
-  }
-
-  generateTest(topicType: string, description: string) {
-    return this.http.post<void>(
-      `${this.agentUrl}/agent/topics?topic_type=${topicType}&description=${description}`,
-      {}
     );
   }
 }

@@ -10,6 +10,7 @@ import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { faSave, faTimes } from '@fortawesome/free-solid-svg-icons';
 import { VocabTopic } from '../../../models/vocabulary/vocab-topic.model';
 import { Level } from '../../../models/level.enum';
+import { TopicBase } from '../../../models/topic-base';
 
 export interface VocabTopicFormData {
   name: string;
@@ -25,7 +26,7 @@ export interface VocabTopicFormData {
   templateUrl: './vocab-topic-form.component.html',
 })
 export class VocabTopicFormComponent implements OnInit {
-  @Input() initialData: VocabTopic | null = null;
+  @Input() initialData: TopicBase | null = null;
   @Output() save = new EventEmitter<VocabTopic>();
   @Output() cancel = new EventEmitter<void>();
 
@@ -42,7 +43,7 @@ export class VocabTopicFormComponent implements OnInit {
     this.form = this.fb.group({
       name: [this.initialData?.name || '', Validators.required],
       description: [this.initialData?.description || '', Validators.required],
-      imageUrl: [null],
+      imageUrl: [null, this.initialData ? null : Validators.required],
       level: [this.initialData?.level || Level.BEGINNER, Validators.required],
     });
 

@@ -38,6 +38,7 @@ export class GrammarManagementComponent implements OnInit {
   readonly PAGE_SIZE = environment.PAGE_SIZE;
   isShowConfirmDialog = false;
   topicToDelete: TopicBase | null = null;
+  currentTopic!: TopicBase;
   constructor(private grammarService: GrammarService, private router: Router) {}
   ngOnInit(): void {
     this.loadData();
@@ -119,5 +120,27 @@ export class GrammarManagementComponent implements OnInit {
         },
       });
     }
+  }
+
+  onChangeToEdit(topic: { id: string; data: TopicBase }) {
+    this.currentState = State.Edit;
+    this.currentTopic = topic.data;
+  }
+
+  onEdit(topic: GrammarTopic) {
+    this.grammarService
+      .editTopic(
+        this.currentTopic.id,
+        {
+          name: topic.name,
+          description: topic.description,
+          level: topic.level,
+        },
+        topic.imageUrl as any
+      )
+      .subscribe(() => {
+        this.currentState = State.View;
+        this.loadData();
+      });
   }
 }

@@ -32,6 +32,9 @@
         (ngSubmit)="handleSubmit()"
         class="p-6 space-y-5"
       >
+        <div *ngIf="errorMessage">
+          <span class="text-red-400">{{ errorMessage }}</span>
+        </div>
         <!-- Fullname -->
         <div class="space-y-2">
           <label

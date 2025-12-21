@@ -1,6 +1,6 @@
 import { Component, OnInit, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import {
   faChevronDown,
@@ -12,6 +12,9 @@ import {
   faListCheck,
   faUserShield,
   faChartLine,
+  faSignOutAlt,
+  faUserGraduate,
+  faHouse,
 } from '@fortawesome/free-solid-svg-icons';
 import { UserService } from '../../../services/UserService';
 
@@ -37,6 +40,8 @@ export class AdminSideBarComponent implements OnInit {
   faChevronRight = faChevronRight;
   faChevronLeft = faChevronLeft;
   faUserShield = faUserShield;
+  faSignOutAlt = faSignOutAlt;
+  faHouse = faHouse;
   sidebarItems: SidebarItem[] = [
     {
       label: 'Vocabulary',
@@ -98,7 +103,7 @@ export class AdminSideBarComponent implements OnInit {
     },
   ];
   name: string = 'Admin';
-  constructor(private userService: UserService) {}
+  constructor(private userService: UserService, private router: Router) {}
 
   ngOnInit(): void {
     this.userService.user$.subscribe((user) => {
@@ -121,5 +126,10 @@ export class AdminSideBarComponent implements OnInit {
 
   isExpanded(label: string) {
     return this.expandedItems.includes(label);
+  }
+
+  handleLogout() {
+    this.userService.logout();
+    this.router.navigate(['/login']);
   }
 }

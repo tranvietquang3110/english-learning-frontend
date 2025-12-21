@@ -27,6 +27,10 @@ import { TestBase } from '../../../models/test-base';
 import { ListeningTest } from '../../../models/listening/listening-test.model';
 import { RequestType } from '../../../models/request-type.model';
 import { UploadByFileComponent } from '../upload-by-file/upload-by-file.component';
+import { AgentService } from '../../../services/AgentService';
+import { AiButtonComponent } from '../../../shared/ai-button/ai-button.component';
+import { GenerateTestsComponent } from '../generate-tests/generate-tests.component';
+import { TestGenerateRequest } from '../../../models/request/test-generate-request.model';
 
 enum State {
   View,
@@ -45,6 +49,8 @@ enum State {
     TopicTestCardGridComponent,
     TestListComponent,
     UploadByFileComponent,
+    AiButtonComponent,
+    GenerateTestsComponent,
   ],
   templateUrl: './listening-tests-manage.component.html',
   styleUrl: './listening-tests-manage.component.scss',
@@ -66,6 +72,7 @@ export class ListeningTestsManageComponent implements OnInit {
   listeningTests: ListeningTest[] = [];
   testToEdit: ListeningTest | null = null;
   editTestData: TestFormData | null = null;
+  isShowGenerateTests = false;
   listeningTestConfig: TestFormConfig = {
     testType: TestType.LISTENING,
     topicName: '',
@@ -79,7 +86,8 @@ export class ListeningTestsManageComponent implements OnInit {
   constructor(
     private listeningService: ListeningService,
     private router: Router,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private agentService: AgentService
   ) {}
 
   ngOnInit(): void {
@@ -419,5 +427,18 @@ export class ListeningTestsManageComponent implements OnInit {
           alert('Không thể tải lên bài test');
         },
       });
+  }
+  submitGenerateTests(data: { topicType: string; description: string }) {
+    this.isShowGenerateTests = false;
+    const request: TestGenerateRequest = {
+      description: data.description,
+      id: this.selectedTopic?.id || '',
+      name: this.selectedTopic?.name || '',
+      content: '',
+      test_type: data.topicType,
+    };
+    this.agentService.generateTests(request).subscribe(() => {
+      this.loadTestsForTopic(this.selectedTopic?.id || '');
+    });
   }
 }

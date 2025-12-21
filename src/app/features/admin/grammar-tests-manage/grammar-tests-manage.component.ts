@@ -30,6 +30,10 @@ import { GrammarTestQuestion } from '../../../models/grammar/grammar-test-questi
 import { RequestType } from '../../../models/request-type.model';
 import { CommonUtils } from '../../../shared/utils/common';
 import { UploadByFileComponent } from '../upload-by-file/upload-by-file.component';
+import { AiButtonComponent } from '../../../shared/ai-button/ai-button.component';
+import { GenerateTestsComponent } from '../generate-tests/generate-tests.component';
+import { AgentService } from '../../../services/AgentService';
+import { TestGenerateRequest } from '../../../models/request/test-generate-request.model';
 
 enum State {
   View,
@@ -48,11 +52,14 @@ enum State {
     TopicTestCardGridComponent,
     TestListComponent,
     UploadByFileComponent,
+    AiButtonComponent,
+    GenerateTestsComponent,
   ],
   templateUrl: './grammar-tests-manage.component.html',
   styleUrl: './grammar-tests-manage.component.scss',
 })
 export class GrammarTestsManageComponent implements OnInit {
+  isShowGenerateTests = false;
   State = State;
   currentState = State.View;
   topics: GrammarTopic[] = [];
@@ -85,7 +92,8 @@ export class GrammarTestsManageComponent implements OnInit {
   constructor(
     private grammarService: GrammarService,
     private router: Router,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private agentService: AgentService
   ) {}
 
   ngOnInit(): void {
@@ -362,7 +370,7 @@ export class GrammarTestsManageComponent implements OnInit {
         next: (response: GrammarTest[]) => {
           console.log('Listening tests uploaded successfully:', response);
           this.currentState = State.View;
-          this.loadGrammarsForTopic(this.selectedTopic!.id);
+          this.loadTestsForGrammar(this.selectedGrammar!.id);
         },
         error: (error) => {
           console.error('Error uploading test:', error);
@@ -373,5 +381,19 @@ export class GrammarTestsManageComponent implements OnInit {
 
   onUploadTestState() {
     this.currentState = State.Upload;
+  }
+
+  submitGenerateTests(data: { topicType: string; description: string }) {
+    this.isShowGenerateTests = false;
+    const request: TestGenerateRequest = {
+      description: data.description,
+      id: this.selectedGrammar?.id || '',
+      name: this.selectedGrammar?.title || '',
+      content: this.selectedGrammar?.content,
+      test_type: data.topicType,
+    };
+    this.agentService.generateTests(request).subscribe(() => {
+      this.loadTestsForGrammar(this.selectedGrammar?.id || '');
+    });
   }
 }

@@ -158,10 +158,10 @@ export class StatisticComponent implements OnInit {
 
   topCount: number = 10;
   testTakenTotal = 0;
-  testTakenTimeRange: TimeRange = TimeRange.TODAY;
+  testTakenTimeRange: TimeRange = TimeRange.ONE_WEEK;
   // ===== USER SCORE =====
-  scoreTimeRange: TimeRange = TimeRange.TODAY;
-  scoreFilterType: FilterType = FilterType.LISTENING;
+  scoreTimeRange: TimeRange = TimeRange.ONE_WEEK;
+  scoreFilterType: FilterType = FilterType.VOCABULARY;
 
   scoreFilterOptions = [
     { value: FilterType.LISTENING, label: 'Listening' },
@@ -255,7 +255,7 @@ export class StatisticComponent implements OnInit {
     newElementsByPeriod: {},
   };
 
-  selectedTimeRangeTotalUser: TimeRange = TimeRange.TODAY;
+  selectedTimeRangeTotalUser: TimeRange = TimeRange.ALL;
   timeRangesTotalUser = [
     { value: TimeRange.TODAY, label: 'Hôm nay' },
     { value: TimeRange.ONE_WEEK, label: '1 tuần' },

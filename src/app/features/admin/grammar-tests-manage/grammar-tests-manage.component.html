@@ -25,6 +25,11 @@
       >
         Tải bài test lên
       </button>
+      <app-ai-button
+        *ngIf="selectedGrammar && currentState === State.View"
+        (click)="isShowGenerateTests = true"
+        >Generate Test</app-ai-button
+      >
       <button
         *ngIf="selectedGrammar"
         (click)="goBackToGrammars()"
@@ -186,4 +191,14 @@
       [excelTemplate]="excelTemplate"
     ></app-upload-by-file>
   </div>
+
+  <app-generate-tests
+    [topicType]="'Grammar'"
+    [topicDescription]="selectedGrammar?.description || ''"
+    (submitted)="submitGenerateTests($event)"
+    *ngIf="isShowGenerateTests"
+    (closed)="isShowGenerateTests = false"
+    [isOpen]="isShowGenerateTests"
+    [topicLevel]="selectedTopic?.level?.toString() || ''"
+  ></app-generate-tests>
 </div>

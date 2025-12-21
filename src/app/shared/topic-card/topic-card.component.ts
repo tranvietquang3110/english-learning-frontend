@@ -27,6 +27,7 @@ export class TopicCardComponent {
   @Output() test = new EventEmitter<TopicBase>();
   @Output() detail = new EventEmitter<TopicBase>();
   @Output() delete = new EventEmitter<TopicBase>();
+  @Output() edit = new EventEmitter<{ id: string; data: TopicBase }>();
 
   faBookOpen = faBookOpen;
   faFileAlt = faFileAlt;
@@ -61,6 +62,12 @@ export class TopicCardComponent {
     console.log('on Delete topic card');
     e.stopPropagation();
     this.delete.emit(this.topic);
+  }
+
+  onEdit(e: MouseEvent) {
+    e.stopPropagation();
+    console.log(this.topic);
+    this.edit.emit({ id: this.topic.id, data: this.topic });
   }
 
   toggleFavorite(e: MouseEvent) {

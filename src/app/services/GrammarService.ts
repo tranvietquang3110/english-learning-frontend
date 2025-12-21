@@ -178,4 +178,21 @@ export class GrammarService {
       formData
     );
   }
+
+  editTopic(
+    topicId: string,
+    topic: { name: string; description: string; level?: Level },
+    imageFile?: File
+  ): Observable<GrammarTopic> {
+    const formData = new FormData();
+    formData.append(
+      'topic',
+      new Blob([JSON.stringify(topic)], { type: 'application/json' })
+    );
+    if (imageFile) {
+      formData.append('image', imageFile);
+    }
+
+    return this.http.put<any>(`${this.apiUrl}/topics/${topicId}`, formData);
+  }
 }

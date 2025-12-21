@@ -125,13 +125,15 @@ export class AssessmentGrammarComponent implements OnDestroy {
         testType: ItemTypeEnum.GRAMMAR,
         testId: this.testId,
         score: this.calculateScore().percentage,
-        answers: this.selectedAnswers.map((answer, index) => ({
-          questionId: this.questions[index].id,
-          selectedAnswer: answer || '',
-          correct:
-            this.questions[index].correctAnswer.toLowerCase() ===
-            answer?.toLocaleLowerCase(),
-        })),
+        answers: this.questions.map((q, index) => {
+          const answer = this.selectedAnswers[index] ?? '';
+
+          return {
+            questionId: q.id,
+            selectedAnswer: answer,
+            correct: answer !== '' && q.correctAnswer === answer,
+          };
+        }),
         takenAt: this.startDate,
         submittedAt: CommonUtils.getNow(),
       })

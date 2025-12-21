@@ -126,16 +126,21 @@ export class AssessmentTestComponent implements OnDestroy {
   handleFinish() {
     this.showResults = true;
     this.clearTimer();
+
     this.historyService
       .addHistory({
         testType: ItemTypeEnum.VOCABULARY,
         testId: this.testId,
         score: this.calculateScore().percentage,
-        answers: this.selectedAnswers.map((answer, index) => ({
-          questionId: this.questions[index].id,
-          selectedAnswer: answer || '',
-          correct: this.questions[index].correctAnswer === answer,
-        })),
+        answers: this.questions.map((q, index) => {
+          const answer = this.selectedAnswers[index] ?? '';
+
+          return {
+            questionId: q.id,
+            selectedAnswer: answer,
+            correct: answer !== '' && q.correctAnswer === answer,
+          };
+        }),
         takenAt: this.startDate,
         submittedAt: CommonUtils.getNow(),
       })

@@ -9,6 +9,12 @@
       }}
     </h1>
     <div class="flex gap-3">
+      <app-ai-button
+        class="ml-4"
+        *ngIf="selectedTopic && currentState === State.View"
+        (click)="onOpenTestGenerate()"
+        >Topic Test</app-ai-button
+      >
       <button
         *ngIf="selectedTopic && currentState === State.View"
         (click)="changeToUpload()"
@@ -139,4 +145,12 @@
     (confirm)="onConfirmDelete()"
     (cancel)="onCancelDelete()"
   ></app-confirm-dialog>
+  <app-generate-tests
+    [topicDescription]="selectedTopic?.description || ''"
+    (submitted)="submitGenerateTests($event)"
+    *ngIf="isShowGenerateTests"
+    (closed)="isShowGenerateTests = false"
+    [isOpen]="isShowGenerateTests"
+    [topicLevel]="selectedTopic?.level?.toString() || ''"
+  ></app-generate-tests>
 </div>

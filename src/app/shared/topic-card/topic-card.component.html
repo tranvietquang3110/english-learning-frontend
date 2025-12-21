@@ -97,6 +97,16 @@
 
     <div class="relative space-y-3 w-4/5 max-w-xs">
       <button
+        *ngIf="edit.observers.length > 0"
+        class="w-full flex items-center justify-center gap-2 rounded-md px-4 py-2 bg-primary text-primary-foreground hover:bg-primary/90"
+        (click)="onEdit($event)"
+        title="Chỉnh sửa"
+        aria-label="Chỉnh sửa"
+      >
+        <fa-icon [icon]="faBookOpen" class="h-full"></fa-icon>
+        Chỉnh sửa
+      </button>
+      <button
         *ngIf="learn.observers.length > 0"
         class="w-full flex items-center justify-center gap-2 rounded-md px-4 py-2 bg-primary text-primary-foreground hover:bg-primary/90"
         (click)="onLearn($event)"

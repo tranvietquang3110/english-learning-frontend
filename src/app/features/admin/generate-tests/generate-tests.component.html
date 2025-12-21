@@ -1,0 +1,68 @@
+<div
+  *ngIf="isOpen"
+  class="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
+>
+  <div
+    class="bg-white rounded-xl shadow-lg w-full max-w-lg p-6 relative animate-fadeIn"
+  >
+    <!-- Header -->
+    <div class="flex items-center justify-between mb-4">
+      <h2 class="text-lg font-semibold flex items-center gap-2">
+        <fa-icon [icon]="faWandMagicSparkles" class="text-primary"></fa-icon>
+        Generate Test
+      </h2>
+
+      <button
+        (click)="closeModal()"
+        class="text-gray-500 hover:text-gray-700 transition"
+      >
+        ✕
+      </button>
+    </div>
+
+    <p class="text-sm text-gray-500 mb-6">Nhập mô tả để tạo nội dung.</p>
+
+    <!-- Form section -->
+    <div class="space-y-4 bg-gray-50 rounded-lg p-4">
+      <!-- TopicType -->
+      <!-- <div>
+        <label class="text-sm font-medium">Topic Type</label>
+        <select
+          [(ngModel)]="topicType"
+          [disabled]="isLoading"
+          class="mt-1 w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary"
+        >
+          <option *ngFor="let opt of topicTypeOptions" [ngValue]="opt.value">
+            {{ opt.label }}
+          </option>
+        </select>
+      </div> -->
+
+      <!-- Description -->
+      <div>
+        <label class="text-sm font-medium">Description</label>
+        <textarea
+          [(ngModel)]="description"
+          rows="4"
+          placeholder="Mô tả chi tiết về test bạn muốn tạo..."
+          [disabled]="isLoading"
+          class="resize-none mt-1 w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary"
+        ></textarea>
+      </div>
+
+      <button
+        (click)="handleSubmit()"
+        [disabled]="isLoading || !description.trim()"
+        class="cursor-pointer w-full flex items-center justify-center gap-2 bg-primary text-white py-2 rounded-lg hover:opacity-80 transition"
+      >
+        <ng-container *ngIf="isLoading; else submitBtn">
+          <i class="fa-solid fa-spinner animate-spin"></i> Đang tạo...
+        </ng-container>
+        <ng-template #submitBtn>
+          <fa-icon [icon]="faWandMagicSparkles" class="text-white"></fa-icon>
+          Generate
+        </ng-template>
+      </button>
+    </div>
+  </div>
+</div>

@@ -10,6 +10,10 @@ import { CommonModule } from '@angular/common';
 import { ListeningTopicFormComponent } from '../listening-topic-form/listening-topic-form.component';
 import { ListeningTopic } from '../../../models/listening/listening-topic.model';
 import { ConfirmDialogComponent } from '../../../shared/confirm-dialog/confirm-dialog.component';
+import { AiButtonComponent } from '../../../shared/ai-button/ai-button.component';
+import { TopicGenerateComponent } from '../vocabulary-management/topic-generate/topic-generate.component';
+import { AgentService } from '../../../services/AgentService';
+import { TestGenerateRequest } from '../../../models/request/test-generate-request.model';
 
 enum State {
   View,
@@ -26,6 +30,8 @@ enum State {
     CommonModule,
     ListeningTopicFormComponent,
     ConfirmDialogComponent,
+    AiButtonComponent,
+    TopicGenerateComponent,
   ],
   templateUrl: './listening-management.component.html',
   styleUrl: './listening-management.component.scss',
@@ -39,9 +45,12 @@ export class ListeningManagementComponent implements OnInit {
   readonly PAGE_SIZE = environment.PAGE_SIZE;
   isShowConfirmDialog = false;
   topicToDelete: TopicBase | null = null;
+  currentTopic!: TopicBase;
+  isShowTopicGenerate = false;
   constructor(
     private listeningService: ListeningService,
-    private router: Router
+    private router: Router,
+    private agentService: AgentService
   ) {}
 
   ngOnInit(): void {
@@ -49,6 +58,7 @@ export class ListeningManagementComponent implements OnInit {
   }
 
   loadData() {
+    this.topics = [];
     this.listeningService
       .getTopics(this.currentPage - 1, this.PAGE_SIZE)
       .subscribe((data) => {
@@ -86,12 +96,16 @@ export class ListeningManagementComponent implements OnInit {
     this.currentState = State.View;
   }
 
+  changeToEdit(listening: { id: string; data: TopicBase }) {
+    this.currentState = State.Edit;
+    this.currentTopic = listening.data;
+  }
+
   onCreateTopic(topic: ListeningTopic) {
     console.log(topic);
     this.listeningService
       .addTopic(topic, topic.imageUrl as any)
       .subscribe((res) => {
-        console.log(res);
         const newTopic: TopicBase = {
           id: res.id,
           name: res.name,
@@ -101,6 +115,23 @@ export class ListeningManagementComponent implements OnInit {
         };
         this.topics = this.topics.concat(newTopic);
         this.changeToView();
+      });
+  }
+
+  onEditTopic(topic: ListeningTopic) {
+    this.listeningService
+      .editTopic(
+        this.currentTopic.id,
+        {
+          name: topic.name,
+          description: topic.description,
+          level: topic.level,
+        },
+        topic.imageUrl as any
+      )
+      .subscribe(() => {
+        this.loadData();
+        this.currentState = State.View;
       });
   }
 
@@ -134,5 +165,15 @@ export class ListeningManagementComponent implements OnInit {
         },
       });
     }
+  }
+
+  onSubmitTestGenerate(data: { topicType: string; description: string }) {
+    this.isShowTopicGenerate = false;
+    this.agentService
+      .generateTopic(data.topicType, data.description)
+      .subscribe((res) => {
+        console.log(res);
+        this.loadData();
+      });
   }
 }

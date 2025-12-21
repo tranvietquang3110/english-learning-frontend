@@ -392,20 +392,27 @@ export class FullTestDetailComponent implements OnInit, OnDestroy {
       if (this.timerInterval) {
         clearInterval(this.timerInterval);
       }
+      console.log(this.selectedAnswers);
+      const results = this.questions.map((q) => {
+        const selectedAnswer = this.selectedAnswers[q.id] ?? '';
+
+        return {
+          questionId: q.id,
+          selectedAnswer,
+          correct: selectedAnswer !== '' && q.correctAnswer === selectedAnswer,
+        };
+      });
+
       this.historyService
         .addHistory({
           testType: ItemTypeEnum.FULL_TEST,
           testId: this.testId,
           score: this.totalScore,
-          answers: Object.entries(this.selectedAnswers).map(
-            ([questionId, answer]) => ({
-              questionId,
-              selectedAnswer: answer,
-              correct:
-                this.questions.find((q) => q.id === questionId)
-                  ?.correctAnswer === answer,
-            })
-          ),
+          answers: results.map((res) => ({
+            questionId: res.questionId,
+            selectedAnswer: res.selectedAnswer,
+            correct: res.correct,
+          })),
           takenAt: this.startDate,
           submittedAt: CommonUtils.getNow(),
         })

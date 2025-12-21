@@ -14,6 +14,7 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 import { UserService } from '../../services/UserService';
 import { HttpClientModule } from '@angular/common/http';
+import { er } from '@fullcalendar/core/internal-common';
 
 @Component({
   selector: 'app-register',
@@ -33,6 +34,7 @@ export class SignUpComponent {
 
   showPassword = false;
   isLoading = false;
+  errorMessage = '';
 
   registerForm = this.fb.group({
     fullname: ['', [Validators.required, Validators.minLength(3)]],
@@ -69,9 +71,9 @@ export class SignUpComponent {
         this.router.navigate(['/login']);
         this.isLoading = false;
       },
-      error: (err) => {
-        console.error(err);
-        alert('Đã có lỗi xảy ra, vui lòng thử lại!');
+      error: (err: any) => {
+        console.log(err);
+        this.errorMessage = JSON.parse(err.error)['message'];
         this.isLoading = false;
       },
     });

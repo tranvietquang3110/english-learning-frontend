@@ -21,6 +21,7 @@
     >
       @for (topic of topics; track $index) {
       <app-topic-card
+        (edit)="onChangeToEdit($event)"
         (detail)="onViewDetail($event)"
         (delete)="onDelete($event)"
         [topic]="topic"
@@ -30,6 +31,13 @@
     <div *ngIf="currentState === State.Create">
       <app-grammar-topic-form
         (save)="onCreateTopic($event)"
+        (cancel)="onCancel()"
+      ></app-grammar-topic-form>
+    </div>
+    <div *ngIf="currentState === State.Edit">
+      <app-grammar-topic-form
+        [initialData]="currentTopic"
+        (save)="onEdit($event)"
         (cancel)="onCancel()"
       ></app-grammar-topic-form>
     </div>

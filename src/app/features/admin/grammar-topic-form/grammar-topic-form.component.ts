@@ -10,6 +10,7 @@ import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { faSave, faTimes } from '@fortawesome/free-solid-svg-icons';
 import { GrammarTopic } from '../../../models/grammar/grammar-topic.model';
 import { Level } from '../../../models/level.enum';
+import { TopicBase } from '../../../models/topic-base';
 
 export interface GrammarTopicFormData {
   name: string;
@@ -25,7 +26,7 @@ export interface GrammarTopicFormData {
   templateUrl: './grammar-topic-form.component.html',
 })
 export class GrammarTopicFormComponent implements OnInit {
-  @Input() initialData: GrammarTopic | null = null;
+  @Input() initialData: TopicBase | null = null;
   @Output() save = new EventEmitter<GrammarTopic>();
   @Output() cancel = new EventEmitter<void>();
 
@@ -42,7 +43,7 @@ export class GrammarTopicFormComponent implements OnInit {
     this.form = this.fb.group({
       name: [this.initialData?.name || '', Validators.required],
       description: [this.initialData?.description || '', Validators.required],
-      imageUrl: [null, Validators.required],
+      imageUrl: [null, this.initialData ? null : Validators.required],
       level: [this.initialData?.level || Level.BEGINNER],
     });
 

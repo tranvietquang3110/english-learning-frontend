@@ -16,6 +16,7 @@ import { faTrash } from '@fortawesome/free-solid-svg-icons';
 import { TopicGenerateComponent } from './topic-generate/topic-generate.component';
 import { AiButtonComponent } from '../../../shared/ai-button/ai-button.component';
 import { TopicType } from '../../../models/topic-type.enum';
+import { AgentService } from '../../../services/AgentService';
 
 enum State {
   View,
@@ -51,8 +52,10 @@ export class VocabularyManagementComponent implements OnInit {
   topicToDelete: TopicBase | null = null;
   isShowTopicGenerate = false;
   isLoading = false;
+  currentTopic!: TopicBase;
   constructor(
     private vocabService: VocabularyService,
+    private agentService: AgentService,
     private router: Router
   ) {}
 
@@ -104,8 +107,7 @@ export class VocabularyManagementComponent implements OnInit {
     this.vocabService
       .createTopic(topic, topic.imageUrl as any)
       .subscribe((res) => {
-        console.log(res);
-        this.topics = this.topics.concat(res);
+        this.loadData();
         this.changeToView();
       });
   }
@@ -117,6 +119,29 @@ export class VocabularyManagementComponent implements OnInit {
   onDelete(topic: TopicBase) {
     this.topicToDelete = topic;
     this.isShowConfirmDialog = true;
+  }
+
+  onEdit(topic: VocabTopic) {
+    console.log(topic);
+    this.vocabService
+      .editTopic(
+        this.currentTopic.id,
+        {
+          description: topic.description,
+          name: topic.name,
+          level: topic.level,
+        },
+        topic.imageUrl as any
+      )
+      .subscribe((res) => {
+        this.loadData();
+        this.currentState = State.View;
+      });
+  }
+
+  onEditMode(topic: { id: string; data: TopicBase }) {
+    this.currentTopic = topic.data;
+    this.currentState = State.Edit;
   }
 
   onCancelDelete() {
@@ -148,7 +173,7 @@ export class VocabularyManagementComponent implements OnInit {
   onSubmitTopicGenerate(data: { topicType: string; description: string }) {
     this.isLoading = true;
     this.isShowTopicGenerate = false;
-    this.vocabService
+    this.agentService
       .generateTopic(data.topicType, data.description)
       .subscribe((res) => {
         console.log(res);

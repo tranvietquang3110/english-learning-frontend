@@ -23,6 +23,11 @@
       >
         Tạo bài test mới
       </button>
+      <app-ai-button
+        *ngIf="selectedTopic && currentState === State.View"
+        (click)="isShowGenerateTests = true"
+        >Generate Test</app-ai-button
+      >
       <button
         *ngIf="selectedTopic"
         (click)="goBackToTopics()"
@@ -133,4 +138,12 @@
     (confirm)="onConfirmDelete()"
     (cancel)="onCancelDelete()"
   ></app-confirm-dialog>
+
+  <app-generate-tests
+    [topicType]="'Listening'"
+    (closed)="isShowGenerateTests = false"
+    (submitted)="submitGenerateTests($event)"
+    [isOpen]="isShowGenerateTests"
+    [topicLevel]="selectedTopic?.level?.toString() || ''"
+  ></app-generate-tests>
 </div>

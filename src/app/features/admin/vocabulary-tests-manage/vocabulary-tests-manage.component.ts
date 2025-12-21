@@ -27,6 +27,10 @@ import { TestListComponent } from '../../../shared/test-list/test-list.component
 import { TestBase } from '../../../models/test-base';
 import { RequestType } from '../../../models/request-type.model';
 import { UploadByFileComponent } from '../upload-by-file/upload-by-file.component';
+import { GenerateTestsComponent } from '../generate-tests/generate-tests.component';
+import { AiButtonComponent } from '../../../shared/ai-button/ai-button.component';
+import { AgentService } from '../../../services/AgentService';
+import { TestGenerateRequest } from '../../../models/request/test-generate-request.model';
 
 enum State {
   View,
@@ -45,6 +49,8 @@ enum State {
     TopicTestCardGridComponent,
     TestListComponent,
     UploadByFileComponent,
+    GenerateTestsComponent,
+    AiButtonComponent,
   ],
   templateUrl: './vocabulary-tests-manage.component.html',
   styleUrl: './vocabulary-tests-manage.component.scss',
@@ -74,10 +80,12 @@ export class VocabularyTestsManageComponent implements OnInit {
     maxOptions: 4,
   };
   excelTemplate = environment.excelVocabularyTestsTemplate;
+  isShowGenerateTests = false;
   constructor(
     private vocabService: VocabularyService,
     private router: Router,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private agentService: AgentService
   ) {}
   ngOnInit(): void {
     console.log('VocabularyTestsManageComponent ngOnInit');
@@ -353,5 +361,23 @@ export class VocabularyTestsManageComponent implements OnInit {
           alert('Không thể tải lên bài test');
         },
       });
+  }
+
+  onOpenTestGenerate() {
+    this.isShowGenerateTests = true;
+  }
+
+  submitGenerateTests(data: { topicType: string; description: string }) {
+    this.isShowGenerateTests = false;
+    const request: TestGenerateRequest = {
+      description: data.description,
+      id: this.selectedTopic?.id || '',
+      name: this.selectedTopic?.name || '',
+      content: '',
+      test_type: data.topicType,
+    };
+    this.agentService.generateTests(request).subscribe(() => {
+      this.loadTestsForTopic(this.selectedTopic?.id || '');
+    });
   }
 }

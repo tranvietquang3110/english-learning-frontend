@@ -46,11 +46,13 @@ Chart.register(
 })
 export class StatisticComponent implements OnInit {
   // ===== USER SCORE =====
-  scoreTimeRange: TimeRange = TimeRange.TODAY;
-  scoreFilterType: FilterType = FilterType.LISTENING;
+  scoreTimeRange: TimeRange = TimeRange.ONE_WEEK;
+  scoreFilterType: FilterType = FilterType.VOCABULARY;
   constructor(private statisticService: StatisticService) {}
 
-  ngOnInit(): void {}
+  ngOnInit(): void {
+    this.loadUserScores();
+  }
   avgScoreChartData: ChartConfiguration<'line'>['data'] = {
     labels: [],
     datasets: [

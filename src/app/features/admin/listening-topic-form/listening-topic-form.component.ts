@@ -1,10 +1,11 @@
-import { Component, EventEmitter, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { faSave, faTimes, faFile } from '@fortawesome/free-solid-svg-icons';
 import { ListeningTopic } from '../../../models/listening/listening-topic.model';
 import { Level } from '../../../models/level.enum';
+import { TopicBase } from '../../../models/topic-base';
 
 @Component({
   selector: 'app-listening-topic-form',
@@ -13,10 +14,10 @@ import { Level } from '../../../models/level.enum';
   templateUrl: './listening-topic-form.component.html',
   styleUrl: './listening-topic-form.component.scss',
 })
-export class ListeningTopicFormComponent {
+export class ListeningTopicFormComponent implements OnInit {
   @Output() submit = new EventEmitter<ListeningTopic>();
   @Output() cancel = new EventEmitter<void>();
-
+  @Input() initialData!: TopicBase;
   Level = Level; // Expose Level enum to template
   faSave = faSave;
   faTimes = faTimes;
@@ -31,6 +32,16 @@ export class ListeningTopicFormComponent {
 
   imageFile: File | null = null;
   imagePreview: string | null = null;
+
+  ngOnInit(): void {
+    if (this.initialData) {
+      this.topic.name = this.initialData.name;
+      this.topic.description = this.initialData.description;
+      this.topic.imageUrl = this.initialData.imageUrl;
+      this.topic.level = this.initialData.level;
+      this.imagePreview = this.initialData.imageUrl;
+    }
+  }
 
   onImageSelected(event: any) {
     const file = event.target.files[0];

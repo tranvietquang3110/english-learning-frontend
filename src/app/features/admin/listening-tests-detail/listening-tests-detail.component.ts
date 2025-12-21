@@ -62,6 +62,7 @@ export class ListeningTestsDetailComponent implements OnInit {
         options: question.options,
         correctAnswer: question.correctAnswer,
         createdAt: question.createdAt,
+        explaination: question.explaination,
       }));
       console.log('Listening exercises:', this.listenings);
     });

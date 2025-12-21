@@ -5,7 +5,7 @@ export interface VocabTopic {
   name: string;
   description: string;
   imageUrl: string;
-  createdAt: string;
+  createdAt?: string;
   status: string;
   progress: number;
   favoriteId?: string;

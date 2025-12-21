@@ -27,6 +27,7 @@
       <app-topic-card
         (detail)="onViewDetail($event)"
         (delete)="onDelete($event)"
+        (edit)="onEditMode($event)"
         [topic]="topic"
       ></app-topic-card>
       }
@@ -34,6 +35,13 @@
     <div *ngIf="currentState === State.Create">
       <app-vocab-topic-form
         (save)="onCreateTopic($event)"
+        (cancel)="onCancel()"
+      ></app-vocab-topic-form>
+    </div>
+    <div *ngIf="currentState === State.Edit">
+      <app-vocab-topic-form
+        [initialData]="currentTopic"
+        (save)="onEdit($event)"
         (cancel)="onCancel()"
       ></app-vocab-topic-form>
     </div>
